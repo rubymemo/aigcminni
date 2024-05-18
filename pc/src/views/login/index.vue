@@ -1,37 +1,195 @@
 <template>
   <div class="container">
+    <header class="nav-bar">
+      <span class="left-side">
+        <img
+          alt="logo"
+          src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image"
+        />
+      </span>
+      <span class="right-side">
+          <a-dropdown trigger="click">
+            <a-avatar
+              :size="32"
+              :style="{ marginRight: '8px', cursor: 'pointer' }"
+            >
+            {{ isUserLogin ? '登出' : '未登录' }}
+            </a-avatar>
+            <template #content>
+              <a-doption>
+                <a-space @click="handleLoginLogout">
+                  <icon-export />
+                  <span>
+                    {{ isUserLogin ? '登出' : '登录' }}
+                  </span>
+                </a-space>
+              </a-doption>
+            </template>
+          </a-dropdown>
+      </span>
+    </header>
     <div class="content">
+      <LoginBanner />
       <div class="content-inner">
-        <LoginForm />
+        <!-- <LoginForm /> -->
+
+        <div
+          :class="`card-${item.type} card`"
+          v-for="item in cardList"
+          @click="handleGoContent(item)"
+          :key="item.type"
+        >
+          <div class="card-title">{{ item.title }}</div>
+          <div class="card-footer"
+            >{{ item.footer }}
+            <span class="card-icon-box">
+              <icon-right />
+            </span>
+          </div>
+        </div>
       </div>
     </div>
+    <loginForm ref="LoginFormModalRef" />
   </div>
 </template>
 
 <script lang="ts" setup>
-  import Footer from '@/components/footer/index.vue';
+  import { onBeforeMount, ref } from 'vue';
+  import { useRouter } from 'vue-router';
+
+  import { isLogin } from '@/utils/auth';
   import LoginBanner from './components/banner.vue';
-  import LoginForm from './components/login-form.vue';
+  import loginForm from './components/login-form.vue';
+
+  const LoginFormModalRef = ref();
+  const isUserLogin = ref(false);
+  const router = useRouter();
+
+  const cardList = [
+    {
+      title: 'logo制作',
+      footer: '智能勾勒品牌灵魂',
+      type: 'logo',
+    },
+    {
+      title: '创意营销大图',
+      footer: '智能勾勒视觉语言',
+      type: 'big-img',
+    },
+  ];
+
+  onBeforeMount(() => {
+    isUserLogin.value = isLogin();
+  });
+
+  const handleGoContent = (item: { type: string }) => {
+    const isLoginTemp = isLogin();
+    isUserLogin.value = isLoginTemp;
+    if (isLoginTemp) {
+      router.push({
+        name: 'dashboard',
+      });
+    } else {
+      LoginFormModalRef.value.switchVisible();
+    }
+  };
+  const handleLoginLogout = () => {
+    const isLoginTemp = isLogin();
+    isUserLogin.value = isLoginTemp;
+    if(isLoginTemp) {
+      // 登出
+    }else {
+      LoginFormModalRef.value.switchVisible();
+    }
+  };
 </script>
 
 <style lang="less" scoped>
   .container {
-    display: flex;
-    height: 100vh;
-    background-color: #F6F7FA;
+    padding: 16px 24px;
+    min-height: 100vh;
+    background-color: #f6f7fa;
+
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+      border-radius: 12px;
+      background-color: rgb(255, 255, 255, 0.7);
+      padding: 0 24px;
+      margin-bottom: 24px;
+    }
 
     .banner {
-      width: 550px;
+      // width: 550px;
       background: linear-gradient(163.85deg, #1d2129 0%, #00308f 100%);
     }
 
     .content {
-      position: relative;
+      // position: relative;
       display: flex;
-      flex: 1;
-      align-items: center;
-      justify-content: center;
-      padding-bottom: 40px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+
+      // flex: 1;
+      // align-items: center;
+      // justify-content: center;
+      // padding-bottom: 40px;
+      .content-inner {
+        flex: 1;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        padding-left: 6vw;
+        padding-top: 17vh;
+      }
+      .card {
+        position: relative;
+        border-radius: 12px;
+        height: 200px;
+        width: 30vw;
+        min-width: 300px;
+        max-width: 602px;
+        padding: 36px 24px 36px 36px;
+        &-title {
+          color: rgb(25, 29, 50);
+          font-size: 28px;
+          font-weight: 500;
+          line-height: 36px;
+          letter-spacing: 0px;
+          text-align: left;
+        }
+        &-footer {
+          display: flex;
+          align-items: center;
+          position: absolute;
+          bottom: 33px;
+          right: 38px;
+          color: rgb(25, 29, 50);
+          font-size: 22px;
+          font-weight: 500;
+          line-height: 30px;
+          letter-spacing: 0px;
+        }
+        &-icon-box {
+          margin-left: 22px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 18px;
+          height: 18px;
+          background: #c4c4c4;
+          border-radius: 4px;
+        }
+      }
+      .card.card-logo {
+        background: #e9ecfd;
+      }
+      .card.card-big-img {
+        margin-top: 70px;
+        background: #dfeafc;
+      }
     }
 
     .footer {
@@ -55,17 +213,6 @@
       margin-left: 4px;
       color: var(--color-fill-1);
       font-size: 20px;
-    }
-  }
-</style>
-
-<style lang="less" scoped>
-  // responsive
-  @media (max-width: @screen-lg) {
-    .container {
-      .banner {
-        width: 25%;
-      }
     }
   }
 </style>

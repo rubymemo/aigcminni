@@ -27,17 +27,18 @@ export default function setupUserLoginInfoGuard(router: Router) {
         }
       }
     } else {
-      if (to.name === 'login') {
-        next();
-        return;
-      }
-      next({
-        name: 'login',
-        query: {
-          redirect: to.name,
-          ...to.query,
-        } as LocationQueryRaw,
-      });
+      next();
+      // if (to.name === 'login') {
+      //   next();
+      //   return;
+      // }
+      // next({
+      //   name: 'login',
+      //   query: {
+      //     redirect: to.name,
+      //     ...to.query,
+      //   } as LocationQueryRaw,
+      // });
     }
   });
 }
