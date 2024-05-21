@@ -6,11 +6,30 @@ export default mergeConfig(
   {
     mode: 'development',
     server: {
-      open: true,
-      fs: {
-        strict: true,
+      port: 8080,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
       },
+      proxy: {
+        '/hh/cx': {
+          target: 'http://101.126.93.249/',
+          changeOrigin: true,
+        },
+      }
     },
+    // server: {
+    //   port: 8080,
+    //   open: true,
+    //   fs: {
+    //     strict: true,
+    //   },
+    //   proxy: {
+    //     '/cx': {
+    //       target: 'http://101.126.93.249/',
+    //       changeOrigin: true,
+    //     },
+    //   }
+    // },
     plugins: [
       eslint({
         cache: false,

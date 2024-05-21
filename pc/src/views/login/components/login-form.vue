@@ -23,7 +23,7 @@
         @submit="handleSubmit"
       >
         <a-form-item
-          field="phone"
+          field="mobile"
           :rules="[
             { required: true, message: '请输入手机号' },
             {
@@ -36,7 +36,7 @@
           hide-label
         >
           <GInput
-            v-model:model-value="userInfo.phone"
+            v-model:model-value="userInfo.mobile"
             placeholder="请输入手机号"
           >
             <template v-slot:prepend>
@@ -126,6 +126,7 @@
   import { isLogin } from '@/utils/auth';
   import GInput from '@/components/Input/index.vue';
   import { useIntervalFn } from '@vueuse/core';
+  import { getSendVerifyCode } from '@/api/user';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -139,11 +140,11 @@
   const timer = ref(0); // 倒计时
 
   // const loginConfig = useStorage('login-config', {
-  //   phone: '', // 演示默认值
+  //   mobile: '', // 演示默认值
   //   code: '', // demo default value
   // });
   const userInfo = reactive({
-    phone: '',
+    mobile: '',
     code: '',
   });
 
@@ -172,15 +173,19 @@
   );
 
   const queryCode = async () => {
-    const err = await loginForm.value.validateField(['phone']);
+    const err = await loginForm.value.validateField(['mobile']);
     if (!err) {
       if (timer.value === 0) {
         timer.value = 60;
         resume();
         // 这里写向后台发送请求的代码
-        // console.log('发送请求');
+        getSendVerifyCode(userInfo.mobile)
       }
     }
+  };
+  const switchVisible = () => {
+    modalVisible.value = !modalVisible.value;
+    loginForm.value.clearValidate();
   };
 
   const handleSubmit = async ({
@@ -196,15 +201,12 @@
         Message.normal({
           content: '请选勾选下方协议',
         })
+        return;
     }
     if (!errors) {
-      
-
       setLoading(true);
       try {
-        
-        console.log(values);
-        // await userStore.login(values as LoginData);
+        await userStore.login(values as LoginData);
         // const { redirect, ...othersQuery } = router.currentRoute.value.query;
         // router.push({
         //   name: (redirect as string) || 'Workplace',
@@ -212,11 +214,12 @@
         //     ...othersQuery,
         //   },
         // });
-        // Message.success(t('login.form.login.success'));
-        // const { phone, password } = values;
+        Message.success(t('login.form.login.success'));
+        switchVisible();
+        // const { mobile, password } = values;
         // 实际生产环境需要进行加密存储。
         // The actual production environment requires encrypted storage.
-        // loginConfig.value.phone = phone;
+        // loginConfig.value.mobile = mobile;
         // loginConfig.value.password = password;
       } catch (err) {
         errorMessage.value = (err as Error).message;
@@ -229,11 +232,6 @@
   // 阅读
   const handleRead = () => {
     isRead.value = !isRead.value;
-  };
-
-  const switchVisible = () => {
-    modalVisible.value = !modalVisible.value;
-    loginForm.value.clearValidate();
   };
 
   defineExpose({

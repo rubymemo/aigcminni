@@ -8,10 +8,16 @@ export interface LoginData {
 }
 
 export interface LoginRes {
-  token: string;
+  data: string;
 }
+
+// 给手机发验证码
+export function getSendVerifyCode(mobile:string) {
+  return axios.post<LoginRes>(`/cx/sendVerifyCode/${mobile}`);
+}
+
 export function login(data: LoginData) {
-  return axios.post<LoginRes>('/api/user/login', data);
+  return axios.post<string>('/cx/doLoginByMobile', data);
 }
 
 export function logout() {
