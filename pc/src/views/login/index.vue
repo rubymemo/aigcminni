@@ -11,9 +11,9 @@
           <a-dropdown trigger="click">
             <a-avatar
               :size="32"
-              :style="{ marginRight: '8px', cursor: 'pointer' }"
+              :style="{ marginRight: '8px', cursor: 'pointer', backgroundColor: isUserLogin ? '#3370ff' : undefined }"
             >
-            {{ isUserLogin ? '登出' : '未登录' }}
+            {{ isUserLogin ? name : '未登录' }}
             </a-avatar>
             <template #content>
               <a-doption>
@@ -49,21 +49,26 @@
         </div>
       </div>
     </div>
-    <loginForm ref="LoginFormModalRef" />
+    <loginForm ref="LoginFormModalRef" @ok="onOk"/>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { onBeforeMount, ref } from 'vue';
+  import { onBeforeMount, ref, computed } from 'vue';
   import { useRouter } from 'vue-router';
 
   import { isLogin } from '@/utils/auth';
   import LoginBanner from './components/banner.vue';
   import loginForm from './components/login-form.vue';
+  import { useUserStore } from '@/store';
 
   const LoginFormModalRef = ref();
   const isUserLogin = ref(false);
+  const userStore = useUserStore();
   const router = useRouter();
+  const name = computed(() => {
+    return userStore.username || userStore.nickname || userStore.userId;
+  })
 
   const cardList = [
     {
@@ -100,10 +105,15 @@
     isUserLogin.value = isLoginTemp;
     if(isLoginTemp) {
       // 登出
+      isUserLogin.value = isLogin();
+      userStore.logout();
     }else {
       LoginFormModalRef.value.switchVisible();
     }
   };
+  const onOk = () => {
+    isUserLogin.value = isLogin();
+  }
 </script>
 
 <style lang="less" scoped>

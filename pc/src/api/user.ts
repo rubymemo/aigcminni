@@ -21,11 +21,11 @@ export function login(data: LoginData) {
 }
 
 export function logout() {
-  return axios.post<LoginRes>('/api/user/logout');
+  return axios.delete<LoginRes>('/cx/logout');
 }
 
 export function getUserInfo() {
-  return axios.post<UserState>('/cx/meByMobile');
+  return axios.get<UserState>('/cx/meByMobile');
 }
 
 export function getMenuList() {

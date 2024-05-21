@@ -113,7 +113,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, onMounted, defineExpose } from 'vue';
+  import { ref, reactive, onMounted, defineExpose, defineEmits } from 'vue';
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
@@ -128,6 +128,7 @@
   import { useIntervalFn } from '@vueuse/core';
   import { getSendVerifyCode } from '@/api/user';
 
+  const emit = defineEmits(['ok']);
   const router = useRouter();
   const { t } = useI18n();
   const errorMessage = ref('');
@@ -207,6 +208,7 @@
       setLoading(true);
       try {
         await userStore.login(values as LoginData);
+        await userStore.info();
         // const { redirect, ...othersQuery } = router.currentRoute.value.query;
         // router.push({
         //   name: (redirect as string) || 'Workplace',
@@ -214,13 +216,15 @@
         //     ...othersQuery,
         //   },
         // });
-        Message.success(t('login.form.login.success'));
+        emit('ok');
+        Message.normal(t('login.form.login.success'));
         switchVisible();
         // const { mobile, password } = values;
         // 实际生产环境需要进行加密存储。
         // The actual production environment requires encrypted storage.
         loginConfig.value.mobile = values.mobile;
         // loginConfig.value.password = password;
+
       } catch (err) {
         errorMessage.value = (err as Error).message;
       } finally {
