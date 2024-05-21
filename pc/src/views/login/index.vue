@@ -85,9 +85,11 @@
   const handleGoContent = (item: { type: string }) => {
     const isLoginTemp = isLogin();
     isUserLogin.value = isLoginTemp;
+    
     if (isLoginTemp) {
+      console.log('已经登录，直接进入首页')
       router.push({
-        name: 'dashboard',
+        name: 'Workplace',
       });
     } else {
       LoginFormModalRef.value.switchVisible();

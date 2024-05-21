@@ -10,6 +10,10 @@ const DASHBOARD: AppRouteRecordRaw = {
       path: 'workplace',
       name: 'Workplace',
       component: () => import('@/views/dashboard/workplace/index.vue'),
+      meta: {
+        requiresAuth: true,
+        roles: ['*'],
+      },
     },
   ],
 };

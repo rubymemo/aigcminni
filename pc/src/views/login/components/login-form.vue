@@ -139,10 +139,10 @@
   const loginForm = ref();
   const timer = ref(0); // 倒计时
 
-  // const loginConfig = useStorage('login-config', {
-  //   mobile: '', // 演示默认值
-  //   code: '', // demo default value
-  // });
+  const loginConfig = useStorage('login-config', {
+    mobile: '', // 演示默认值
+    // code: '', // demo default value
+  });
   const userInfo = reactive({
     mobile: '',
     code: '',
@@ -219,7 +219,7 @@
         // const { mobile, password } = values;
         // 实际生产环境需要进行加密存储。
         // The actual production environment requires encrypted storage.
-        // loginConfig.value.mobile = mobile;
+        loginConfig.value.mobile = values.mobile;
         // loginConfig.value.password = password;
       } catch (err) {
         errorMessage.value = (err as Error).message;
