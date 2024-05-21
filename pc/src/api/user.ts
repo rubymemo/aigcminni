@@ -8,6 +8,7 @@ export interface LoginData {
 }
 
 export interface LoginRes {
+  code: string;
   data: string;
 }
 

@@ -8,7 +8,7 @@
       <div class="session-log-container">
         <div class="log-header">会话记录</div>
         <div class="session-log-el">
-          <SessionLog :logs="fakeLogs" />
+          <SessionLog :logs="logs" />
         </div>
       </div>
     </div>
@@ -59,7 +59,8 @@ import avatar from '@/assets/images/avatar.png';
 import SendSvg from '@/assets/svg/send.svg';
 import SessionLog from './components/session-log.vue';
 import CurrentSession from './components/current-session.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { createSession, getSessionList } from '@/api/dashboard';
 
 const fakeLogs = [
   {
@@ -75,7 +76,25 @@ const fakeLogs = [
   },
 ];
 
+const logs = ref<any[]>([]);
+
 const inputText = ref('');
+
+onMounted(() => {
+  getSessionList(1, 10)
+    .then((res) => {
+      if (res.code !== '2000') {
+        return;
+      }
+
+      logs.value = res.data.data;
+    })
+    .catch((error) => {
+      console.log('error', error);
+    });
+
+  // createSession({});
+});
 </script>
 
 <style scoped lang="less">

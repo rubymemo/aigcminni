@@ -11,7 +11,7 @@ export default mergeConfig(
         'Access-Control-Allow-Origin': '*',
       },
       proxy: {
-        '/hh/cx': {
+        '/hh': {
           target: 'http://101.126.93.249/',
           changeOrigin: true,
         },
