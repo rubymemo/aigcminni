@@ -105,7 +105,7 @@
     isUserLogin.value = isLoginTemp;
     if(isLoginTemp) {
       // 登出
-      isUserLogin.value = isLogin();
+      isUserLogin.value = false;
       userStore.logout();
     }else {
       LoginFormModalRef.value.switchVisible();
