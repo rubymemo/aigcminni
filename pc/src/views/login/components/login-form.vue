@@ -13,7 +13,7 @@
     </span>
     <div class="login-form-wrapper">
       <div class="robot-image-box">
-        <img class="carousel-image" :src="robotImage" />
+        <img width="66px" height="66px" class="carousel-image" :src="robotImage" />
       </div>
       <a-form
         ref="loginForm"

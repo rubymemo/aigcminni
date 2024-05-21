@@ -152,6 +152,7 @@
         min-width: 300px;
         max-width: 602px;
         padding: 36px 24px 36px 36px;
+        cursor: pointer;
         &-title {
           color: rgb(25, 29, 50);
           font-size: 28px;
@@ -181,6 +182,7 @@
           height: 18px;
           background: #c4c4c4;
           border-radius: 4px;
+          font-size: 12px;
         }
       }
       .card.card-logo {
