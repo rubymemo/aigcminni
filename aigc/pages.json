@@ -11,16 +11,18 @@
 	"pages": [{
 		"path": "pages/index/index",
 		"style": {
-			"navigationBarTitleText": "uni-app"
+			"navigationBarTitleText": "登陆",
+			"navigationStyle": "custom",
+			"backgroundColor": "#ffffff"
 		}
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8",
+		"backgroundColor": "#ffffff",
 		"app-plus": {
-			"background": "#efeff4"
+			"background": "#ffffff"
 		}
 	}
 }

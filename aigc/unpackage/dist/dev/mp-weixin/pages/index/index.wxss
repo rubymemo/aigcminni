@@ -1,6 +1,148 @@
-
-.container {
-		padding: 20px;
-		font-size: 14px;
-		line-height: 24px;
+/* 水平间距 */
+/* 水平间距 */
+page.data-v-1cf27b2a {
+  color: #131526;
+}
+button.primary.data-v-1cf27b2a {
+  border-radius: 100px;
+  background: linear-gradient(135deg, #17f25f 0%, #256af7 100%);
+  color: #FFFFFF;
+  border: none !important;
+  font-size: 16px;
+  font-weight: 400;
+}
+button.primary.big.data-v-1cf27b2a {
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+}
+.container.data-v-1cf27b2a {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100vh;
+  background-color: #ffff;
+}
+.bg.data-v-1cf27b2a {
+  top: 0;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  z-index: 0;
+}
+.inner-content.data-v-1cf27b2a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+.inner-content .tit.data-v-1cf27b2a {
+  font-size: 17px;
+  text-align: center;
+}
+.login-form-box.data-v-1cf27b2a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.login-form-box .logo-box.data-v-1cf27b2a {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.login-form-box .logo.data-v-1cf27b2a {
+  width: 90px;
+  height: 90px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: solid 1px #0000000d;
+}
+.login-form-box .logo .logo-img.data-v-1cf27b2a {
+  width: 55px;
+  height: 60px;
+}
+.login-form-box .mobile-login-form .number.data-v-1cf27b2a {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.login-form-box .mobile-login-form .icon-safe-img.data-v-1cf27b2a {
+  width: 20px;
+  height: 20px;
+}
+.login-form-box .mobile-login-form .tips.data-v-1cf27b2a {
+  display: flex;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
+  font-size: 16px;
+  color: #6B748F;
+  margin-bottom: 40px;
+}
+.login-form-box .mobile-login-form .tips .icon-safe-img.data-v-1cf27b2a {
+  margin-right: 8px;
+}
+.login-form-box .button-box.data-v-1cf27b2a {
+  padding: 0 32px;
+}
+.login-form-box .rule.data-v-1cf27b2a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  height: 20px;
+  font-size: 12px;
+  color: #6B748F;
+}
+.login-form-box .rule .circle.data-v-1cf27b2a {
+  position: relative;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: solid 1px #A3B4CC;
+  margin-right: 8px;
+}
+.login-form-box .rule .circle .rule-checked.data-v-1cf27b2a {
+  position: absolute;
+  top: -4px;
+  left: -2px;
+}
+.login-form-box .rule .link.data-v-1cf27b2a {
+  color: #256AF7;
+}
+.login-form-box .diliver.data-v-1cf27b2a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #CFDAEB;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  margin: 40rpx 0 30rpx;
+}
+.login-form-box .diliver .line.data-v-1cf27b2a {
+  width: 60px;
+  height: 1px;
+  background: #CFDAEB;
+}
+.login-form-box .login-type.data-v-1cf27b2a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  margin-bottom: 120rpx;
+}
+.login-form-box .login-type .mobile-icon.data-v-1cf27b2a,
+.login-form-box .login-type .weixin-icon.data-v-1cf27b2a {
+  width: 44px;
+  height: 44px;
+  margin: 0 31px;
 }
