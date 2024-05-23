@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "历史创作",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "g-color-btn": "../../components/g-color-btn/index",
+    "z-paging": "../../uni_modules/z-paging/components/z-paging/z-paging"
+  }
+}

@@ -144,7 +144,7 @@
 		if(err) {
 			uni.showToast({
 				icon: 'none',
-				title: err1
+				title: err
 			})
 		}
 		// const err = await loginForm.value.validateField(['mobile']);

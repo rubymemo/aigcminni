@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "设计",
+  "backgroundColor": "#ffffff",
+  "enablePullDownRefresh": false,
+  "usingComponents": {}
+}

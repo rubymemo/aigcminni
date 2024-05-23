@@ -2,27 +2,37 @@
 
 $font-primary-color: #131526;
 $font-primary-color2: #344156;
+$font-primary-color3: #191D32;
 $border-grey-color: #CFDAEB;
 $border-gray-color: #A3B4CC;
 $gray-color: #6B748F;
 $link-color: #256AF7;
+$bg-color: linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%);
 
 
 page {
 	color: $font-primary-color;
 }
-
+button::after {
+	border: none;
+}
 button.primary {
-	border-radius: 100px;
+	border-radius: 200rpx;
 	background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%,rgb(37, 106, 247) 100%);
 	color: #FFFFFF;
 	border: none !important;
 	font-size: 16px;
 	font-weight: 400;
-	
-	&.big {
-		width: 100%;
-		height: 50px;
-		line-height: 50px;
-	}
+}
+button.normal {
+	border-radius: 200rpx;
+	background: #FFFFFF;
+	color: $border-gray-color;
+	font-size: 16px;
+	font-weight: 400;
+}
+button.big {
+	width: 100%;
+	height: 100rpx;
+	line-height: 100rpx;
 }

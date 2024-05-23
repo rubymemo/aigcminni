@@ -53,12 +53,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     };
     const handleClick = () => {
-      const err12 = validateMobile();
+      const err1 = validateMobile();
       const err2 = validateCode();
-      if (err12 || err2) {
+      if (err1 || err2) {
         common_vendor.index.showToast({
           icon: "none",
-          title: err12 || err2
+          title: err1 || err2
         });
       }
     };
@@ -71,7 +71,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       if (err) {
         common_vendor.index.showToast({
           icon: "none",
-          title: err1
+          title: err
         });
       }
       if (!err) {
@@ -87,8 +87,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     return (_ctx, _cache) => {
       return {
-        a: common_assets._imports_0,
-        b: common_assets._imports_1,
+        a: common_assets._imports_0$1,
+        b: common_assets._imports_1$1,
         c: common_vendor.o(common_vendor.m(($event) => formData.value.mobile = $event, {
           trim: true
         }, true)),
@@ -123,7 +123,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         p: isRead.value ? "none" : "solid 1px $border-gray-color",
         q: common_vendor.o(goUserAgreement),
         r: common_assets._imports_2,
-        s: common_assets._imports_3,
+        s: common_assets._imports_0$2,
         t: common_vendor.s(innerContentStyle.value),
         v: common_assets._imports_4
       };

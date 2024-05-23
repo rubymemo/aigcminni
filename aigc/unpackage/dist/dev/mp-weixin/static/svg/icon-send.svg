@@ -1,0 +1,17 @@
+<svg width="28.000000" height="28.000000" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<clipPath id="clip237_4464">
+			<rect id="面性-发送" width="28.000000" height="28.000000" fill="white" fill-opacity="0"/>
+		</clipPath>
+		<linearGradient x1="24.384184" y1="4.574707" x2="10.500389" y2="21.583654" id="paint_linear_237_4463_0" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#FFFFFF"/>
+			<stop offset="1.000000" stop-color="#FFFFFF" stop-opacity="0.764706"/>
+		</linearGradient>
+	</defs>
+	<g clip-path="url(#clip237_4464)">
+		<path id="path" d="M22.64 4.65L4.3 11.64C3.2 12.04 3.2 13.56 4.24 14.02L7.1 15.3C7.39 15.42 7.62 15.65 7.74 15.95L9.89 20.84C10.24 21.65 11.29 21.88 11.99 21.24L13.09 20.19C13.56 19.73 14.32 19.73 14.78 20.14L18.62 23.22C19.38 23.8 20.49 23.4 20.72 22.46L24.33 6.11C24.62 5.12 23.63 4.3 22.64 4.65ZM22.64 6.92L12.8 16.24C12.74 16.29 12.69 16.35 12.69 16.41L11.35 19.26C11.23 19.5 10.88 19.5 10.82 19.2L9.43 15.01C9.31 14.72 9.43 14.43 9.72 14.32L22.46 6.63C22.64 6.57 22.81 6.81 22.64 6.92Z" fill="url(#paint_linear_237_4463_0)" fill-opacity="1.000000" fill-rule="nonzero"/>
+	</g>
+</svg>

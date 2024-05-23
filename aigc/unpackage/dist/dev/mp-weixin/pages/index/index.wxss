@@ -3,18 +3,28 @@
 page.data-v-1cf27b2a {
   color: #131526;
 }
+button.data-v-1cf27b2a::after {
+  border: none;
+}
 button.primary.data-v-1cf27b2a {
-  border-radius: 100px;
+  border-radius: 200rpx;
   background: linear-gradient(135deg, #17f25f 0%, #256af7 100%);
   color: #FFFFFF;
   border: none !important;
   font-size: 16px;
   font-weight: 400;
 }
-button.primary.big.data-v-1cf27b2a {
+button.normal.data-v-1cf27b2a {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #A3B4CC;
+  font-size: 16px;
+  font-weight: 400;
+}
+button.big.data-v-1cf27b2a {
   width: 100%;
-  height: 50px;
-  line-height: 50px;
+  height: 100rpx;
+  line-height: 100rpx;
 }
 .container.data-v-1cf27b2a {
   display: flex;

@@ -1,8 +1,11 @@
 {
   "pages": [
-    "pages/userCenter/userCenter",
+    "pages/historyDesign/historyDesign",
+    "pages/designCenter/designCenter",
     "pages/index/index",
-    "pages/userAgreement/userAgreement"
+    "pages/userAgreement/userAgreement",
+    "pages/userCenter/userCenter",
+    "pages/editUserInfo/editUserInfo"
   ],
   "window": {
     "navigationBarTextStyle": "black",

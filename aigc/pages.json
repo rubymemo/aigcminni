@@ -9,29 +9,52 @@
 		}
 	},
 	"pages": [{
-		"path" : "pages/userCenter/userCenter",
-		"style" : 
+			"path" : "pages/historyDesign/historyDesign",
+			"style" : 
+			{
+				"navigationBarTitleText" : "历史创作",
+				"enablePullDownRefresh" : false
+			}
+		},
 		{
-			"navigationBarTitleText" : "",
-			"enablePullDownRefresh" : false
-		}
-	},{
-		"path": "pages/index/index",
-		"style": {
-			"navigationBarTitleText": "登陆",
-			"navigationStyle": "custom",
-			"backgroundColor": "#ffffff"
-		}
-	},
-	{
-		"path" : "pages/userAgreement/userAgreement",
-		"style" : 
+			"path": "pages/designCenter/designCenter",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "设计",
+				"backgroundColor": "#ffffff",
+				"enablePullDownRefresh": false
+			}
+		}, {
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "登陆",
+				"navigationStyle": "custom",
+				"backgroundColor": "#ffffff"
+			}
+		},
 		{
-			"navigationBarTitleText" : "用户隐私协议",
-			"enablePullDownRefresh" : false,
-			"backgroundColor": "#ffffff"
+			"path": "pages/userAgreement/userAgreement",
+			"style": {
+				"navigationBarTitleText": "用户隐私协议",
+				"enablePullDownRefresh": false,
+				"backgroundColor": "#ffffff"
+			}
+		},
+		{
+			"path": "pages/userCenter/userCenter",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationStyle": "custom",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/editUserInfo/editUserInfo",
+			"style": {
+				"navigationBarTitleText": "编辑资料",
+				"enablePullDownRefresh": false
+			}
 		}
-	},
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
