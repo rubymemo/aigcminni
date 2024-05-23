@@ -89,6 +89,9 @@ button.primary.big.data-v-1cf27b2a {
 .login-form-box .mobile-login-form .tips .icon-safe-img.data-v-1cf27b2a {
   margin-right: 8px;
 }
+.login-form-box .mobile-code-login-form.data-v-1cf27b2a {
+  padding: 0 32px;
+}
 .login-form-box .button-box.data-v-1cf27b2a {
   padding: 0 32px;
 }
@@ -145,4 +148,28 @@ button.primary.big.data-v-1cf27b2a {
   width: 44px;
   height: 44px;
   margin: 0 31px;
+}
+.prepend.data-v-1cf27b2a {
+  width: 44px;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 16px;
+}
+.prepend .down-icon.data-v-1cf27b2a {
+  display: inline-flex;
+  align-items: center;
+  color: #344156;
+}
+.prepend .down-icon image.data-v-1cf27b2a {
+  width: 16px;
+  height: 16px;
+}
+.not-get-code.data-v-1cf27b2a {
+  font-size: 14px;
+  font-weight: 400;
+  display: flex;
+  justify-content: flex-end;
+  color: #A3B4CC;
+  margin-top: 10px;
 }

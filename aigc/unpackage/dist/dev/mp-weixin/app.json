@@ -1,11 +1,13 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/userCenter/userCenter",
+    "pages/index/index",
+    "pages/userAgreement/userAgreement"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",
-    "navigationBarBackgroundColor": "#F8F8F8",
+    "navigationBarBackgroundColor": "#ffffff",
     "backgroundColor": "#ffffff"
   },
   "usingComponents": {}

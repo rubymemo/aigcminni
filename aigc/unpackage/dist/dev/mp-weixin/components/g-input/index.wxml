@@ -1,0 +1,1 @@
+<view class="{{['data-v-2eefdd40', f]}}"><view class="input data-v-2eefdd40"><slot name="prepend"></slot><input class="data-v-2eefdd40" placeholder="{{a}}" bindfocus="{{b}}" bindblur="{{c}}" placeholder-style="color: #A3B4CC" value="{{d}}" bindinput="{{e}}"/><slot name="append"></slot></view></view>

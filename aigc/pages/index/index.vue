@@ -10,12 +10,41 @@
 					</view>
 				</view>
 
-				<view class="mobile-login-form">
+				<!-- 	<view class="mobile-login-form">
 					<view class="number">137****3378</view>
 					<view class="tips">
 						<image class="icon-safe-img" src="@/static/svg/icon-safe.svg"></image>
 						账号安全 放心登录
 					</view>
+				</view> -->
+
+				<view class="mobile-code-login-form">
+					<uni-forms ref="mobileCodeFormRef" :modelValue="formData">
+						<uni-forms-item>
+							<g-input placeholder="请输入手机号" v-model.trim="formData.mobile">
+								<template v-slot:prepend>
+									<view class="prepend">
+										+86
+										<view class="down-icon">
+											<image src="@/static/svg/icon-down.svg"></image>
+										</view>
+									</view>
+								</template>
+							</g-input>
+						</uni-forms-item>
+						<uni-forms-item style="margin-bottom: 10px;">
+							<g-input placeholder="请输入验证码" v-model.trim="formData.code">
+								<template v-slot:append>
+									<view class="append">
+										<text v-show="timer === 0" style="color: #256AF7"
+											@click="queryCode">获取验证码</text>
+										<text v-show="timer > 0" style="color: #A3B4CC">重新发送{{ timer }}s</text>
+									</view>
+								</template>
+							</g-input>
+							<view class="not-get-code">收不到验证码？</view>
+						</uni-forms-item>
+					</uni-forms>
 				</view>
 
 				<view class="button-box">
@@ -28,7 +57,7 @@
 						}">
 						<uni-icons class="rule-checked" type="checkbox-filled" color="#256AF7" :size="18"></uni-icons>
 					</view>
-					已阅读并同意 <text class="link">用户协议、隐私政策</text> 并授权使用账号信息
+					已阅读并同意 <text class="link" @click="goUserAgreement">用户协议、隐私政策</text> 并授权使用账号信息
 				</view>
 
 
@@ -51,23 +80,89 @@
 </template>
 
 <script lang="ts" setup>
-	import { ref } from 'vue';
+	import { ref, onMounted } from 'vue';
+	import { onReady } from '@dcloudio/uni-app';
+	// import { useIntervalFn } from '@vueuse/core';
 
 	const res = uni.getSystemInfoSync();
 	const innerContentStyle = ref({
-		'padding-top': res.statusBarHeight + 44  + 'px'
+		'padding-top': res.statusBarHeight + 44 + 'px'
+	})
+	const mobileCodeFormRef = ref();
+	const formData = ref({
+		mobile: '',
+		code: ''
 	})
 
+	const timer = ref(0); // 倒计时
 	const isRead = ref(false);
 
-	const handleClick = () => {
+	onReady(() => {
+	})
 
+	const validateMobile = () => {
+		if(!formData.value.mobile) {
+			return '请先输入手机号'
+		}
+		if(formData.value.mobile) {
+			if(/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(formData.value.mobile)) {
+				return false
+			} else {
+				return '请填写正确的手机号'
+			}
+		} else {
+			return false
+		}
+	}
+	const validateCode = () => {
+		if(!formData.value.code) {
+			return '请先输入验证码'
+		} else {
+			return false;
+		}
+	}
+
+	const handleClick = () => {
+		// 如果是手机号和邮箱登录
+		const err1 = validateMobile();
+		const err2 = validateCode();
+		if(err1 || err2) {
+			uni.showToast({
+				icon: 'none',
+				title: err1 || err2
+			})
+		}
 	}
 
 	const handleSwitchRead = () => {
 		isRead.value = !isRead.value
 	}
 	console.log(res);
+	// 获取验证码
+	const queryCode = async () => {
+		const err = validateMobile();
+		if(err) {
+			uni.showToast({
+				icon: 'none',
+				title: err1
+			})
+		}
+		// const err = await loginForm.value.validateField(['mobile']);
+		if (!err) {
+		 if (timer.value === 0) {
+			   timer.value = 60;
+			   // resume();
+			   // 这里写向后台发送请求的代码
+			   // getSendVerifyCode(userInfo.mobile)
+			 }
+		}
+	};
+
+	const goUserAgreement = () => {
+		uni.navigateTo({
+			url: '/pages/userAgreement/userAgreement'
+		})
+	}
 </script>
 
 <style lang="scss" scoped>
@@ -153,10 +248,16 @@
 				font-size: 16px;
 				color: #6B748F;
 				margin-bottom: 40px;
+
 				.icon-safe-img {
 					margin-right: 8px;
 				}
 			}
+		}
+
+
+		.mobile-code-login-form {
+			padding: 0 32px;
 		}
 
 		.button-box {
@@ -226,5 +327,33 @@
 			}
 		}
 
+	}
+
+	.prepend {
+		width: 44px;
+		display: inline-flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-right: 16px;
+
+		.down-icon {
+			display: inline-flex;
+			align-items: center;
+			color: $font-primary-color2;
+
+			image {
+				width: 16px;
+				height: 16px;
+			}
+		}
+	}
+
+	.not-get-code {
+		font-size: 14px;
+		font-weight: 400;
+		display: flex;
+		justify-content: flex-end;
+		color: $border-gray-color;
+		margin-top: 10px;
 	}
 </style>

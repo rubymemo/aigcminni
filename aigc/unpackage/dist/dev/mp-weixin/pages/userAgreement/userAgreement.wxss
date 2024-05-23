@@ -1,0 +1,25 @@
+/* 水平间距 */
+/* 水平间距 */
+page.data-v-96203526 {
+  color: #131526;
+}
+button.primary.data-v-96203526 {
+  border-radius: 100px;
+  background: linear-gradient(135deg, #17f25f 0%, #256af7 100%);
+  color: #FFFFFF;
+  border: none !important;
+  font-size: 16px;
+  font-weight: 400;
+}
+button.primary.big.data-v-96203526 {
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+}
+.container.data-v-96203526 {
+  background: white;
+  padding: 25px 24px;
+  line-height: 40px;
+  font-size: 14px;
+  color: #303030;
+}

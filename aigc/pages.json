@@ -9,17 +9,34 @@
 		}
 	},
 	"pages": [{
+		"path" : "pages/userCenter/userCenter",
+		"style" : 
+		{
+			"navigationBarTitleText" : "",
+			"enablePullDownRefresh" : false
+		}
+	},{
 		"path": "pages/index/index",
 		"style": {
 			"navigationBarTitleText": "登陆",
 			"navigationStyle": "custom",
 			"backgroundColor": "#ffffff"
 		}
-	}],
+	},
+	{
+		"path" : "pages/userAgreement/userAgreement",
+		"style" : 
+		{
+			"navigationBarTitleText" : "用户隐私协议",
+			"enablePullDownRefresh" : false,
+			"backgroundColor": "#ffffff"
+		}
+	},
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
+		"navigationBarBackgroundColor": "#ffffff",
 		"backgroundColor": "#ffffff",
 		"app-plus": {
 			"background": "#ffffff"

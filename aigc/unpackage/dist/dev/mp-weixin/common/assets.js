@@ -1,6 +1,6 @@
 "use strict";
 const _imports_0 = "/static/svg/logo.svg";
-const _imports_1 = "/static/svg/icon-safe.svg";
+const _imports_1 = "/static/svg/icon-down.svg";
 const _imports_2 = "/static/svg/mobile.svg";
 const _imports_3 = "/static/svg/weixin.svg";
 const _imports_4 = "/static/png/bg.png";
