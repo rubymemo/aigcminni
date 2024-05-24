@@ -47,7 +47,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     return (_ctx, _cache) => {
       return {
-        a: common_assets._imports_0,
+        a: common_assets._imports_0$1,
         b: common_vendor.o(handleClick),
         c: isRead.value,
         d: common_vendor.p({
@@ -60,7 +60,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         g: common_vendor.o(goUserAgreement),
         h: common_vendor.o(switchIsRead),
         i: common_vendor.s(innerContentStyle.value),
-        j: common_assets._imports_1
+        j: common_assets._imports_1$1
       };
     };
   }

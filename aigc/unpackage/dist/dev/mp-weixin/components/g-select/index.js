@@ -45,8 +45,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         b: props.height - 4 + "rpx",
         c: props.height - 4 + "rpx",
         d: props.width ? props.width + "rpx" : "auto",
-        e: common_vendor.o(switchShowOptions),
-        f: common_vendor.f(props.options, (item, k0, i0) => {
+        e: isShowOptions.value || activeTab.value !== null ? "#344156" : "#6B748F",
+        f: common_vendor.o(switchShowOptions),
+        g: common_vendor.f(props.options, (item, k0, i0) => {
           return {
             a: common_vendor.t(item.label),
             b: item.value,
@@ -54,11 +55,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             d: common_vendor.o(($event) => chooseOption(item), item.value)
           };
         }),
-        g: isShowOptions.value,
-        h: props.width ? props.width + "rpx" : "auto",
-        i: common_vendor.n(`g-color-btn-box ${isShowOptions.value ? "active" : ""}`),
-        j: props.height + "rpx",
-        k: isShowOptions.value || activeTab.value !== null ? "linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%)" : "#CFDAEB"
+        h: isShowOptions.value,
+        i: props.width ? props.width + "rpx" : "auto",
+        j: common_vendor.n(`g-color-btn-box ${isShowOptions.value ? "active" : ""}`),
+        k: props.height + "rpx",
+        l: isShowOptions.value || activeTab.value !== null ? "linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%)" : "#CFDAEB"
       };
     };
   }

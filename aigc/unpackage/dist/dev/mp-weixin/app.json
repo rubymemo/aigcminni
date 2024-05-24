@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/index/index",
     "pages/designCenter/designCenter",
+    "pages/index/index",
     "pages/userAgreement/userAgreement",
     "pages/userCenter/userCenter",
     "pages/editUserInfo/editUserInfo",

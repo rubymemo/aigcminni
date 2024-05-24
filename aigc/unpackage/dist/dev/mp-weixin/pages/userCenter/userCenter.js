@@ -17,7 +17,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       "padding-top": res.statusBarHeight + "px"
     });
     const goDesignCenter = () => {
-      common_vendor.index.navigateTo({
+      common_vendor.index.redirectTo({
         url: "/pages/designCenter/designCenter"
       });
     };
@@ -61,13 +61,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           size: "14",
           color: "#6b748fab"
         }),
-        j: common_vendor.p({
+        j: common_vendor.o(($event) => goPage("/pages/userAgreement/userAgreement")),
+        k: common_vendor.p({
           type: "right",
           size: "14",
           color: "#6b748fab"
         }),
-        k: common_vendor.s(innerContentStyle.value),
-        l: common_assets._imports_0$2
+        l: common_vendor.o(($event) => goPage("/pages/userAgreement/userAgreement")),
+        m: common_vendor.s(innerContentStyle.value),
+        n: common_assets._imports_0$2
       };
     };
   }

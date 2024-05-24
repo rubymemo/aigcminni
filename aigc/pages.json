@@ -9,14 +9,7 @@
 		}
 	},
 	"pages": [
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "登陆",
-				"navigationStyle": "custom",
-				"backgroundColor": "#ffffff"
-			}
-		},
+	
 		{
 			"path": "pages/designCenter/designCenter",
 			"style": {
@@ -24,6 +17,14 @@
 				"navigationBarTitleText": "设计",
 				"backgroundColor": "#ffffff",
 				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "登陆",
+				"navigationStyle": "custom",
+				"backgroundColor": "#ffffff"
 			}
 		},
 		{

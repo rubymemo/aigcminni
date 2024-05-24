@@ -1,9 +1,9 @@
-const host = '';
+const host = 'http://101.126.93.249/api/hh';
 
 export const httpsRequestResult = (httpRes : { statusCode : number; data : any }, noshowerr?: boolean) : any | null => {
 	if (httpRes.statusCode === 200) {
 		const data = httpRes.data;
-		if (data.code !== 0) {
+		if (Number(data.code) !== 2000) {
 			if(!noshowerr) {
 				uni.showToast({
 					icon: 'none',
@@ -24,14 +24,14 @@ export const httpsRequestResult = (httpRes : { statusCode : number; data : any }
 	return null
 }
 
-export const httpsRequest = async (url : string, params : Record<string, any>, noheader?: boolean, noshowerr?: boolean) => {
+export const httpsRequest = async (url : string, params : Record<string, any>, method?: 'POST' | 'GET' | 'DELETE' | 'PUT', noheader?: boolean, noshowerr?: boolean) => {
 	const token = uni.getStorageSync('token');
 	const header = noheader ? undefined : {
-		token: token
+		Authorization: token
 	}
 	const res = await uni.request({
 		url: host + url,
-		method: 'POST',
+		method: method || 'POST',
 		data: params,
 		header: header
 	});

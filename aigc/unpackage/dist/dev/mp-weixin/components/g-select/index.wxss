@@ -39,12 +39,8 @@ button.big.data-v-d0661a0f {
   background: white;
   border-radius: 200rpx;
   text-align: center;
-  color: #6B748F;
   font-size: 28rpx;
   font-weight: 400;
-}
-.g-color-btn-box.active.data-v-d0661a0f, .g-color-btn-box.data-v-d0661a0f::active {
-  color: #344156;
 }
 .g-color-btn-box.active .icon-a-zuhe7205.data-v-d0661a0f {
   transform: rotate(180deg);

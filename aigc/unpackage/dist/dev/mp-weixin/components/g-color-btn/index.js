@@ -18,10 +18,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         a: props.height - 4 + "rpx",
         b: props.height - 4 + "rpx",
         c: props.width ? props.width + "rpx" : "auto",
-        d: common_vendor.n(`g-color-btn-box ${props.active ? "active" : ""}`),
-        e: props.height + "rpx",
-        f: props.active ? "linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%)" : "#CFDAEB",
-        g: common_vendor.o(onClick)
+        d: props.active ? "#344156" : "#6B748F",
+        e: common_vendor.n(`g-color-btn-box ${props.active ? "active" : ""}`),
+        f: props.height + "rpx",
+        g: props.active ? "linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%)" : "#CFDAEB",
+        h: common_vendor.o(onClick)
       };
     };
   }

@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 	import { ref,reactive, watch } from 'vue';
-	// import { httpsRequest } from '@/common/utils';
+	import { httpsRequest } from '@/common/utils';
 	const dataList = ref([]);
 	const paging = ref();
 	const searchValues = reactive({
@@ -55,15 +55,12 @@
 		
 	const queryList = async (pageNo, pageSize) => {
 		console.log(pageNo, pageSize)
-		if(pageNo === 1) {
-			// const data = await httpsRequest('/api/channelGameRelation/queryForPageChannelGameRelation', {
-			// 	pageNo, 
-			// 	pageSize,
-			// });
-			paging.value.complete([1,2,3,4,5]);
-		} else {
-			paging.value.complete([]);
-		}
+		// if(pageNo === 1) {
+			const res = await httpsRequest(`/works/pageBy/${pageSize}/${pageNo}`, {}, 'GET');
+			paging.value.complete(res.data || []);
+		// } else {
+		// 	paging.value.complete([]);
+		// }
 	}
 	
 	const clickAll = () => {

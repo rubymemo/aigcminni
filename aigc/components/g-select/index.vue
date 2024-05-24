@@ -6,7 +6,8 @@
 		<view class="g-color-btn" :style="{
 			height: props.height - 4 + 'rpx',
 			lineHeight: props.height - 4 + 'rpx',
-			width: props.width ? props.width + 'rpx' : 'auto'
+			width: props.width ? props.width + 'rpx' : 'auto',
+			color: (isShowOptions || activeTab !== null) ? '#344156' : '#6B748F'
 		}" @click="switchShowOptions">
 			<text>{{ activeOption ? activeOption.label : (props.placeholder || '') }}</text>
 			<view class="iconfont icon-a-zuhe7205"></view>
@@ -89,7 +90,7 @@
 			background: white;
 			border-radius: 200rpx;
 			text-align: center;
-			color: $gray-color;
+			// color: $gray-color;
 			font-size: 28rpx;
 			font-weight: 400;
 		}
@@ -97,7 +98,7 @@
 		&.active,
 		&::active {
 			// background: $bg-color;
-			color: $font-primary-color2;
+			// color: $font-primary-color2;
 		}
 
 		&.active {

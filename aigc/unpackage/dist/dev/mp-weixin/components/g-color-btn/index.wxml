@@ -1,1 +1,1 @@
-<view class="{{['data-v-87cda5e5', d]}}" style="{{'height:' + e + ';' + ('background:' + f)}}" bindtap="{{g}}"><view class="g-color-btn data-v-87cda5e5" style="{{'height:' + a + ';' + ('line-height:' + b) + ';' + ('width:' + c)}}"><slot/></view></view>
+<view class="{{['data-v-87cda5e5', e]}}" style="{{'height:' + f + ';' + ('background:' + g)}}" bindtap="{{h}}"><view class="g-color-btn data-v-87cda5e5" style="{{'height:' + a + ';' + ('line-height:' + b) + ';' + ('width:' + c) + ';' + ('color:' + d)}}"><slot/></view></view>

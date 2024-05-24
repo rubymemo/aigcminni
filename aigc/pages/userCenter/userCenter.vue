@@ -54,7 +54,7 @@
 			
 			
 			<view class="card">
-				<view class="card-item">
+				<view class="card-item" @click="goPage('/pages/userAgreement/userAgreement')">
 					<view class="left">
 						<view class="iconfont icon-a-zuhe7257"> </view>
 						<text class="label">用户协议</text>
@@ -64,7 +64,7 @@
 					</view>
 				</view>
 				<view class="diliver"></view>
-				<view class="card-item">
+				<view class="card-item" @click="goPage('/pages/userAgreement/userAgreement')">
 					<view class="left">
 						<view class="iconfont icon-a-zuhe7258"> </view>
 						<text class="label">隐私协议</text>
@@ -92,7 +92,7 @@
 	})
 	
 	const goDesignCenter = () => {
-		uni.navigateTo({
+		uni.redirectTo({
 			url: '/pages/designCenter/designCenter'
 		})
 	}

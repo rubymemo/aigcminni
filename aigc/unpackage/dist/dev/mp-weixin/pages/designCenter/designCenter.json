@@ -3,5 +3,7 @@
   "navigationBarTitleText": "设计",
   "backgroundColor": "#ffffff",
   "enablePullDownRefresh": false,
-  "usingComponents": {}
+  "usingComponents": {
+    "g-color-btn": "../../components/g-color-btn/index"
+  }
 }

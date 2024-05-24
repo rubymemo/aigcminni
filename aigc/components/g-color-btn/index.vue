@@ -8,7 +8,8 @@
 		:style="{
 		height: props.height - 4 + 'rpx',
 		lineHeight: props.height - 4 + 'rpx',
-		width: props.width ? props.width + 'rpx' : 'auto'
+		width: props.width ? props.width + 'rpx' : 'auto',
+		color: props.active ? '#344156' : '#6B748F'
 	}">
 			<slot/>
 		</view>
@@ -30,7 +31,6 @@
 
 <style lang="scss" scoped>
 	.g-color-btn-box {
-		// background: $border-grey-color;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -41,13 +41,8 @@
 			border-radius: 200rpx;
 			padding: 0 24rpx;
 			text-align: center;
-			color: $gray-color;
 			font-size: 26rpx;
 			font-weight: 400;
-		}
-		&.active, &::active {
-			// background: $bg-color;
-			color: $font-primary-color2;
 		}
 	}
 </style>

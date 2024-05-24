@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../common/vendor.js");
+const common_utils = require("../../common/utils.js");
 if (!Array) {
   const _easycom_g_color_btn2 = common_vendor.resolveComponent("g-color-btn");
   const _easycom_g_select2 = common_vendor.resolveComponent("g-select");
@@ -27,11 +28,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const queryList = async (pageNo, pageSize) => {
       console.log(pageNo, pageSize);
-      if (pageNo === 1) {
-        paging.value.complete([1, 2, 3, 4, 5]);
-      } else {
-        paging.value.complete([]);
-      }
+      const res = await common_utils.httpsRequest(`/works/pageBy/${pageSize}/${pageNo}`, {}, "GET");
+      paging.value.complete(res.data || []);
     };
     const clickAll = () => {
       isAll.value = true;
