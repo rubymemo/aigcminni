@@ -7,15 +7,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     width: null,
     active: { type: Boolean }
   },
-  setup(__props) {
+  emits: ["click"],
+  setup(__props, { emit: emits }) {
     const props = __props;
+    const onClick = () => {
+      emits("click");
+    };
     return (_ctx, _cache) => {
       return {
         a: props.height - 4 + "rpx",
         b: props.height - 4 + "rpx",
         c: props.width ? props.width + "rpx" : "auto",
-        d: common_vendor.n(`g-color-btn-box ${__props.active ? "active" : ""}`),
-        e: props.height + "rpx"
+        d: common_vendor.n(`g-color-btn-box ${props.active ? "active" : ""}`),
+        e: props.height + "rpx",
+        f: props.active ? "linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%)" : "#CFDAEB",
+        g: common_vendor.o(onClick)
       };
     };
   }

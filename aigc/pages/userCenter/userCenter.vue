@@ -6,7 +6,7 @@
 				<text class="tit">个人中心</text>
 			</view>
 			
-			<view class="user-info" @click="goPage('pages/editUserInfo/editUserInfo')">
+			<view class="user-info" @click="goPage('/pages/editUserInfo/editUserInfo')">
 				<view class="left">
 					<image class="avatar" src="../../static/c1.png"></image>
 					<view>番茄炒蛋</view>
@@ -19,7 +19,7 @@
 			
 			<view class="card">
 				<view class="tit">创作中心</view>
-				<view class="card-item">
+				<view class="card-item" @click="goPage('/pages/historyDesign/historyDesign')">
 					<view class="left">
 						<view class="iconfont icon-a-lishi1"> </view>
 						<text class="label">历史创作</text>
@@ -99,7 +99,7 @@
 	
 	const goPage = (url) => {
 		uni.navigateTo({
-			url
+			url: url
 		})
 	}
 </script>
@@ -129,16 +129,16 @@
 		text-align: center;
 		margin-bottom: 30rpx;
 		.tit {
-			font-size: 17px;
+			font-size: 34rpx;
 			font-weight: 500;
 			color: $font-primary-color;
 		}
 		&::v-deep {
 			.back-icon {
 				position: absolute;
-				left: 16px;
-				width: 20px;
-				height: 20px;
+				left: 32rpx;
+				width: 40rpx;
+				height: 40rpx;
 			}
 		}
 	}
@@ -150,7 +150,7 @@
 		.left {
 			display: flex;
 			align-items: center;
-			font-size: 18px;
+			font-size: 36rpx;
 			font-weight: 500;
 			color: $font-primary-color3;
 			.avatar {
@@ -164,23 +164,23 @@
 		.right {
 			display: flex;
 			align-items: center;
-			font-size: 12px;
-			line-height: 12px;
+			font-size: 24rpx;
+			line-height: 24rpx;
 			font-weight: 400;
 			color: $gray-color;
 		}
 	}
 	.card {
 		background: white;
-		border-radius: 12px;
+		border-radius: 24rpx;
 		padding: 0 40rpx;
 		color: $font-primary-color2;
 		margin-bottom: 32rpx;
 		.tit {
 			padding: 40rpx 0 8rpx;
 			font-weight: 500;
-			font-size: 16px;
-			line-height: 24px;
+			font-size: 36rpx;
+			line-height: 48rpx;
 			
 		}
 		.card-item {
@@ -194,7 +194,7 @@
 			}
 			
 			.label {
-				font-size: 14px;
+				font-size: 28rpx;
 				margin-left: 16rpx;
 			}
 		}
@@ -207,8 +207,8 @@
 	}
 	
 	.left-icon {
-		width: 16px;
-		height: 16px;
+		width: 32rpx;
+		height: 32rpx;
 	}
 	button.normal {
 		margin-top: 68rpx;

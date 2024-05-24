@@ -21,14 +21,14 @@ button.primary {
 	background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%,rgb(37, 106, 247) 100%);
 	color: #FFFFFF;
 	border: none !important;
-	font-size: 16px;
+	font-size: 32rpx;
 	font-weight: 400;
 }
 button.normal {
 	border-radius: 200rpx;
 	background: #FFFFFF;
 	color: $border-gray-color;
-	font-size: 16px;
+	font-size: 32rpx;
 	font-weight: 400;
 }
 button.big {

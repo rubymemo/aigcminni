@@ -51,7 +51,7 @@
 			</view>
 		</view>
 	
-		<view class="card">
+<!-- 		<view class="card">
 			<view class="tit">账号绑定</view>
 			<view class="card-item">
 				<view class="left">
@@ -63,7 +63,7 @@
 					<uni-icons class="right-icon" type="right" size="14" color="#6b748fab"></uni-icons>
 				</view>
 			</view>
-		</view>
+		</view> -->
 	</view>
 </template>
 

@@ -7203,6 +7203,7 @@ exports.onBeforeUnmount = onBeforeUnmount;
 exports.onReady = onReady;
 exports.p = p;
 exports.r = r;
+exports.reactive = reactive;
 exports.ref = ref;
 exports.resolveComponent = resolveComponent;
 exports.s = s;

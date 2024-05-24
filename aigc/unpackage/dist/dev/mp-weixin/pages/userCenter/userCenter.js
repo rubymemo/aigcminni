@@ -39,17 +39,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           size: "14",
           color: "#6b748fab"
         }),
-        d: common_vendor.o(($event) => goPage("pages/editUserInfo/editUserInfo")),
+        d: common_vendor.o(($event) => goPage("/pages/editUserInfo/editUserInfo")),
         e: common_vendor.p({
           type: "right",
           size: "14",
           color: "#6b748fab"
         }),
-        f: common_vendor.p({
-          type: "right",
-          size: "14",
-          color: "#6b748fab"
-        }),
+        f: common_vendor.o(($event) => goPage("/pages/historyDesign/historyDesign")),
         g: common_vendor.p({
           type: "right",
           size: "14",
@@ -65,8 +61,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           size: "14",
           color: "#6b748fab"
         }),
-        j: common_vendor.s(innerContentStyle.value),
-        k: common_assets._imports_0$3
+        j: common_vendor.p({
+          type: "right",
+          size: "14",
+          color: "#6b748fab"
+        }),
+        k: common_vendor.s(innerContentStyle.value),
+        l: common_assets._imports_0$2
       };
     };
   }

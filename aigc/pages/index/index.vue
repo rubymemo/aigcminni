@@ -17,7 +17,7 @@
 						账号安全 放心登录
 					</view>
 				</view> -->
-
+				<!-- 
 				<view class="mobile-code-login-form">
 					<uni-forms ref="mobileCodeFormRef" :modelValue="formData">
 						<uni-forms-item>
@@ -45,23 +45,24 @@
 							<view class="not-get-code">收不到验证码？</view>
 						</uni-forms-item>
 					</uni-forms>
-				</view>
+				</view> -->
 
 				<view class="button-box">
-					<button class="primary big" @click="handleClick">本机号码一键登录</button>
+					<button class="primary big" @click="handleClick">一键登录</button>
 				</view>
 
-				<view class="rule">
+				<view class="rule" @click="switchIsRead">
 					<view class="circle" @click="handleSwitchRead" :style="{
 							border: isRead ? 'none' : 'solid 1px $border-gray-color'
 						}">
-						<uni-icons class="rule-checked" type="checkbox-filled" color="#256AF7" :size="18"></uni-icons>
+						<uni-icons v-show="isRead" class="rule-checked" type="checkbox-filled" color="#256AF7"
+							:size="18"></uni-icons>
 					</view>
 					已阅读并同意 <text class="link" @click="goUserAgreement">用户协议、隐私政策</text> 并授权使用账号信息
 				</view>
 
 
-				<view class="diliver">
+				<!-- 	<view class="diliver">
 					<view class="line"></view>
 					<view style="0 12px">其他方式登录/注册</view>
 					<view class="line"></view>
@@ -71,7 +72,7 @@
 				<view class="login-type">
 					<image class="mobile-icon" src="@/static/svg/mobile.svg"></image>
 					<image class="weixin-icon" src="@/static/svg/weixin.svg"></image>
-				</view>
+				</view> -->
 
 			</view>
 		</view>
@@ -86,7 +87,7 @@
 
 	const res = uni.getSystemInfoSync();
 	const innerContentStyle = ref({
-		'padding-top': res.statusBarHeight + 44 + 'px'
+		'padding-top': '110rpx'
 	})
 	const mobileCodeFormRef = ref();
 	const formData = ref({
@@ -101,11 +102,11 @@
 	})
 
 	const validateMobile = () => {
-		if(!formData.value.mobile) {
+		if (!formData.value.mobile) {
 			return '请先输入手机号'
 		}
-		if(formData.value.mobile) {
-			if(/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(formData.value.mobile)) {
+		if (formData.value.mobile) {
+			if (/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(formData.value.mobile)) {
 				return false
 			} else {
 				return '请填写正确的手机号'
@@ -115,23 +116,34 @@
 		}
 	}
 	const validateCode = () => {
-		if(!formData.value.code) {
+		if (!formData.value.code) {
 			return '请先输入验证码'
 		} else {
 			return false;
 		}
 	}
 
+	const switchIsRead = () => {
+		isRead.value = !isRead.value;
+	}
+
 	const handleClick = () => {
 		// 如果是手机号和邮箱登录
-		const err1 = validateMobile();
-		const err2 = validateCode();
-		if(err1 || err2) {
+		// const err1 = validateMobile();
+		// const err2 = validateCode();
+		// if(err1 || err2) {
+		// 	uni.showToast({
+		// 		icon: 'none',
+		// 		title: err1 || err2
+		// 	})
+		// }
+		if (!isRead.value) {
 			uni.showToast({
 				icon: 'none',
-				title: err1 || err2
+				title: '请先勾选已阅读用户协议'
 			})
 		}
+
 	}
 
 	const handleSwitchRead = () => {
@@ -141,7 +153,7 @@
 	// 获取验证码
 	const queryCode = async () => {
 		const err = validateMobile();
-		if(err) {
+		if (err) {
 			uni.showToast({
 				icon: 'none',
 				title: err
@@ -149,12 +161,12 @@
 		}
 		// const err = await loginForm.value.validateField(['mobile']);
 		if (!err) {
-		 if (timer.value === 0) {
-			   timer.value = 60;
-			   // resume();
-			   // 这里写向后台发送请求的代码
-			   // getSendVerifyCode(userInfo.mobile)
-			 }
+			if (timer.value === 0) {
+				timer.value = 60;
+				// resume();
+				// 这里写向后台发送请求的代码
+				// getSendVerifyCode(userInfo.mobile)
+			}
 		}
 	};
 
@@ -201,13 +213,14 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		justify-content: flex-end;
+		padding: 292rpx 0 0;
+		// justify-content: center;
 
 		// height: 100%;
 		// padding-bottom: 30px;
 		.logo-box {
 			text-align: center;
-			margin-bottom: 30px;
+			margin-bottom: 160rpx;
 		}
 
 		.logo {
@@ -269,12 +282,14 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			margin-top: 24px;
-			height: 20px;
-			font-size: 12px;
+			margin-top: 46rpx;
+			height: 40rpx;
+			font-size: 24rpx;
 			color: $gray-color;
+			// margin-bottom: 662rpx;
 
 			.circle {
+				box-sizing: border-box;
 				position: relative;
 				display: inline-block;
 				width: 12px;

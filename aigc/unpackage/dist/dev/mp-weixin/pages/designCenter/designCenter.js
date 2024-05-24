@@ -9,6 +9,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const innerContentStyle = common_vendor.ref({
       "padding-top": res.statusBarHeight + "px"
     });
+    const scrollIntoView = common_vendor.ref("");
     const canSend = common_vendor.ref(false);
     const selectTags = common_vendor.ref([]);
     const inputValue = common_vendor.ref("");
@@ -52,6 +53,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         type: "right"
       });
       canSend.value = false;
+      inputValue.value = "";
+      scrollIntoView.value = `message-${dataList.value.length - 1}`;
     };
     common_vendor.onBeforeUnmount(() => {
       clearTimeout(timer.value);
@@ -64,7 +67,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return common_vendor.e({
             a: item.type === "left"
           }, item.type === "left" ? common_vendor.e({
-            b: common_assets._imports_0,
+            b: common_assets._imports_0$1,
             c: item.title
           }, item.title ? {
             d: common_vendor.t(item.title)
@@ -87,7 +90,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             i: item.type === "right"
           }, item.type === "right" ? {
             j: common_vendor.t(item.content),
-            k: common_assets._imports_0
+            k: common_assets._imports_0$1
           } : {}, {
             l: index
           });
@@ -98,7 +101,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         g: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {
           trim: true
         })),
-        h: common_assets._imports_1,
+        h: common_assets._imports_1$1,
         i: common_vendor.n(`send-btn ${canSend.value && inputValue.value ? "" : "disabled"} `),
         j: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value))
       };

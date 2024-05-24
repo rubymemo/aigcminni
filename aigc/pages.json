@@ -8,12 +8,13 @@
 			"^g-(.*)": "@/components/g-$1/index.vue"
 		}
 	},
-	"pages": [{
-			"path" : "pages/historyDesign/historyDesign",
-			"style" : 
-			{
-				"navigationBarTitleText" : "历史创作",
-				"enablePullDownRefresh" : false
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "登陆",
+				"navigationStyle": "custom",
+				"backgroundColor": "#ffffff"
 			}
 		},
 		{
@@ -23,13 +24,6 @@
 				"navigationBarTitleText": "设计",
 				"backgroundColor": "#ffffff",
 				"enablePullDownRefresh": false
-			}
-		}, {
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "登陆",
-				"navigationStyle": "custom",
-				"backgroundColor": "#ffffff"
 			}
 		},
 		{
@@ -53,6 +47,14 @@
 			"style": {
 				"navigationBarTitleText": "编辑资料",
 				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path" : "pages/historyDesign/historyDesign",
+			"style" : 
+			{
+				"navigationBarTitleText" : "历史创作",
+				"enablePullDownRefresh" : false
 			}
 		}
 	],

@@ -11,14 +11,14 @@ button.primary.data-v-5963578a {
   background: linear-gradient(135deg, #17f25f 0%, #256af7 100%);
   color: #FFFFFF;
   border: none !important;
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: 400;
 }
 button.normal.data-v-5963578a {
   border-radius: 200rpx;
   background: #FFFFFF;
   color: #A3B4CC;
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: 400;
 }
 button.big.data-v-5963578a {
@@ -50,15 +50,15 @@ button.big.data-v-5963578a {
   margin-bottom: 30rpx;
 }
 .page-header .tit.data-v-5963578a {
-  font-size: 17px;
+  font-size: 34rpx;
   font-weight: 500;
   color: #131526;
 }
 .page-header.data-v-5963578a .back-icon {
   position: absolute;
-  left: 16px;
-  width: 20px;
-  height: 20px;
+  left: 32rpx;
+  width: 40rpx;
+  height: 40rpx;
 }
 .user-info.data-v-5963578a {
   display: flex;
@@ -69,7 +69,7 @@ button.big.data-v-5963578a {
 .user-info .left.data-v-5963578a {
   display: flex;
   align-items: center;
-  font-size: 18px;
+  font-size: 36rpx;
   font-weight: 500;
   color: #191D32;
 }
@@ -83,14 +83,14 @@ button.big.data-v-5963578a {
 .user-info .right.data-v-5963578a {
   display: flex;
   align-items: center;
-  font-size: 12px;
-  line-height: 12px;
+  font-size: 24rpx;
+  line-height: 24rpx;
   font-weight: 400;
   color: #6B748F;
 }
 .card.data-v-5963578a {
   background: white;
-  border-radius: 12px;
+  border-radius: 24rpx;
   padding: 0 40rpx;
   color: #344156;
   margin-bottom: 32rpx;
@@ -98,8 +98,8 @@ button.big.data-v-5963578a {
 .card .tit.data-v-5963578a {
   padding: 40rpx 0 8rpx;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 36rpx;
+  line-height: 48rpx;
 }
 .card .card-item.data-v-5963578a {
   display: flex;
@@ -112,7 +112,7 @@ button.big.data-v-5963578a {
   align-items: center;
 }
 .card .card-item .label.data-v-5963578a {
-  font-size: 14px;
+  font-size: 28rpx;
   margin-left: 16rpx;
 }
 .card .diliver.data-v-5963578a {
@@ -121,8 +121,8 @@ button.big.data-v-5963578a {
   background: #EDF1F6;
 }
 .left-icon.data-v-5963578a {
-  width: 16px;
-  height: 16px;
+  width: 32rpx;
+  height: 32rpx;
 }
 button.normal.data-v-5963578a {
   margin-top: 68rpx;

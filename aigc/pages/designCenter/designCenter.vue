@@ -4,10 +4,13 @@
 			<view class="iconfont icon-gengduo" @click="goUserCenter"></view>
 			<view class="header-tit">设计</view>
 		</view>
+		
 		<view class="contact-container">
+		 <scroll-view class="content" scroll-into-view="{{scrollIntoView}}" scroll-y="true">
 			<view
 				v-for="(item, index) in dataList"
 				:key="index"
+				class="message"
 			>
 				<view v-if="item.type === 'left'" class="robot-contact-item">
 					<image class="avatar" src="@/static/png/robot.png"></image>
@@ -33,8 +36,9 @@
 				
 				
 			</view>
-			
+			</scroll-view>
 		</view>
+		
 		<view class="footer">
 			<view class="input-box">
 				<input v-model.trim="inputValue" :disabled="!canSend" :placeholder="canSend ? '输入对话后，可通过回车键发送指令' : '请先选择机器人提供的选项'" placeholder-style="color: #A3B4CC"/>
@@ -48,13 +52,16 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, onBeforeUnmount } from 'vue';
+	import { ref, onBeforeUnmount, nextTick } from 'vue';
 	import { robotReply, manualReply } from '@/common/mockData.ts';
 	
 	const res = uni.getSystemInfoSync();
 	const innerContentStyle = ref({
 		'padding-top': res.statusBarHeight + 'px'
 	})
+
+	// 试试滚动
+	const scrollIntoView = ref('');
 	
 	const canSend = ref(false);
 	const selectTags = ref([]);
@@ -105,7 +112,12 @@
 			content: inputValue.value,
 			type: 'right'
 		})
+		
 		canSend.value = false;
+		inputValue.value = '';
+		
+		// 滚动
+		scrollIntoView.value = `message-${dataList.value.length - 1}`
 	}
 	onBeforeUnmount(() => {
 		clearTimeout(timer.value);
