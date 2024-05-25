@@ -41,8 +41,17 @@
             <textarea
               v-model="inputText"
               placeholder="输入对话后，可通过回车键发送指令"
+              @keydown="enterSend"
             />
-            <a-button v-show="inputText">发送创意</a-button>
+            <a-button
+              v-show="inputText"
+              class="send-button-active"
+              @click="sendMessageAction"
+            >
+              <span class="button-text">发送创意</span>
+              <!-- <SendSvg /> -->
+              <img :src="SendIcon" />
+            </a-button>
             <div v-show="!inputText" class="send-button-disabled">
               <SendSvg />
             </div>
@@ -57,10 +66,11 @@
 import dayjs from 'dayjs';
 import avatar from '@/assets/images/avatar.png';
 import SendSvg from '@/assets/svg/send.svg';
+import SendIcon from '@/assets/images/send-icon.png';
 import SessionLog from './components/session-log.vue';
 import CurrentSession from './components/current-session.vue';
-import { onMounted, ref } from 'vue';
-import { createSession, getSessionList } from '@/api/dashboard';
+import { onBeforeMount, onMounted, ref } from 'vue';
+import { createSession, getSessionList, sendMessage } from '@/api/dashboard';
 
 const fakeLogs = [
   {
@@ -79,6 +89,57 @@ const fakeLogs = [
 const logs = ref<any[]>([]);
 
 const inputText = ref('');
+
+const wsInstance = ref<WebSocket>();
+
+const initWs = (clientId = '') => {
+  wsInstance.value = new WebSocket(
+    `wss://huatu.solart.pro/ws/?clientId=${clientId}`,
+  );
+  wsInstance.value.onopen = () => {
+    console.log('链接成功');
+  };
+  wsInstance.value.onmessage = (message: any) => {
+    const messageInfo = JSON.parse(message.data);
+    const { data } = messageInfo || {};
+    console.log('收到消息', data, messageInfo);
+
+    if (messageInfo.type === 'status') {
+      console.log('sid', data.sid);
+      console.log('排队信息', message.status);
+    }
+  };
+  wsInstance.value.onclose = () => {
+    console.log('关闭链接');
+  };
+};
+
+onBeforeMount(() => {
+  if (!wsInstance.value) {
+    return;
+  }
+  wsInstance.value.close();
+  wsInstance.value = undefined;
+});
+
+const sendMessageAction = () => {
+  sendMessage({
+    promptImage: '',
+    promptWords: '',
+  });
+  if (!wsInstance.value) {
+    initWs();
+  }
+};
+
+const enterSend = (event: any) => {
+  if (event.keyCode === 13 && inputText.value) {
+    console.log(event);
+    initWs();
+    // 判断按下的是否是回车键的keyCode
+    event.preventDefault();
+  }
+};
 
 onMounted(() => {
   getSessionList(1, 10)
@@ -258,6 +319,30 @@ onMounted(() => {
               line-height: 22px;
               letter-spacing: 0px;
               text-align: left;
+            }
+          }
+
+          .send-button-active {
+            border: none;
+            height: 40px;
+            border-radius: 100px;
+            background: linear-gradient(
+              135deg,
+              rgb(23, 242, 95) 0%,
+              rgb(37, 106, 247) 100%
+            );
+            color: rgb(255, 255, 255);
+            font-family: PingFang SC;
+            font-size: 16px;
+            font-weight: 400;
+
+            .button-text {
+              margin-right: 12px;
+            }
+
+            img {
+              width: 28px;
+              height: 28px;
             }
           }
 
