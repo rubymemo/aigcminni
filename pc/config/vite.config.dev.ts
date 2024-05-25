@@ -12,7 +12,7 @@ export default mergeConfig(
       },
       proxy: {
         '/hh': {
-          target: 'http://101.126.93.249/',
+          target: 'http://101.126.93.249/api',
           changeOrigin: true,
         },
       }
