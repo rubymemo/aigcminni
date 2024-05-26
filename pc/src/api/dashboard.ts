@@ -40,3 +40,8 @@ export const uploadImage = (params: any) => {
 export const sendMessage = (params: any) => {
   return axios.post('/hh/comfyui_api/postPrompt', params);
 };
+
+// 查询生成记录
+export const getSessionHistory = (promptId: string) => {
+  return axios.get(`/hh/comfyui_api/historyByPromptId/${promptId}`);
+};

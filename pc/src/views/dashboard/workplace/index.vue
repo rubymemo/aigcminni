@@ -33,7 +33,10 @@
       <div class="detail-container">
         <div class="session-container">
           <div class="session-inner-container">
-            <CurrentSession />
+            <CurrentSession
+              ref="sessionListRef"
+              @image-upload-success="handleImageUploaded"
+            />
           </div>
         </div>
         <div class="bottom-bar">
@@ -46,7 +49,7 @@
             <a-button
               v-show="inputText"
               class="send-button-active"
-              @click="sendMessageAction"
+              @click="handleSendButtonClick"
             >
               <span class="button-text">发送创意</span>
               <!-- <SendSvg /> -->
@@ -70,43 +73,71 @@ import SendIcon from '@/assets/images/send-icon.png';
 import SessionLog from './components/session-log.vue';
 import CurrentSession from './components/current-session.vue';
 import { onBeforeMount, onMounted, ref } from 'vue';
-import { createSession, getSessionList, sendMessage } from '@/api/dashboard';
-
-const fakeLogs = [
-  {
-    time: dayjs().format('YYYY.MM.DD HH.mm'),
-    detailList: [
-      {
-        text: '帮我设计一个宠物店的好看...',
-      },
-      {
-        text: '帮我设计一个打印店的logo',
-      },
-    ],
-  },
-];
+import {
+  getSessionHistory,
+  getSessionList,
+  sendMessage,
+} from '@/api/dashboard';
+import { v4 } from 'uuid';
 
 const logs = ref<any[]>([]);
 
 const inputText = ref('');
+const sessionListRef = ref();
 
 const wsInstance = ref<WebSocket>();
 
-const initWs = (clientId = '') => {
+const initWs = (imageName = '', words = '') => {
+  const uuid = v4();
+
+  let promptId = '';
+
   wsInstance.value = new WebSocket(
-    `wss://huatu.solart.pro/ws/?clientId=${clientId}`,
+    `wss://huatu.solart.pro/ws/?clientId=${uuid}`,
   );
   wsInstance.value.onopen = () => {
     console.log('链接成功');
+    sendMessage({
+      clientId: uuid,
+      promptImage: imageName,
+      promptWords: words,
+    }).then((res) => {
+      console.log('promptPost', res);
+      promptId = res.data.promptId;
+    });
   };
   wsInstance.value.onmessage = (message: any) => {
     const messageInfo = JSON.parse(message.data);
     const { data } = messageInfo || {};
-    console.log('收到消息', data, messageInfo);
+    console.log('收到消息', data, messageInfo.type);
 
     if (messageInfo.type === 'status') {
       console.log('sid', data.sid);
-      console.log('排队信息', message.status);
+      console.log('任务变更', messageInfo, data);
+    }
+    if (messageInfo.type === 'execution_start') {
+      console.log('开始生成');
+      sessionListRef.value.addCommit({ content: '正在生成' });
+    }
+    if (messageInfo.type === 'executing') {
+      console.log('正在执行');
+      sessionListRef.value.addCommit({ content: '正在生成' });
+    }
+    if (messageInfo.type === 'progress') {
+      console.log('正在生成图片');
+      sessionListRef.value.addCommit({ content: '正在生成' });
+    }
+    if (messageInfo.type === 'executing' && !messageInfo.data.node) {
+      console.log('生成完成', messageInfo);
+      sessionListRef.value.addCommit({ content: '生成完成' });
+      if (!promptId) {
+        return;
+      }
+      getSessionHistory(promptId).then((res) => {
+        console.log('promptHistory', res);
+      });
+      wsInstance.value?.close();
+      wsInstance.value = undefined;
     }
   };
   wsInstance.value.onclose = () => {
@@ -122,14 +153,15 @@ onBeforeMount(() => {
   wsInstance.value = undefined;
 });
 
-const sendMessageAction = () => {
-  sendMessage({
-    promptImage: '',
-    promptWords: '',
-  });
-  if (!wsInstance.value) {
-    initWs();
-  }
+// const sendMessageAction = (imgName = '', words = '') => {
+//   return sendMessage({
+//     promptImage: imgName,
+//     promptWords: words,
+//   });
+// };
+
+const handleSendButtonClick = () => {
+  // sendMessageAction('', inputText.value);
 };
 
 const enterSend = (event: any) => {
@@ -139,6 +171,22 @@ const enterSend = (event: any) => {
     // 判断按下的是否是回车键的keyCode
     event.preventDefault();
   }
+};
+
+// 图片上传成功
+const handleImageUploaded = (imageUrl: string) => {
+  initWs(imageUrl, '');
+  // sendMessage({
+  //   promptImage: imageUrl,
+  //   promptWords: '大一点',
+  //   clientId: uuid,
+  // }).then((res: any) => {
+  //   const { number, promptId } = res.data;
+  //   console.log('number, promptI', number, promptId);
+  //   getSessionHistory(promptId).then((history) => {
+  //     console.log('history', history);
+  //   });
+  // });
 };
 
 onMounted(() => {
@@ -278,6 +326,7 @@ onMounted(() => {
       // max-height: 0;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
 
       .session-container {
         flex: 1;

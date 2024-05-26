@@ -1,25 +1,35 @@
 <template>
   <div class="current-session-box">
-    <Session-item
-      author="robot"
-      title="Hi，我是你的AI设计师素素～"
-      :content="'在开始之前，需要你先回答我几个问题，现在开始吧！需要我帮你设计什么？'"
+    <SessionItem
+      v-for="(item, index) in commitList"
+      v-bind="item"
+      :key="item.id"
     >
-      <template #action>
-        <a-button class="action-button">logo</a-button>
-        <a-button class="action-button">创意营销大图</a-button>
+      <template #sessionStart>
+        <a-button
+          :disabled="actionDisabled(index)"
+          class="action-button"
+          @click="handleCreateLogo('logo')"
+          >logo</a-button
+        >
+        <a-button
+          class="action-button"
+          :disabled="actionDisabled(index)"
+          @click="handleCreateLogo('创意营销大图')"
+          >创意营销大图</a-button
+        >
       </template>
-    </Session-item>
-    <Session-item author="user" :content="'帮我设计一个宠物店的logo'">
-    </Session-item>
-
-    <Session-item author="robot" :content="'您是否有参考图给我参考呢？'">
-      <template #action>
-        <a-button class="action-button">没有参考图</a-button>
+      <template #refrenceImage>
+        <a-button
+          class="action-button"
+          :disabled="actionDisabled(index)"
+          @click="noImageUpload"
+          >没有参考图</a-button
+        >
         <a-upload
           accept="image/png, image/jpeg"
           :custom-request="customUpload"
-          :disabled="disabledUpload"
+          :disabled="actionDisabled(index)"
           class="upload-com"
         >
           <template #upload-button>
@@ -29,28 +39,73 @@
           </template>
         </a-upload>
       </template>
-    </Session-item>
-    <SessionItem v-for="item in commitList" v-bind="item" :key="item.id" />
+    </SessionItem>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { uploadImage } from '@/api/dashboard';
-import SessionItem from './session-item.vue';
+import SessionItem, { SessionItemProps } from './session-item.vue';
 import { ref } from 'vue';
+import { v4 } from 'uuid';
+
+interface CommitItem extends SessionItemProps {
+  id: string;
+}
+</script>
+
+<script setup lang="ts">
+const emit = defineEmits(['imageUploadSuccess', 'waitInput']);
 
 const disabledUpload = ref(false);
 
-const commitList = ref<any[]>([]);
+const commitList = ref<CommitItem[]>([]);
 
-const addCommit = (params: any) => {
+const addCommit = (params: Partial<SessionItemProps>) => {
+  const author = params.author || 'robot';
   commitList.value.push({
     ...params,
-    id: Date.now(),
+    author,
+    id: v4(),
   });
 };
 
-const customUpload = (option: any) => {
+addCommit({
+  author: 'robot',
+  title: 'Hi，我是你的AI设计师素素～',
+  content:
+    '在开始之前，需要你先回答我几个问题，现在开始吧！需要我帮你设计什么？',
+  slotName: 'sessionStart',
+});
+
+const actionDisabled = (index: number) => {
+  return index < commitList.value.length - 1;
+};
+
+const handleCreateLogo = (type: string) => {
+  addCommit({
+    author: 'user',
+    content: `帮我设计一个${type}`,
+  });
+  addCommit({
+    content: '您是否有参考图给我参考呢？',
+    slotName: 'refrenceImage',
+  });
+};
+
+const noImageUpload = () => {
+  addCommit({
+    author: 'user',
+    content: `没有参考图`,
+  });
+  addCommit({
+    content: '您现在可以输入内容了',
+  });
+  emit('waitInput');
+  disabledUpload.value = true;
+};
+
+const customUpload = (option: any): any => {
   const { fileItem } = option;
 
   const formData = new FormData();
@@ -62,8 +117,13 @@ const customUpload = (option: any) => {
       author: 'user',
       image: `http://101.126.93.249/api/hh/comfyui_api/view?type=${res.data.type}&filename=${res.data.filename}`,
     });
+    emit('imageUploadSuccess', res.data.filename);
   });
 };
+
+defineExpose({
+  addCommit,
+});
 </script>
 
 <style scoped lang="less">
