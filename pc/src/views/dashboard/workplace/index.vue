@@ -1,11 +1,12 @@
 <template>
   <div class="layout">
     <div class="left-bar">
-      <div class="logo-area"> 
-        <img :src="Logo" alt="huatu" />  
+      <div class="logo-area">
+        <img :src="Logo" alt="huatu" />
       </div>
       <div class="button-area">
         <a-button class="create-session-button" @click="addSession">
+          <icon-plus class="add-color" />
           新建会话
         </a-button>
       </div>
@@ -73,7 +74,7 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs';
-import Logo from '@/assets/images/logo.png'
+import Logo from '@/assets/images/logo.png';
 import avatar from '@/assets/images/avatar.png';
 import SendSvg from '@/assets/svg/send.svg';
 import SendIcon from '@/assets/images/send-icon.png';
@@ -260,10 +261,22 @@ onMounted(() => {
       if (res.code !== '2000') {
         return;
       }
-
       console.log('res.data', res.data);
-      
-      logs.value = res.data.data;
+      const dataAlias = res.data.data as any[];
+      const timeDataMap = dataAlias.reduce<Record<string, any>>(
+        (result, cur) => {
+          const time = cur.createTime.split(' ')[0];
+          // 根据时间分组
+          if (!result[time]) {
+            result[time] = { time, list: [] };
+          }
+          result[time].list.push(cur);
+          return result;
+        },
+        {},
+      );
+
+      logs.value = Object.values(timeDataMap);
     })
     .catch((error) => {
       console.log('error', error);
@@ -335,6 +348,10 @@ onMounted(() => {
         line-height: 24px;
         letter-spacing: 0px;
         text-align: left;
+
+        .add-color {
+          margin-right: 4px;
+        }
       }
     }
 

@@ -5,12 +5,20 @@
         {{ item.time }}
       </div>
       <div
-        v-for="(detailItem, index) in item.detailList"
+        v-for="(detailItem, index) in item.list"
         :key="index"
         class="log-detail-item"
       >
         <img :src="logItemTag" alt="" srcset="" />
-        <div class="text-container">{{ detailItem.text }}</div>
+        <div class="text-container">{{ detailItem.title }}</div>
+        <div class="log-actions">
+          <div class="action-item">
+            <icon-edit :size="16" />
+          </div>
+          <div class="action-item">
+            <icon-delete :size="16" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -22,8 +30,8 @@ import logItemTag from '@/assets/images/log-item-tag.png';
 interface Props {
   logs: {
     time: string;
-    detailList: {
-      text: string;
+    list: {
+      title: string;
     }[];
   }[];
 }
@@ -56,6 +64,8 @@ const props = defineProps<Props>();
     padding: 16px;
     margin-bottom: 16px;
     display: flex;
+    border: 1px solid transparent;
+    cursor: pointer;
 
     img {
       width: 24px;
@@ -71,6 +81,34 @@ const props = defineProps<Props>();
       line-height: 22px;
       letter-spacing: 0px;
       text-align: left;
+
+      width: 180px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .log-actions {
+      display: none;
+
+      .action-item {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        margin-right: 8px;
+        padding: 0 4px;
+        cursor: pointer;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
+    &:hover {
+      .log-actions {
+        display: flex;
+      }
     }
   }
 }
