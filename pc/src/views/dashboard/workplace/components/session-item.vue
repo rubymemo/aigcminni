@@ -8,21 +8,27 @@
     <a-avatar :image-url="author === 'robot' ? '' : avatar" />
     <div class="commit-content">
       <div v-if="props.preset" class="preset-commit-content">
-        <div class="preset-template-commit-content">
+        <div v-if="props.preset === 'template'" class="preset-template-commit-content">
           <h5>Hi~ 创意想法已完成</h5>
           <div class="commit-content-text">
             根据您提供的信息，以下是我针对图片的设计
             点击图片可查看大图，点击下方选择框选定图形，进入最终效果图生成。
           </div>
           <div class="commit-action">
-            <a-checkbox-group>
+            <a-radio-group v-model="choseItem">
               <div v-for="item in 4" :key="item" class="template-image-item">
-                <div ></div>
-                <a-checkbox :value="item" />
+                <div class="img-area">
+                  <img v-if="props.data.imgUrls" :src="props.data.imgUrls[item]" @click="handleChoseImg" />
+                  <div v-else>
+                    图片正在生成中，进度{{ props.data.prograss }}
+                  </div>
+                </div>
+                <a-radio :disabled="props.data.loading || props.disabled" :value="item" />
               </div>
-            </a-checkbox-group>
+            </a-radio-group>
           </div>
         </div>
+        <div></div>
       </div>
       <div v-else class="normal-commit-content">
         <h5 v-if="props.title" class="commit-title">{{ props.title }}</h5>
@@ -45,6 +51,7 @@
 
 <script lang="ts">
 import avatar from '@/assets/images/avatar.png';
+import { ref } from 'vue';
 
 interface DataItem {
   title?: string;
@@ -61,11 +68,22 @@ export interface SessionItemProps {
   author: 'user' | 'robot';
   slotName?: string;
   preset?: 'template' | 'result';
+  disabled?: boolean;
 }
 </script>
 
 <script setup lang="ts">
 const props = defineProps<SessionItemProps>();
+
+const emit = defineEmits(['chooseImg']);
+
+const choseItem = ref('');
+
+const handleChoseImg = (index: number) => {
+  choseItem.value = index;
+  emit('chooseImg', props.data.imgUrls[index]);
+}
+
 </script>
 
 <style scoped lang="less">

@@ -87,10 +87,12 @@ const sessionListRef = ref();
 
 const wsInstance = ref<WebSocket>();
 
-const initWs = (imageName = '', words = '') => {
+const initWs = (imageName = '', words = '', type: 'template-1' | 'template-2' = 'template-1') => {
   const uuid = v4();
 
   let promptId = '';
+
+  let dataRef;
 
   wsInstance.value = new WebSocket(
     `wss://huatu.solart.pro/ws/?clientId=${uuid}`,
@@ -104,6 +106,13 @@ const initWs = (imageName = '', words = '') => {
     }).then((res) => {
       console.log('promptPost', res);
       promptId = res.data.promptId;
+      dataRef = ref({
+        loading: true,
+      })
+      sessionListRef.value.addCommit({
+        preset: type,
+        data: dataRef
+      })
     });
   };
   wsInstance.value.onmessage = (message: any) => {
@@ -117,24 +126,23 @@ const initWs = (imageName = '', words = '') => {
     }
     if (messageInfo.type === 'execution_start') {
       console.log('开始生成');
-      sessionListRef.value.addCommit({ content: '正在生成' });
     }
-    if (messageInfo.type === 'executing') {
+    if (messageInfo.type === 'executing' && messageInfo.data.node) {
+      dataRef.value.progress = (messageInfo.data.time / (messageInfo.data.max + 1)).toFixed(4) * 100;
       console.log('正在执行');
-      sessionListRef.value.addCommit({ content: '正在生成' });
     }
     if (messageInfo.type === 'progress') {
       console.log('正在生成图片');
-      sessionListRef.value.addCommit({ content: '正在生成' });
     }
     if (messageInfo.type === 'executing' && !messageInfo.data.node) {
+      dataRef.value.progress = 100;
       console.log('生成完成', messageInfo);
-      sessionListRef.value.addCommit({ content: '生成完成' });
       if (!promptId) {
         return;
       }
       getSessionHistory(promptId).then((res) => {
         console.log('promptHistory', res);
+        dataRef.value.imgUrls = res.data[promptId].outputs[53].map(item => item.filename)
       });
       wsInstance.value?.close();
       wsInstance.value = undefined;
@@ -167,7 +175,7 @@ const handleSendButtonClick = () => {
 const enterSend = (event: any) => {
   if (event.keyCode === 13 && inputText.value) {
     console.log(event);
-    initWs();
+    initWs('', inputText.value, 'template-2');
     // 判断按下的是否是回车键的keyCode
     event.preventDefault();
   }

@@ -4,6 +4,7 @@
       v-for="(item, index) in commitList"
       v-bind="item"
       :key="item.id"
+      @choose-img="handleChooseTemplate"
     >
       <template #sessionStart>
         <a-button
@@ -120,6 +121,16 @@ const customUpload = (option: any): any => {
     emit('imageUploadSuccess', res.data.filename);
   });
 };
+
+const handleChooseTemplate = (imgUrl: string) => {
+  addCommit({
+    author: 'user',
+    image: imgUrl
+  })
+  addCommit({
+    content: '接下来您可以输入一些内容'
+  })
+}
 
 defineExpose({
   addCommit,
