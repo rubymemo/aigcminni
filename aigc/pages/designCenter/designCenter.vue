@@ -5,36 +5,56 @@
 			<view class="header-tit">设计</view>
 		</view>
 
-		<scroll-view id="scroll-view-content" class="scroll-view-content"
-			:scroll-with-animation="true" scroll-y="true" :scroll-top="scrollTop">
+		<scroll-view id="scroll-view-content" class="scroll-view-content" :scroll-with-animation="true" scroll-y="true"
+			:scroll-top="scrollTop">
 			<view class="contact-container">
 				<view v-for="(item, index) in dataList" :key="index" class="message">
 					<view v-if="item.type === 'left'" class="robot-contact-item">
 						<image class="avatar" src="@/static/png/robot.png"></image>
-						<view class="robot-contact-info-box">
-							<view v-if="item.title" class="title" :style="item.titleStyle || undefined">{{item.title}}
-							</view>
-							<view v-if="item.content" class="content">{{item.content}}</view>
-							<view v-if="item.btns" class="btns">
-								<button v-for="(btnItem, btnIndex) in item.btns" :key="btnIndex"
-									:class="`robot-btn ${selectTags.includes(btnItem) ? 'active' : ''}`"
-									@click="onRobotBtnClick(btnItem, index)">
-									{{ btnItem }}
-								</button>
-							</view>
-							<view v-if="item.imagesOptions" style="margin-top: 24rpx;">
-								<radio-group>
-									<view class="images-box">
-										<view class="image-option-box"
-											v-for="(imageItemSrc, imgIndex) in item.imagesOptions" :key="imgIndex">
-											<image :src="imageItemSrc" @click="previewImg(imageItemSrc)"></image>
-											<view class="radio-box">
-												<radio class="img-radio" :value="imageItemSrc" color="#256AF7" />
+						<view class="robot-contact-info-root-box">
+							<view class="robot-contact-info-box">
+								<view v-if="item.title" class="title" :style="item.titleStyle || undefined">
+									{{item.title}}
+								</view>
+								<view v-if="item.content" class="content">{{item.content}}</view>
+								<view v-if="item.btns" class="btns">
+									<button v-for="(btnItem, btnIndex) in item.btns" :key="btnIndex"
+										:class="`robot-btn ${item.activeBtns.includes(btnItem) ? 'active' : ''}`"
+										@click="onRobotBtnClick(btnItem, index)">
+										{{ btnItem }}
+									</button>
+								</view>
+								<view v-if="item.imagesOptions" style="margin-top: 24rpx;">
+									<radio-group @change="e => onUserSelectImg(e, index)">
+										<view class="images-box">
+											<view class="image-option-box"
+												v-for="(imageItem, imgIndex) in item.imagesOptions" :key="imgIndex">
+												<view class="imageCover"
+													v-show="imageItem.status === 'loading' || imageItem.status === 'queue_remaining'">
+													{{imageItem.status === 'queue_remaining' ? '任务排队中，请稍等' : ''}}
+													{{imageItem.status === 'loading' ? `生成进度:${imageItem.precent}%` : ''}}
+												</view>
+												<image :src="imageItem.status === 'done' ? imageItem.url : ''"
+													@click="previewImg(imageItem.url)">
+												</image>
+												<view class="radio-box" :style="{
+													marginBottom: item.reload ? '0rpx' : '28rpx'
+												}">
+													<radio 
+														v-if="!item.reload" 
+														class="img-radio" 
+														:value="imageItem.url" 
+														color="#256AF7"
+														:disabled="index < dataList.length - 1"
+														:checked="item.activeImages.includes(imageItem.url)"
+													/>
+												</view>
 											</view>
 										</view>
-									</view>
-								</radio-group>
+									</radio-group>
+								</view>
 							</view>
+							<view v-if="item.reload && !isGenLoading" :class="`reload ${isGenLoading ? 'loading' : ''}`" @click="reloadGen"><view class="iconfont icon-loading"></view>重新生成</view>
 						</view>
 					</view>
 
@@ -47,7 +67,7 @@
 								</view>
 							</view>
 						</view>
-						<image class="avatar" src="@/static/png/robot.png"></image>
+						<image class="avatar" :src="userInfo.avatar"></image>
 					</view>
 
 
@@ -57,8 +77,9 @@
 		</scroll-view>
 
 		<view class="footer">
-			<view class="footer-header">
-				<g-color-btn :height="56" :width="146" :active="true">
+			<!-- v-if="workId" -->
+			<view class="footer-header" >
+				<g-color-btn :height="56" :width="146" :active="true" @click="addNewWork">
 					<text class="iconfont icon-tianjia" style="font-size: 26rpx;"></text>
 					新建对话
 				</g-color-btn>
@@ -80,7 +101,8 @@
 <script setup lang="ts">
 	import { ref, onBeforeUnmount, nextTick, onMounted, getCurrentInstance } from 'vue';
 	import { robotReply, manualReply } from '@/common/mockData.ts';
-	import { httpsRequest } from '@/common/utils';
+	import { httpsRequest, genImgURl } from '@/common/utils';
+	import { onLoad } from '@dcloudio/uni-app';
 
 	const res = uni.getSystemInfoSync();
 	const innerContentStyle = ref({
@@ -88,23 +110,98 @@
 	})
 
 	// 试试滚动
-	const scrollViewHeight = ref(0);
 	const scrollTop = ref(0);
 
 	const canSend = ref(false);
-	const selectTags = ref([]);
 	const inputValue = ref('');
+
+	const clientUNIId = ref('');
+	const lastRobotMsg = ref(false);
+	const isGenLoading = ref(false);
+	
+	const userInfo = ref({
+		avatar: '',
+	})
+	
+	// 会话id
+	const workId = ref<string | undefined>(undefined);
 
 	const dataList = ref([
 		{
 			...robotReply[0].data,
 			type: 'left',
-			// imagesOptions: ['http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png', 'http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png','http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png']
+			// imagesOptions: [{
+			// 	url: '/static/png/mock1.png',
+			// 	status: 'done',
+			// 	precent: 100
+			// },{
+			// 	url: '/static/png/mock2.png',
+			// 	status: 'done',
+			// 	precent: 100
+			// }],
+			// activeImages: [],
 		}
 	]);
 	// 将来可删掉
 	const timer = ref();
 	const instance = getCurrentInstance(); // 获取组件实例
+	
+	const getWorkDataById = async (id: string) => {
+		const res = await httpsRequest(`/hh/works/findById/${id}`, {}, 'GET');
+		if(res) {
+			const dataListTemp = res.dialogs.map(item => {
+				return JSON.parse(item.whoSay);
+			})
+			dataList.value = dataListTemp;
+		}
+	}
+	
+	onLoad((params) => {
+		console.log('onLoad')
+		if(params.id) {
+			// 详情
+			workId.value = params.id;
+			getWorkDataById(params.id)
+		}
+	})
+	// 上传数据
+	const putWorkData = async () => {
+		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
+		const lastMessage = dataList.value.find(item => item.reload && item.type === 'left')
+		const lastGenImg = lastMessage ? JSON.stringify(lastMessage.imagesOptions) : undefined
+		const userInfo = JSON.parse(uni.getStorageSync('userInfo'));
+		
+		const params = {
+			works: {
+				authorId: userInfo.userId,
+				id: workId.value || undefined,
+				title: UserMessages[0].content,
+				type: '1',
+				imgUrl: lastGenImg
+			},
+			dialogs : dataList.value.map(item => {
+				if(item.type === 'left') {
+					return {
+						whoId: 0,
+						whoName: 'robot',
+						whoSay: JSON.stringify(item)
+					}
+				} else {
+					return {
+						whoId: userInfo.userId,
+						whoName: userInfo.username,
+						whoSay: JSON.stringify(item)
+					}
+				}
+				
+			})
+		}
+
+		const data = workId.value ? httpsRequest('/hh/works/editById',params, 'PUT') : httpsRequest('/hh/works/addBy',params);
+		if(data) {
+			workId.value = data;
+		}
+	}
 
 
 	const initScrollHeight = () => {
@@ -119,8 +216,20 @@
 			.exec();
 	}
 
-	onMounted(() => {
+	const getUserInfo = async () => {
+		const res = await httpsRequest('/cx/meByMobile', {}, 'GET');
+		uni.setStorageSync('userInfo', JSON.stringify(res));
+		return res;
+	}
+	onMounted(async() => {
+		// 获取用户信息
+		const localUserInfo: { avatar: string; userId : string} = await getUserInfo();
+		if(localUserInfo) {
+			userInfo.value = localUserInfo;
+			clientUNIId.value = localUserInfo.userId;
+		}
 		initScrollHeight()
+		// const sysTempRes = uni.getSystemInfoSync();
 	})
 
 	const goUserCenter = () => {
@@ -138,7 +247,9 @@
 				...robotReplyData.data,
 				startCreate: robotReplyData.startCreate,
 				type: 'left',
+				reload: robotId === 6 ? true : false
 			})
+			console.log(dataList.value);
 			if (robotReplyData.startCreate) {
 				canSend.value = true;
 			}
@@ -152,8 +263,9 @@
 		if (messageIndex < dataList.value.length - 1) {
 			return;
 		}
-
-		selectTags.value.push(btnStr);
+		dataList.value[messageIndex].activeBtns = [btnStr];
+		
+		// selectTags.value.push(btnStr);
 		const manualData = manualReply[btnStr];
 		if (manualData.opertionType === 'chooseMedia') {
 			// 上传图片
@@ -175,12 +287,13 @@
 							// type: "input"
 							// `http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png`
 							if (Number(uploadData.code) === 2000) {
-								const url = `http://101.126.93.249/api/hh/comfyui_api/view?type=${uploadData.data.type}&filename=${uploadData.data.filename}`;
+								const url = genImgURl(uploadData.data.type, uploadData.data.filename);
 								console.log(url);
 								dataList.value.push({
 									type: 'right',
 									content: '',
 									images: [url],
+									// compute: true
 								})
 								addMockRobotReply(manualData.nextRobotId);
 							} else {
@@ -197,6 +310,7 @@
 					});
 				}
 			});
+		
 		} else {
 			// 假装回复
 			dataList.value.push({
@@ -208,38 +322,72 @@
 	}
 
 	const fetchWebSocket = (promptData) => {
-
+		isGenLoading.value = true;
 		uni.connectSocket({
-			url: 'wss://region-101.seetacloud.com',
+			url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
 		});
+
 		uni.onSocketOpen(function (res) {
 			console.log('WebSocket连接已打开！');
-			uni.sendSocketMessage({
-				data: promptData
-			});
 		});
 		uni.onSocketMessage(function (res) {
-			console.log('收到服务器内容：' + res.data);
+			console.log('收到服务器内容：');
+			const msgData = JSON.parse(res.data);
+			console.log(msgData)
+			if (msgData.type === 'executed' && Number(msgData.data.node) == 100) {
+				console.log('最终结果')
+				console.log(msgData.data.output)
+				uni.closeSocket()
+				const dataListTemp = JSON.parse(JSON.stringify(dataList.value))
+				dataListTemp[dataListTemp.length - 1].imagesOptions = msgData.data.output.images.map(imgItem => {
+					return {
+						url: genImgURl(imgItem.type, imgItem.filename),
+						status: 'done',
+						precent: 100
+					}
+				})
+				dataList.value = dataListTemp;
+				nextTick(() => {
+					isGenLoading.value = false;
+					
+					// 保存
+					// putWorkData();
+				})
+			} else if (msgData.type === 'progress') {
+				// "data": {"'value": 8, "max": 8,
+				dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map(imgItem => {
+					return {
+						url: '',
+						status: 'loading',
+						precent: Number(msgData.data.value) / Number(msgData.data.max) === 1 ? 98 : (Number(msgData.data.value) / Number(msgData.data.max)).toFixed(2) * 100
+					}
+				})
+			}
 		});
 
+		uni.onSocketClose(function (res) {
+			console.log('WebSocket 已关闭！');
+		})
 	}
 
 	const getPaintingTask = async () => {
-		const UserMessages = dataList.value.filter((item, index) => item.type === 'right');
-		const lastUserMessages = UserMessages[UserMessages.length - 1];
-		const UserImagesMessages = UserMessages.filter(item => item.images);
-		let params = {
-			promptWords: lastUserMessages.content,
-			promptImage: undefined
+		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
+		const lastUserMessages = UserMessages.filter(item => item.content && !item.images).map(item => item.content).join('');
+		const UserImagesMessages = UserMessages.filter(item => item.images && item.compute === true);
+		const params = {
+			promptWords: lastUserMessages + (new Date()).valueOf(),
+			promptImage: undefined,
+			clientId: clientUNIId.value
 		};
-		if (UserImagesMessages.length) {
-			params.promptImage = UserImagesMessages[UserImagesMessages.length - 1].images[0];
-		}
 
-		const res = await httpsRequest('/comfyui_api/postPrompt', params);
-		const promptId = res.promptId;
-		console.log(res);
-		fetchWebSocket(res)
+		if (UserImagesMessages.length) {
+			// params.promptImage = UserImagesMessages[UserImagesMessages.length - 1].images[0];
+		}
+		console.log('promt传的参数')
+		console.log(params)
+		// debugger
+		fetchWebSocket(res);
+		await httpsRequest('/hh/comfyui_api/postPrompt', params);
 	}
 
 
@@ -248,15 +396,14 @@
 			.boundingClientRect((data) => {
 				console.log(data)
 				if (data) {
-
 					let top = data.height - scrollTop.value;
 					if (top > 0) {
-						scrollTop.value = top;
+						scrollTop.value = top + 500;
 					}
 				}
 			}).exec();
 	}
-	
+
 	const scrollToBottom = () => {
 		nextTick(() => {
 			initContentHeight()
@@ -268,34 +415,61 @@
 		}
 		dataList.value.push({
 			content: inputValue.value,
-			type: 'right'
+			type: 'right',
+			compute: true // 用于标识加入计算
 		})
+		// putWorkData();
 
 		canSend.value = false;
 		inputValue.value = '';
 
-		// 这里写死下一步生成了
-		addMockRobotReply(3);
-		const res = await getPaintingTask();
+		if (lastRobotMsg.value) {
+			// 这里写死是最后一步了
+			addMockRobotReply(5);
+		} else {
+			// 这里写死下一步生成了
+			addMockRobotReply(3);
+			const res = await getPaintingTask();
+		}
+	}
 
-		// uni.createSelectorQuery().in(this).select('#scroll-view-content').boundingClientRect((res)=>{
-		//                     let top = res.height - this.scrollViewHeight;
-		//                     if(top>0){
-		//                         scrollTop.value = 999;
-		//                     }
-		//                 }).exec()
-		// 滚动
-		// scrollIntoView.value = `message-${dataList.value.length - 1}`
-		// uni.pageScrollTo({
-		// 	scrollTop: 9000,
-		// 	duration: 300,
-		// 	selector: '#scroll-view-content',
-		// });
-		// scrollToBottom();
+	const onUserSelectImg = (evt, messageIndex) => {
+		const imgUrl = evt.detail.value;
+		if (!imgUrl) {
+			return;
+		}
+		if(messageIndex !== dataList.value.length -1) {
+			return;
+		}
+		
+		dataList.value[messageIndex].activeImages = [imgUrl];
+
+		if (lastRobotMsg.value) {
+			// 最后
+			dataList.value.push({
+				type: 'right',
+				content: '我已经选定了',
+				images: [imgUrl],
+				compute: true // 用于标识加入计算
+			})
+			addMockRobotReply(6);
+			getPaintingTask();
+		} else {
+			dataList.value.push({
+				type: 'right',
+				content: '我已经选定了',
+				images: [imgUrl],
+			})
+			addMockRobotReply(4);
+			lastRobotMsg.value = true;
+			canSend.value = true;
+		}
 	}
 
 	const previewImg = (url : string) => {
-		uni.previewImage({ urls: [url] });
+		uni.previewImage({ 
+			urls: [url],
+		});
 	}
 
 	onBeforeUnmount(() => {
@@ -305,6 +479,39 @@
 	const goHistoryPage = () => {
 		uni.navigateTo({
 			url: '/pages/historyDesign/historyDesign'
+		})
+	}
+	
+	// 重新生成
+	const reloadGen = () => {
+		if(isGenLoading.value) {
+			uni.showToast({
+				icon: 'none',
+				title: '任务正在生成，请稍等'
+			})
+			return;
+		}
+		dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map(imgItem => {
+			return {
+				url: '',
+				status: 'queue_remaining',
+				precent: 0
+			}
+		})
+		getPaintingTask();
+	}
+	
+	
+	const addNewWork = async () => {
+		await putWorkData();
+		nextTick(() => {
+			dataList.value = [
+				{
+					...robotReply[0].data,
+					type: 'left',
+				}
+			];
+			workId.value = undefined;
 		})
 	}
 </script>
@@ -354,10 +561,10 @@
 	}
 
 	.footer {
-		    position: fixed;
-		    bottom: 0;
-		    left: 0;
-		    width: 100%;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
 		border-radius: 40rpx 40rpx 0 0;
 		background: white;
 
@@ -406,16 +613,34 @@
 			width: 68rpx;
 			height: 68rpx;
 		}
-
-		.robot-contact-info-box {
+		
+		.robot-contact-info-root-box {
 			margin-left: 24rpx;
 			margin-bottom: 40rpx;
+			.reload {
+				color: $link-color;
+				font-size: 28rpx;
+				padding-top: 16rpx;
+				
+				&.loading {
+					color: $gray-color;
+				}
+				.iconfont {
+					display: inline-block;
+					font-size: 24rpx;
+					margin-right: 20rpx;
+				}
+			}
+		}
+		.robot-contact-info-box {
+			
 			width: 500rpx;
 			background: white;
 			border-radius: 24rpx;
 			padding: 32rpx;
 
 			.title {
+
 				font-size: 28rpx;
 				line-height: 48rpx;
 				font-weight: 500;
@@ -462,16 +687,30 @@
 			justify-content: space-between;
 			margin-bottom: -28rpx;
 
+			
 			.image-option-box {
 				display: inline-flex;
 				flex-direction: column;
 				align-items: center;
 
+				.imageCover {
+					position: absolute;
+					line-height: 240rpx;
+					text-align: center;
+					width: 240rpx;
+					height: 240rpx;
+					border-radius: 24rpx;
+					background: linear-gradient(135.00deg, rgb(23, 242, 95, 0.1) 0%, rgb(37, 106, 247, 0.1) 100%);
+					color: rgb(107, 116, 143);
+					font-size: 24rpx;
+					font-weight: 400;
+				}
+
 				image {
 					width: 240rpx;
 					height: 240rpx;
 					border-radius: 24rpx;
-					background: $border-grey-color;
+					// background: $border-grey-color;
 				}
 			}
 
@@ -482,7 +721,34 @@
 
 			.img-radio {
 
-				transform: scale(0.6)
+				transform: scale(0.6);
+				
+				&::v-deep {
+					.wx-radio-input.wx-radio-input-disabled {
+					  // border : none;
+					  border-radius: 100%;
+					  background : white;
+					  color: #fff;
+					}
+					.wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked {
+						border: none;
+						border-radius: 100%;
+						color: red;
+						background : #256AF7;
+					}
+					.wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked::before {
+					  border-radius : 50%;
+					  width : 20px;
+					  height : 20px;
+					  line-height : 20px;
+					  text-align : center;
+					  font-size : 15px;
+					  color : #fff;
+					  background : transparent;
+					  transform : translate(-50%, -50%) scale(1);
+					  -webkit-transform: translate(-50%, -50%) scale(1);
+					  }
+				}
 			}
 		}
 	}
@@ -496,6 +762,8 @@
 		.avatar {
 			width: 68rpx;
 			height: 68rpx;
+			background: #CFDAEB;
+			border-radius: 50%;
 		}
 
 		.human-contact-info-box {
@@ -514,6 +782,7 @@
 
 			.image-box {
 				background: white;
+				height: 240rpx;
 				border-radius: 24rpx;
 				overflow: hidden;
 			}

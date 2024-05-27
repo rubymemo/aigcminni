@@ -18,20 +18,84 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const innerContentStyle = common_vendor.ref({
       "padding-top": res.statusBarHeight + "px"
     });
-    common_vendor.ref(0);
     const scrollTop = common_vendor.ref(0);
     const canSend = common_vendor.ref(false);
-    const selectTags = common_vendor.ref([]);
     const inputValue = common_vendor.ref("");
+    const clientUNIId = common_vendor.ref("");
+    const lastRobotMsg = common_vendor.ref(false);
+    const isGenLoading = common_vendor.ref(false);
+    const userInfo = common_vendor.ref({
+      avatar: ""
+    });
+    const workId = common_vendor.ref(void 0);
     const dataList = common_vendor.ref([
       {
         ...common_mockData.robotReply[0].data,
         type: "left"
-        // imagesOptions: ['http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png', 'http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png','http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png']
+        // imagesOptions: [{
+        // 	url: '/static/png/mock1.png',
+        // 	status: 'done',
+        // 	precent: 100
+        // },{
+        // 	url: '/static/png/mock2.png',
+        // 	status: 'done',
+        // 	precent: 100
+        // }],
+        // activeImages: [],
       }
     ]);
     const timer = common_vendor.ref();
     const instance = common_vendor.getCurrentInstance();
+    const getWorkDataById = async (id) => {
+      const res2 = await common_utils.httpsRequest(`/hh/works/findById/${id}`, {}, "GET");
+      if (res2) {
+        const dataListTemp = res2.dialogs.map((item) => {
+          return JSON.parse(item.whoSay);
+        });
+        dataList.value = dataListTemp;
+      }
+    };
+    common_vendor.onLoad((params) => {
+      console.log("onLoad");
+      if (params.id) {
+        workId.value = params.id;
+        getWorkDataById(params.id);
+      }
+    });
+    const putWorkData = async () => {
+      const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
+      const lastMessage = dataList.value.find((item) => item.reload && item.type === "left");
+      const lastGenImg = lastMessage ? JSON.stringify(lastMessage.imagesOptions) : void 0;
+      const userInfo2 = JSON.parse(common_vendor.index.getStorageSync("userInfo"));
+      const params = {
+        works: {
+          authorId: userInfo2.userId,
+          id: workId.value || void 0,
+          title: UserMessages[0].content,
+          type: "1",
+          imgUrl: lastGenImg
+        },
+        dialogs: dataList.value.map((item) => {
+          if (item.type === "left") {
+            return {
+              whoId: 0,
+              whoName: "robot",
+              whoSay: JSON.stringify(item)
+            };
+          } else {
+            return {
+              whoId: userInfo2.userId,
+              whoName: userInfo2.username,
+              whoSay: JSON.stringify(item)
+            };
+          }
+        })
+      };
+      const data = workId.value ? common_utils.httpsRequest("/hh/works/editById", params, "PUT") : common_utils.httpsRequest("/hh/works/addBy", params);
+      if (data) {
+        workId.value = data;
+      }
+    };
     const initScrollHeight = () => {
       common_vendor.index.createSelectorQuery().in(instance).select(".scroll-view-content").boundingClientRect((data) => {
         if (data) {
@@ -39,7 +103,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }
       }).exec();
     };
-    common_vendor.onMounted(() => {
+    const getUserInfo = async () => {
+      const res2 = await common_utils.httpsRequest("/cx/meByMobile", {}, "GET");
+      common_vendor.index.setStorageSync("userInfo", JSON.stringify(res2));
+      return res2;
+    };
+    common_vendor.onMounted(async () => {
+      const localUserInfo = await getUserInfo();
+      if (localUserInfo) {
+        userInfo.value = localUserInfo;
+        clientUNIId.value = localUserInfo.userId;
+      }
       initScrollHeight();
     });
     const goUserCenter = () => {
@@ -54,8 +128,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         dataList.value.push({
           ...robotReplyData.data,
           startCreate: robotReplyData.startCreate,
-          type: "left"
+          type: "left",
+          reload: robotId === 6 ? true : false
         });
+        console.log(dataList.value);
         if (robotReplyData.startCreate) {
           canSend.value = true;
         }
@@ -66,7 +142,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       if (messageIndex < dataList.value.length - 1) {
         return;
       }
-      selectTags.value.push(btnStr);
+      dataList.value[messageIndex].activeBtns = [btnStr];
       const manualData = common_mockData.manualReply[btnStr];
       if (manualData.opertionType === "chooseMedia") {
         common_vendor.index.chooseMedia({
@@ -84,12 +160,13 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               success: (uploadFileRes) => {
                 const uploadData = JSON.parse(uploadFileRes.data);
                 if (Number(uploadData.code) === 2e3) {
-                  const url = `http://101.126.93.249/api/hh/comfyui_api/view?type=${uploadData.data.type}&filename=${uploadData.data.filename}`;
+                  const url = common_utils.genImgURl(uploadData.data.type, uploadData.data.filename);
                   console.log(url);
                   dataList.value.push({
                     type: "right",
                     content: "",
                     images: [url]
+                    // compute: true
                   });
                   addMockRobotReply(manualData.nextRobotId);
                 } else {
@@ -117,34 +194,62 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     };
     const fetchWebSocket = (promptData) => {
+      isGenLoading.value = true;
       common_vendor.index.connectSocket({
-        url: "wss://region-101.seetacloud.com"
+        url: "wss://101.126.93.249/ws/?clientId=" + clientUNIId.value
       });
       common_vendor.index.onSocketOpen(function(res2) {
         console.log("WebSocket连接已打开！");
-        common_vendor.index.sendSocketMessage({
-          data: promptData
-        });
       });
       common_vendor.index.onSocketMessage(function(res2) {
-        console.log("收到服务器内容：" + res2.data);
+        console.log("收到服务器内容：");
+        const msgData = JSON.parse(res2.data);
+        console.log(msgData);
+        if (msgData.type === "executed" && Number(msgData.data.node) == 100) {
+          console.log("最终结果");
+          console.log(msgData.data.output);
+          common_vendor.index.closeSocket();
+          const dataListTemp = JSON.parse(JSON.stringify(dataList.value));
+          dataListTemp[dataListTemp.length - 1].imagesOptions = msgData.data.output.images.map((imgItem) => {
+            return {
+              url: common_utils.genImgURl(imgItem.type, imgItem.filename),
+              status: "done",
+              precent: 100
+            };
+          });
+          dataList.value = dataListTemp;
+          common_vendor.nextTick$1(() => {
+            isGenLoading.value = false;
+          });
+        } else if (msgData.type === "progress") {
+          dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map((imgItem) => {
+            return {
+              url: "",
+              status: "loading",
+              precent: Number(msgData.data.value) / Number(msgData.data.max) === 1 ? 98 : (Number(msgData.data.value) / Number(msgData.data.max)).toFixed(2) * 100
+            };
+          });
+        }
+      });
+      common_vendor.index.onSocketClose(function(res2) {
+        console.log("WebSocket 已关闭！");
       });
     };
     const getPaintingTask = async () => {
-      const UserMessages = dataList.value.filter((item, index) => item.type === "right");
-      const lastUserMessages = UserMessages[UserMessages.length - 1];
-      const UserImagesMessages = UserMessages.filter((item) => item.images);
-      let params = {
-        promptWords: lastUserMessages.content,
-        promptImage: void 0
+      const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
+      const lastUserMessages = UserMessages.filter((item) => item.content && !item.images).map((item) => item.content).join("");
+      const UserImagesMessages = UserMessages.filter((item) => item.images && item.compute === true);
+      const params = {
+        promptWords: lastUserMessages + (/* @__PURE__ */ new Date()).valueOf(),
+        promptImage: void 0,
+        clientId: clientUNIId.value
       };
-      if (UserImagesMessages.length) {
-        params.promptImage = UserImagesMessages[UserImagesMessages.length - 1].images[0];
-      }
-      const res2 = await common_utils.httpsRequest("/comfyui_api/postPrompt", params);
-      res2.promptId;
-      console.log(res2);
-      fetchWebSocket(res2);
+      if (UserImagesMessages.length)
+        ;
+      console.log("promt传的参数");
+      console.log(params);
+      fetchWebSocket();
+      await common_utils.httpsRequest("/hh/comfyui_api/postPrompt", params);
     };
     const initContentHeight = () => {
       common_vendor.index.createSelectorQuery().in(instance).select(".contact-container").boundingClientRect((data) => {
@@ -152,7 +257,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         if (data) {
           let top = data.height - scrollTop.value;
           if (top > 0) {
-            scrollTop.value = top;
+            scrollTop.value = top + 500;
           }
         }
       }).exec();
@@ -168,15 +273,53 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       dataList.value.push({
         content: inputValue.value,
-        type: "right"
+        type: "right",
+        compute: true
+        // 用于标识加入计算
       });
       canSend.value = false;
       inputValue.value = "";
-      addMockRobotReply(3);
-      await getPaintingTask();
+      if (lastRobotMsg.value) {
+        addMockRobotReply(5);
+      } else {
+        addMockRobotReply(3);
+        await getPaintingTask();
+      }
+    };
+    const onUserSelectImg = (evt, messageIndex) => {
+      const imgUrl = evt.detail.value;
+      if (!imgUrl) {
+        return;
+      }
+      if (messageIndex !== dataList.value.length - 1) {
+        return;
+      }
+      dataList.value[messageIndex].activeImages = [imgUrl];
+      if (lastRobotMsg.value) {
+        dataList.value.push({
+          type: "right",
+          content: "我已经选定了",
+          images: [imgUrl],
+          compute: true
+          // 用于标识加入计算
+        });
+        addMockRobotReply(6);
+        getPaintingTask();
+      } else {
+        dataList.value.push({
+          type: "right",
+          content: "我已经选定了",
+          images: [imgUrl]
+        });
+        addMockRobotReply(4);
+        lastRobotMsg.value = true;
+        canSend.value = true;
+      }
     };
     const previewImg = (url) => {
-      common_vendor.index.previewImage({ urls: [url] });
+      common_vendor.index.previewImage({
+        urls: [url]
+      });
     };
     common_vendor.onBeforeUnmount(() => {
       clearTimeout(timer.value);
@@ -184,6 +327,35 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const goHistoryPage = () => {
       common_vendor.index.navigateTo({
         url: "/pages/historyDesign/historyDesign"
+      });
+    };
+    const reloadGen = () => {
+      if (isGenLoading.value) {
+        common_vendor.index.showToast({
+          icon: "none",
+          title: "任务正在生成，请稍等"
+        });
+        return;
+      }
+      dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map((imgItem) => {
+        return {
+          url: "",
+          status: "queue_remaining",
+          precent: 0
+        };
+      });
+      getPaintingTask();
+    };
+    const addNewWork = async () => {
+      await putWorkData();
+      common_vendor.nextTick$1(() => {
+        dataList.value = [
+          {
+            ...common_mockData.robotReply[0].data,
+            type: "left"
+          }
+        ];
+        workId.value = void 0;
       });
     };
     return (_ctx, _cache) => {
@@ -210,31 +382,46 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               return {
                 a: common_vendor.t(btnItem),
                 b: btnIndex,
-                c: common_vendor.n(`robot-btn ${selectTags.value.includes(btnItem) ? "active" : ""}`),
+                c: common_vendor.n(`robot-btn ${item.activeBtns.includes(btnItem) ? "active" : ""}`),
                 d: common_vendor.o(($event) => onRobotBtnClick(btnItem, index), btnIndex)
               };
             })
           } : {}, {
             j: item.imagesOptions
           }, item.imagesOptions ? {
-            k: common_vendor.f(item.imagesOptions, (imageItemSrc, imgIndex, i1) => {
-              return {
-                a: imageItemSrc,
-                b: common_vendor.o(($event) => previewImg(imageItemSrc), imgIndex),
-                c: imageItemSrc,
-                d: imgIndex
-              };
-            })
-          } : {}) : {}, {
-            l: item.type === "right"
-          }, item.type === "right" ? common_vendor.e({
-            m: item.content
-          }, item.content ? {
-            n: common_vendor.t(item.content)
+            k: common_vendor.f(item.imagesOptions, (imageItem, imgIndex, i1) => {
+              return common_vendor.e({
+                a: common_vendor.t(imageItem.status === "queue_remaining" ? "任务排队中，请稍等" : ""),
+                b: common_vendor.t(imageItem.status === "loading" ? `生成进度:${imageItem.precent}%` : ""),
+                c: imageItem.status === "loading" || imageItem.status === "queue_remaining",
+                d: imageItem.status === "done" ? imageItem.url : "",
+                e: common_vendor.o(($event) => previewImg(imageItem.url), imgIndex)
+              }, !item.reload ? {
+                f: imageItem.url,
+                g: index < dataList.value.length - 1,
+                h: item.activeImages.includes(imageItem.url)
+              } : {}, {
+                i: imgIndex
+              });
+            }),
+            l: !item.reload,
+            m: item.reload ? "0rpx" : "28rpx",
+            n: common_vendor.o((e) => onUserSelectImg(e, index), index)
           } : {}, {
-            o: item.images
+            o: item.reload && !isGenLoading.value
+          }, item.reload && !isGenLoading.value ? {
+            p: common_vendor.n(`reload ${isGenLoading.value ? "loading" : ""}`),
+            q: common_vendor.o(reloadGen, index)
+          } : {}) : {}, {
+            r: item.type === "right"
+          }, item.type === "right" ? common_vendor.e({
+            s: item.content
+          }, item.content ? {
+            t: common_vendor.t(item.content)
+          } : {}, {
+            v: item.images
           }, item.images ? {
-            p: common_vendor.f(item.images, (imageItemSrc, imgIndex, i1) => {
+            w: common_vendor.f(item.images, (imageItemSrc, imgIndex, i1) => {
               return {
                 a: imageItemSrc,
                 b: common_vendor.o(($event) => previewImg(imageItemSrc), imgIndex),
@@ -242,32 +429,33 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               };
             })
           } : {}, {
-            q: common_assets._imports_0
+            x: userInfo.value.avatar
           }) : {}, {
-            r: index
+            y: index
           });
         }),
         d: scrollTop.value,
-        e: common_vendor.p({
+        e: common_vendor.o(addNewWork),
+        f: common_vendor.p({
           height: 56,
           width: 146,
           active: true
         }),
-        f: common_vendor.o(goHistoryPage),
-        g: common_vendor.p({
+        g: common_vendor.o(goHistoryPage),
+        h: common_vendor.p({
           height: 56,
           width: 146,
           active: true
         }),
-        h: !canSend.value,
-        i: canSend.value ? "输入对话后，可通过回车键发送指令" : "请先选择机器人提供的选项",
-        j: inputValue.value,
-        k: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {
+        i: !canSend.value,
+        j: canSend.value ? "输入对话后，可通过回车键发送指令" : "请先选择机器人提供的选项",
+        k: inputValue.value,
+        l: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {
           trim: true
         })),
-        l: common_assets._imports_1,
-        m: common_vendor.n(`send-btn ${canSend.value && inputValue.value ? "" : "disabled"} `),
-        n: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value))
+        m: common_assets._imports_1,
+        n: common_vendor.n(`send-btn ${canSend.value && inputValue.value ? "" : "disabled"} `),
+        o: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value))
       };
     };
   }

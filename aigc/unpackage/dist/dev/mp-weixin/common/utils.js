@@ -1,6 +1,6 @@
 "use strict";
 const common_vendor = require("./vendor.js");
-const host = "http://101.126.93.249/api/hh";
+const host = "http://101.126.93.249/api";
 const httpsRequestResult = (httpRes, noshowerr) => {
   if (httpRes.statusCode === 200) {
     const data = httpRes.data;
@@ -37,4 +37,24 @@ const httpsRequest = async (url, params, method, noheader, noshowerr) => {
   const data = httpsRequestResult(res, noshowerr);
   return data;
 };
+const genImgURl = (type, filename) => {
+  return `${host}/hh/comfyui_api/view?type=${type}&filename=${filename}`;
+};
+function getDay(day) {
+  const days = /* @__PURE__ */ new Date();
+  const gettimes = days.getTime() + 1e3 * 60 * 60 * 24 * day;
+  days.setTime(gettimes);
+  const year = days.getFullYear();
+  let month = days.getMonth() + 1;
+  if (month < 10) {
+    month = "0" + month;
+  }
+  let today = days.getDate();
+  if (today < 10) {
+    today = "0" + today;
+  }
+  return year + "-" + month + "-" + today;
+}
+exports.genImgURl = genImgURl;
+exports.getDay = getDay;
 exports.httpsRequest = httpsRequest;

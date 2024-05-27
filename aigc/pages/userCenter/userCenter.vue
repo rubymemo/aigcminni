@@ -8,8 +8,8 @@
 			
 			<view class="user-info" @click="goPage('/pages/editUserInfo/editUserInfo')">
 				<view class="left">
-					<image class="avatar" src="../../static/c1.png"></image>
-					<view>番茄炒蛋</view>
+					<image class="avatar" :src="userInfo.avatar"></image>
+					<view>{{ userInfo.nickname || userInfo.username || '暂无昵称'}}</view>
 				</view>
 				<view class="right">
 					<text style="margin-right: 5px;">编辑资料</text>
@@ -29,7 +29,7 @@
 					</view>
 				</view>
 				<view class="diliver"></view>
-				<view class="card-item">
+				<view class="card-item" @click="waitTodo">
 					<view class="left">
 						<view class="iconfont icon-a-zuhe7276"> </view>
 						<text class="label">历史下载</text>
@@ -41,7 +41,7 @@
 			</view>
 		
 			<view class="card">
-				<view class="card-item">
+				<view class="card-item" @click="waitTodo">
 					<view class="left">
 						<view class="iconfont icon-xiaoxi"> </view>
 						<text class="label">我的消息</text>
@@ -75,7 +75,7 @@
 				</view>
 			</view>
 			
-			<button class="normal big">退出账号</button>
+			<button class="normal big" @click="logout">退出账号</button>
 		</view>
 		
 		
@@ -85,10 +85,32 @@
 
 <script setup lang="ts">
 	import { ref } from 'vue';
+	import { onHide, onShow } from "@dcloudio/uni-app";
+	import { httpsRequest } from '@/common/utils';
 	
 	const res = uni.getSystemInfoSync();
 	const innerContentStyle = ref({
 		'padding-top': res.statusBarHeight + 'px'
+	})
+	const userInfo = ref({
+		avatar: '',
+		nickname: ''
+	})
+	const timer = ref('');
+	const getUserInfo = async (id: string) => {
+		const res = await httpsRequest(`/cx/member/findById/${id}`, userInfo.value, 'GET');
+		userInfo.value = {
+			id,
+			...res
+		};
+	}
+
+	onShow(() => {
+		// 下面这个是为了万一editUserInfo修改用户信息。
+		timer.value = setTimeout(() => {
+			const local = JSON.parse(uni.getStorageSync('userInfo'));
+			getUserInfo(local.userId)
+		},200)
 	})
 	
 	const goDesignCenter = () => {
@@ -102,6 +124,29 @@
 			url: url
 		})
 	}
+	
+	const waitTodo = () => {
+		uni.showToast({
+			icon: 'none',
+			title: '功能开发中...请耐心等待'
+		})
+	}
+	
+	const logout = () => {
+		uni.showModal({
+			title: '确定退出？',
+			success: () => {
+				uni.clearStorageSync();
+				uni.redirectTo({
+					url: '/pages/index/index'
+				})
+			}
+		})
+	}
+	
+	onHide(() => {
+		clearTimeout(timer.value);
+	})
 </script>
 
 <style lang="scss" scoped>
@@ -156,7 +201,7 @@
 			.avatar {
 				width: 100rpx;
 				height: 100rpx;
-				background-color: gray;
+				background-color: #CFDAEB;
 				border-radius: 50%;
 				margin-right: 20rpx;
 			}

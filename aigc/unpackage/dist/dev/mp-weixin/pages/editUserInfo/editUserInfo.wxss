@@ -61,6 +61,13 @@ button.big.data-v-9a54821f {
   border-radius: 4px;
   background: linear-gradient(135deg, #17f25f, #256af7 100%);
 }
+.container .avatar-box .camera-box .iconfont.data-v-9a54821f {
+  margin-left: 2rpx;
+  font-size: 26rpx;
+  color: white;
+  margin-left: 3rpx;
+  margin-top: 2rpx;
+}
 .card.data-v-9a54821f {
   background: white;
   border-radius: 12px;
@@ -85,11 +92,18 @@ button.big.data-v-9a54821f {
   align-items: center;
 }
 .card .card-item .left .label.data-v-9a54821f {
-  font-size: 14px;
+  font-size: 28rpx;
+}
+.card .card-item .right.data-v-9a54821f {
+  display: inline-flex;
+  align-items: center;
 }
 .card .card-item .right .label.data-v-9a54821f {
-  font-size: 14px;
+  font-size: 28rpx;
   color: #6B748F;
+}
+.card .card-item .right input.data-v-9a54821f {
+  text-align: right;
 }
 .card .card-item .label.data-v-9a54821f {
   margin-left: 16rpx;
@@ -136,4 +150,15 @@ button.big.data-v-9a54821f {
 .weixin.data-v-9a54821f {
   width: 48rpx;
   height: 48rpx;
+}
+.cus-data-picker.data-v-9a54821f .uni-date-x--border {
+  border: none;
+}
+.cus-data-picker.data-v-9a54821f .icon-calendar {
+  display: none;
+}
+.cus-data-picker.data-v-9a54821f .uni-date__x-input {
+  height: 60rpx !important;
+  line-height: 60rpx !important;
+  color: #6B748F !important;
 }

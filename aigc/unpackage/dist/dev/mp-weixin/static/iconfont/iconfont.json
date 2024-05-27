@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "40476811",
+      "name": "loading",
+      "font_class": "loading",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "40450096",
+      "name": "camera",
+      "font_class": "camera",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
       "icon_id": "40443225",
       "name": "男",
       "font_class": "nan",

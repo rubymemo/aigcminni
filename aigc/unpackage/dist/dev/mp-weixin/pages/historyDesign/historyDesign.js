@@ -25,18 +25,46 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const isAll = common_vendor.ref(true);
     const selectOptions = (value) => {
       isAll.value = false;
+      common_vendor.nextTick$1(() => {
+        paging.value.reload();
+      });
     };
     const queryList = async (pageNo, pageSize) => {
       console.log(pageNo, pageSize);
-      const res = await common_utils.httpsRequest(`/works/pageBy/${pageSize}/${pageNo}`, {}, "GET");
-      paging.value.complete(res.data || []);
+      let query = {};
+      if (searchValues.type) {
+        query.type = searchValues.type;
+      }
+      if (searchValues.time) {
+        const type = Number(searchValues.time);
+        query.endTime = `${common_utils.getDay(0)} 23:59:59`;
+        if (type === 1) {
+          query.startTime = `${common_utils.getDay(-1)} 00:00:00`;
+        } else if (type === 7) {
+          query.startTime = `${common_utils.getDay(-6)} 00:00:00`;
+        } else if (type === 30) {
+          query.startTime = `${common_utils.getDay(-29)} 00:00:00`;
+        }
+      }
+      const res = await common_utils.httpsRequest(`/hh/works/pageBy/${pageSize}/${pageNo}`, query, "GET");
+      const data = res.data.map((item) => {
+        return {
+          ...item,
+          imgUrlList: item.imgUrl ? JSON.parse(item.imgUrl) : []
+        };
+      });
+      paging.value.complete(data || []);
     };
     const clickAll = () => {
       isAll.value = true;
       searchValues.time = null;
       searchValues.type = null;
-      console.log("clickAll");
-      console.log(searchValues);
+      paging.value.reload();
+    };
+    const clickItem = (item) => {
+      common_vendor.index.redirectTo({
+        url: `/pages/designCenter/designCenter?id=${item.id}`
+      });
     };
     return (_ctx, _cache) => {
       return {
@@ -53,10 +81,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           width: 212,
           options: [{
             label: "logo生成",
-            value: "0"
+            value: "1"
           }, {
             label: "创意营销大图",
-            value: "1"
+            value: "2"
           }],
           placeholder: "类型",
           modelValue: searchValues.type
@@ -67,11 +95,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           height: 66,
           width: 212,
           options: [{
-            label: "近一个月",
-            value: "0"
+            label: "昨天",
+            value: "1"
           }, {
             label: "近7天",
-            value: "1"
+            value: "7"
+          }, {
+            label: "近一个月",
+            value: "30"
           }],
           placeholder: "时间",
           modelValue: searchValues.time
@@ -81,8 +112,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           index
         }, s0, i0) => {
           return {
-            a: i0,
-            b: s0
+            a: common_vendor.t(item.title),
+            b: common_vendor.t(item.createTime),
+            c: item.imgUrlList.length ? item.imgUrlList[0].url : "",
+            d: common_vendor.o(($event) => clickItem(item)),
+            e: i0,
+            f: s0
           };
         }, {
           name: "cell",

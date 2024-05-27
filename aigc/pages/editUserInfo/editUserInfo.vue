@@ -1,9 +1,11 @@
 <template>
 	<view class="container">
 		<view class="avatar-div">
-			<view class="avatar-box">
-				<image class="avatar" src="../../static/c1.png"></image>
-				<view class="camera-box"></view>
+			<view class="avatar-box" @click="handleChooseImg">
+				<image class="avatar" :src="userInfo.avatar" ></image>
+				<view class="camera-box">
+					<view class="iconfont icon-camera"></view>
+				</view>
 			</view>
 		</view>
 		
@@ -13,7 +15,7 @@
 					<text class="label">昵称</text>
 				</view>
 				<view class="right">
-					<text class="label">番茄炒蛋</text>
+					<input class="label" @blur="putUserInfo" v-model.trim="userInfo.nickname" focus placeholder="请输入昵称" placeholder-style="color: #6B748F"/>
 				</view>
 			</view>
 			<view class="diliver"></view>
@@ -22,11 +24,10 @@
 					<text class="label">性别</text>
 				</view>
 				<view class="right">
-					<view class="gender-btn active" style="margin-right: 20px;">
+					<view :class="`gender-btn ${userInfo.gender === 'M' ? 'active' : ''}`" style="margin-right: 20px;" @click="choseGener('M')">
 						<view class="gender-btn-inner"><view class="iconfont icon-nan"></view>男</view>
-						
 					</view>
-					<view class="gender-btn">
+					<view :class="`gender-btn ${userInfo.gender === 'F' ? 'active' : ''}`" @click="choseGener('F')">
 						<view class="gender-btn-inner"><view class="iconfont icon-nv"></view>女</view>
 					</view>
 				</view>
@@ -36,8 +37,10 @@
 				<view class="left">
 					<text class="label">生日</text>
 				</view>
-				<view class="right">
-					<text class="label">番茄炒蛋</text>
+				<view class="right cus-data-picker">
+					
+					<uni-datetime-picker type="date" :clear-icon="false" v-model="userInfo.birth" />
+					<!-- <text class="label">番茄炒蛋</text> -->
 				</view>
 			</view>
 			<view class="diliver"></view>
@@ -46,7 +49,7 @@
 					<text class="label">手机号</text>
 				</view>
 				<view class="right">
-					<text class="label">番茄炒蛋</text>
+					<input class="label" v-model.trim="userInfo.mobile" type="number" placeholder="请输入手机号" placeholder-style="color: #6B748F"/>
 				</view>
 			</view>
 		</view>
@@ -67,17 +70,86 @@
 	</view>
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				
-			}
-		},
-		methods: {
-			
-		}
+<script setup lang="ts">
+	import { nextTick, ref } from 'vue';
+	import { onLoad, onBackPress, onHide, onUnload } from "@dcloudio/uni-app";
+	import { httpsRequest, genImgURl } from '@/common/utils';
+	
+	
+	const userInfo = ref({
+		id: '',
+		avatar: '',
+		nickname: '',
+		birth: '',
+		gender: '',
+		mobile: ''
+	})
+	
+	
+	const getUserInfo = async (id: string) => {
+		const res = await httpsRequest(`/cx/member/findById/${id}`, userInfo.value, 'GET');
+		userInfo.value = {
+			id,
+			...res
+		};
 	}
+	
+	const putUserInfo = async () => {
+		const res = await httpsRequest('/cx/member/editById', userInfo.value, 'PUT');
+	}
+	
+	const choseGener = (gender: string) => {
+		userInfo.value.gender = gender;
+	}
+	onLoad(() => {
+		const res = JSON.parse(uni.getStorageSync('userInfo'));
+		getUserInfo(res.userId);
+		
+	})
+	const handleChooseImg = () => {
+		uni.chooseMedia({
+			count: 1,
+			mediaType: ['image'],
+			sourceType: ['album', 'camera'],
+			camera: 'back',
+			success: (chooseImageRes) => {
+				const tempFilePaths = chooseImageRes.tempFiles;
+				uni.uploadFile({
+					url: 'http://101.126.93.249/api/hh/comfyui_api/uploadImage', //仅为示例，非真实的接口地址
+					filePath: tempFilePaths[0].tempFilePath,
+					name: 'image',
+					success: (uploadFileRes) => {
+						const uploadData = JSON.parse(uploadFileRes.data);
+						// filename: "8bcae338-8872-4982-855a-93651ea036aa.png"
+						// subfolder: ""
+						// type: "input"
+						// `http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png`
+						if (Number(uploadData.code) === 2000) {
+							const url = genImgURl(uploadData.data.type, uploadData.data.filename);
+							userInfo.value.avatar = url;
+						} else {
+							uni.showToast({
+								icon: 'none', title: '上传失败，请联系客服或稍后重试'
+							})
+						}
+					},
+					fail: () => {
+						uni.showToast({
+							icon: 'none', title: '上传失败，请联系客服或稍后重试'
+						})
+					}
+				});
+			}
+		});
+				
+	}
+	onUnload(() => {
+		putUserInfo();
+		// uni.redirectTo({
+		//     url: '/pages/userCenter/userCenter'
+		// });
+		// return false;
+	})
 </script>
 
 <style lang="scss" scoped>
@@ -101,7 +173,7 @@
 			height: 136rpx;
 			border-radius: 50%;
 			background: white;
-			
+			// background-color: #CFDAEB;
 		}
 		.camera-box {
 			display: flex;
@@ -114,6 +186,13 @@
 			height: 20px;
 			border-radius: 4px;
 			background: $bg-color;
+			.iconfont {
+				margin-left: 2rpx;
+				font-size: 26rpx;
+				color: white;
+				    margin-left: 3rpx;
+				    margin-top: 2rpx;
+			}
 		}
 	}
 	
@@ -142,13 +221,18 @@
 				display: flex;
 				align-items: center;
 				.label {
-					font-size: 14px;
+					font-size: 28rpx;
 				}
 			}
 			.right {
+				display: inline-flex;
+				align-items: center;
 				.label {
-					font-size: 14px;
+					font-size: 28rpx;
 					color: $gray-color;
+				}
+				input {
+					text-align: right;
 				}
 			}
 			.label {
@@ -203,5 +287,21 @@
 	.weixin {
 		width: 48rpx;
 		height: 48rpx;
+	}
+	.cus-data-picker {
+		&::v-deep {
+			.uni-date-x--border {
+				border: none;
+			}
+			.icon-calendar {
+				display: none;
+			}
+			.uni-date__x-input {
+				height: 60rpx !important;
+				line-height: 60rpx !important;
+				color: $gray-color !important;
+			}
+			
+		}
 	}
 </style>

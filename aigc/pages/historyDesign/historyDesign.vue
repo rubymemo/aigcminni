@@ -7,7 +7,7 @@
 					v-model="searchValues.type"
 					:height="66" 
 					:width="212" 
-					:options="[{ label: 'logo生成', value: '0'}, { label: '创意营销大图', value: '1'}]" 
+					:options="[{ label: 'logo生成', value: '1'}, { label: '创意营销大图', value: '2'}]" 
 					@change="selectOptions"
 					placeholder="类型"
 				>
@@ -16,20 +16,20 @@
 					v-model="searchValues.time"
 					:height="66" 
 					:width="212" 
-					:options="[{ label: '近一个月', value: '0'}, { label: '近7天', value: '1'}]" 
+					:options="[{label: '昨天', value: '1'}, {label: '近7天', value: '7'}, { label: '近一个月', value: '30'}]" 
 					@change="selectOptions"
 					placeholder="时间">
 				</g-select>
 			</view>
 		</template>
 		<template v-slot:cell="{item,index}">
-			<view class="list-item">
+			<view class="list-item" @click="clickItem(item)">
 				<view class="list-info">
-					<view class="desc">据交通运输部公众号，根据国务院物流保通保畅工作领导小组办公室监</view>
-					<view class="time">2024/04/03</view>
+					<view class="desc">{{ item.title }}</view>
+					<view class="time">{{ item.createTime }}</view>
 				</view>
 				<view class="image-box">
-					<image src="../../static/c1.png"></image>
+					<image :src="item.imgUrlList.length ? item.imgUrlList[0].url : ''"></image>
 				</view>
 			</view>
 		</template> 
@@ -37,8 +37,8 @@
 </template>
 
 <script setup lang="ts">
-	import { ref,reactive, watch } from 'vue';
-	import { httpsRequest } from '@/common/utils';
+	import { ref,reactive, watch, nextTick } from 'vue';
+	import { httpsRequest, getDay } from '@/common/utils';
 	const dataList = ref([]);
 	const paging = ref();
 	const searchValues = reactive({
@@ -48,16 +48,43 @@
 	const isAll = ref(true);
 	
 
+
 	const selectOptions = (value) => {
 		isAll.value = false
+		nextTick(() => {
+			paging.value.reload()
+		})
 	}
+	
 	
 		
 	const queryList = async (pageNo, pageSize) => {
 		console.log(pageNo, pageSize)
 		// if(pageNo === 1) {
-			const res = await httpsRequest(`/works/pageBy/${pageSize}/${pageNo}`, {}, 'GET');
-			paging.value.complete(res.data || []);
+		let query = {}	
+		if(searchValues.type) {
+			query.type =searchValues.type;
+		}
+		if(searchValues.time) {
+			const type = Number(searchValues.time);
+			query.endTime = `${getDay(0)} 23:59:59`;
+			if(type === 1) {
+				// 昨天
+				query.startTime = `${getDay(-1)} 00:00:00`;
+			} else if(type === 7) {
+				query.startTime = `${getDay(-6)} 00:00:00`;
+			} else if(type === 30) {
+				query.startTime = `${getDay(-29)} 00:00:00`;
+			}
+		}
+			const res = await httpsRequest(`/hh/works/pageBy/${pageSize}/${pageNo}`, query, 'GET');
+			const data = res.data.map(item => {
+				return {
+					...item,
+					imgUrlList: item.imgUrl ? JSON.parse(item.imgUrl) : []
+				}
+			})
+			paging.value.complete(data || []);
 		// } else {
 		// 	paging.value.complete([]);
 		// }
@@ -67,8 +94,13 @@
 		isAll.value = true;
 		searchValues.time = null;
 		searchValues.type = null;
-		console.log('clickAll')
-		console.log(searchValues);
+		paging.value.reload();
+	}
+	
+	const clickItem = (item) => {
+		uni.redirectTo({
+			url: `/pages/designCenter/designCenter?id=${item.id}`,
+		})
 	}
 </script>
 
