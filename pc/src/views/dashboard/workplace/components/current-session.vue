@@ -4,6 +4,7 @@
       v-for="(item, index) in commitList"
       v-bind="item"
       :key="item.id"
+      :disabled="actionDisabled(index)"
       @choose-img="handleChooseTemplate"
     >
       <template #sessionStart>
@@ -40,6 +41,14 @@
           </template>
         </a-upload>
       </template>
+      <template #supplyText>
+        <a-button
+          class="action-button"
+          :disabled="actionDisabled(index)"
+          @click="noTextSupply"
+          >没有</a-button
+        >
+      </template>
     </SessionItem>
   </div>
 </template>
@@ -49,6 +58,7 @@ import { uploadImage } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
 import { ref } from 'vue';
 import { v4 } from 'uuid';
+import { getImagePath } from '../util';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -56,7 +66,13 @@ interface CommitItem extends SessionItemProps {
 </script>
 
 <script setup lang="ts">
-const emit = defineEmits(['imageUploadSuccess', 'waitInput']);
+const emit = defineEmits([
+  'imageUploadSuccess',
+  'waitInput',
+  'textComplete',
+  'noText',
+  'chooseStyle'
+]);
 
 const disabledUpload = ref(false);
 
@@ -116,7 +132,8 @@ const customUpload = (option: any): any => {
     disabledUpload.value = true;
     addCommit({
       author: 'user',
-      image: `http://101.126.93.249/api/hh/comfyui_api/view?type=${res.data.type}&filename=${res.data.filename}`,
+      // image: `http://101.126.93.249/api/hh/comfyui_api/view?type=${res.data.type}&filename=${res.data.filename}`,
+      image: getImagePath(res.data.filename, res.data.type),
     });
     emit('imageUploadSuccess', res.data.filename);
   });
@@ -125,13 +142,24 @@ const customUpload = (option: any): any => {
 const handleChooseTemplate = (imgUrl: string) => {
   addCommit({
     author: 'user',
-    image: imgUrl
-  })
+    image: imgUrl,
+    content: '我已经选定了',
+  });
   addCommit({
-    content: '接下来您可以输入一些内容'
-  })
-}
+    content:
+      '针对文字部分，您是否还有其它补充，如果没有直接点击没有跳过即可，如果有请在下方输入',
+    slotName: 'supplyText',
+  });
+  emit('chooseStyle', imgUrl)
+};
 
+const noTextSupply = () => {
+  addCommit({
+    author: 'user',
+    content: '没有',
+  });
+  emit('noText');
+};
 defineExpose({
   addCommit,
 });

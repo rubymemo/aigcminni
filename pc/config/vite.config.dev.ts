@@ -15,6 +15,10 @@ export default mergeConfig(
           target: 'http://101.126.93.249/api',
           changeOrigin: true,
         },
+        '/cx': {
+          target: 'http://101.126.93.249/api',
+          changeOrigin: true,
+        },
       }
     },
     // server: {

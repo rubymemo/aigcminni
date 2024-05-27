@@ -36,6 +36,8 @@
             <CurrentSession
               ref="sessionListRef"
               @image-upload-success="handleImageUploaded"
+              @choose-style="handleChooseStyle"
+              @no-text="handleNoText"
             />
           </div>
         </div>
@@ -79,6 +81,7 @@ import {
   sendMessage,
 } from '@/api/dashboard';
 import { v4 } from 'uuid';
+import { getImagePath } from './util';
 
 const logs = ref<any[]>([]);
 
@@ -87,7 +90,11 @@ const sessionListRef = ref();
 
 const wsInstance = ref<WebSocket>();
 
-const initWs = (imageName = '', words = '', type: 'template-1' | 'template-2' = 'template-1') => {
+const initWs = (
+  imageName = '',
+  words = '',
+  type: 'template' | 'style' = 'template',
+) => {
   const uuid = v4();
 
   let promptId = '';
@@ -108,11 +115,12 @@ const initWs = (imageName = '', words = '', type: 'template-1' | 'template-2' = 
       promptId = res.data.promptId;
       dataRef = ref({
         loading: true,
-      })
+        progress: 0,
+      });
       sessionListRef.value.addCommit({
         preset: type,
-        data: dataRef
-      })
+        data: dataRef,
+      });
     });
   };
   wsInstance.value.onmessage = (message: any) => {
@@ -128,21 +136,25 @@ const initWs = (imageName = '', words = '', type: 'template-1' | 'template-2' = 
       console.log('开始生成');
     }
     if (messageInfo.type === 'executing' && messageInfo.data.node) {
-      dataRef.value.progress = (messageInfo.data.time / (messageInfo.data.max + 1)).toFixed(4) * 100;
       console.log('正在执行');
     }
     if (messageInfo.type === 'progress') {
+      const step = Number((95 / messageInfo.data.max).toFixed(2));
+      dataRef.value.progress = messageInfo.data.value * step;
       console.log('正在生成图片');
     }
     if (messageInfo.type === 'executing' && !messageInfo.data.node) {
       dataRef.value.progress = 100;
+      dataRef.value.loading = false;
       console.log('生成完成', messageInfo);
       if (!promptId) {
         return;
       }
       getSessionHistory(promptId).then((res) => {
         console.log('promptHistory', res);
-        dataRef.value.imgUrls = res.data[promptId].outputs[53].map(item => item.filename)
+        dataRef.value.imgUrls = res.data[promptId].outputs[100].images.map(
+          (item) => getImagePath(item.filename, item.type),
+        );
       });
       wsInstance.value?.close();
       wsInstance.value = undefined;
@@ -168,14 +180,22 @@ onBeforeMount(() => {
 //   });
 // };
 
+const styleImgUrl = ref('');
+let imgUploaded = false;
+
 const handleSendButtonClick = () => {
+  initWs(
+    styleImgUrl.value,
+    inputText.value,
+    imgUploaded ? 'style' : 'template',
+  );
   // sendMessageAction('', inputText.value);
 };
 
 const enterSend = (event: any) => {
   if (event.keyCode === 13 && inputText.value) {
     console.log(event);
-    initWs('', inputText.value, 'template-2');
+    initWs(styleImgUrl.value, inputText.value, 'style');
     // 判断按下的是否是回车键的keyCode
     event.preventDefault();
   }
@@ -183,6 +203,7 @@ const enterSend = (event: any) => {
 
 // 图片上传成功
 const handleImageUploaded = (imageUrl: string) => {
+  imgUploaded = true;
   initWs(imageUrl, '');
   // sendMessage({
   //   promptImage: imageUrl,
@@ -195,6 +216,14 @@ const handleImageUploaded = (imageUrl: string) => {
   //     console.log('history', history);
   //   });
   // });
+};
+
+const handleChooseStyle = (imgUrl: string) => {
+  styleImgUrl.value = imgUrl;
+};
+
+const handleNoText = () => {
+  initWs(styleImgUrl.value, '', 'style');
 };
 
 onMounted(() => {
