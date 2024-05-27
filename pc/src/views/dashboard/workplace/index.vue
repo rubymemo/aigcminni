@@ -1,9 +1,13 @@
 <template>
   <div class="layout">
     <div class="left-bar">
-      <div class="logo-area"> logo占位 </div>
+      <div class="logo-area"> 
+        <img :src="Logo" alt="huatu" />  
+      </div>
       <div class="button-area">
-        <a-button class="create-session-button"> 新建会话 </a-button>
+        <a-button class="create-session-button" @click="addSession">
+          新建会话
+        </a-button>
       </div>
       <div class="session-log-container">
         <div class="log-header">会话记录</div>
@@ -69,6 +73,7 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs';
+import Logo from '@/assets/images/logo.png'
 import avatar from '@/assets/images/avatar.png';
 import SendSvg from '@/assets/svg/send.svg';
 import SendIcon from '@/assets/images/send-icon.png';
@@ -76,12 +81,15 @@ import SessionLog from './components/session-log.vue';
 import CurrentSession from './components/current-session.vue';
 import { onBeforeMount, onMounted, ref } from 'vue';
 import {
+  createSession,
   getSessionHistory,
   getSessionList,
   sendMessage,
 } from '@/api/dashboard';
 import { v4 } from 'uuid';
 import { getImagePath } from './util';
+import { useUserStore } from '@/store';
+import { useRouter } from 'vue-router';
 
 const logs = ref<any[]>([]);
 
@@ -89,6 +97,26 @@ const inputText = ref('');
 const sessionListRef = ref();
 
 const wsInstance = ref<WebSocket>();
+
+const userInfo = useUserStore();
+const router = useRouter();
+
+const addSession = async () => {
+  const res = await createSession({
+    works: {
+      authorId: userInfo.userId,
+      type: 1,
+      title: '新键会话',
+    },
+    dialogs: [],
+  });
+  console.log(res);
+  router.replace({
+    query: {
+      promptId: res.data,
+    },
+  });
+};
 
 const initWs = (
   imageName = '',
@@ -228,11 +256,13 @@ const handleNoText = () => {
 
 onMounted(() => {
   getSessionList(1, 10)
-    .then((res) => {
+    .then((res: any) => {
       if (res.code !== '2000') {
         return;
       }
 
+      console.log('res.data', res.data);
+      
       logs.value = res.data.data;
     })
     .catch((error) => {
@@ -269,6 +299,14 @@ onMounted(() => {
       height: 70px;
       border: 2px solid #fff;
       border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      padding-left: 24px;
+
+      img {
+        width: 104px;
+        height: 30px;
+      }
     }
 
     .button-area {
