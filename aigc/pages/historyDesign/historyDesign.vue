@@ -29,7 +29,7 @@
 					<view class="time">{{ item.createTime }}</view>
 				</view>
 				<view class="image-box">
-					<image :src="item.imgUrlList.length ? item.imgUrlList[0].url : ''"></image>
+					<image :src="item.imgUrl"></image>
 				</view>
 			</view>
 		</template> 
@@ -81,13 +81,7 @@
 			}
 		}
 			const res = await httpsRequest(`/hh/dialog/pageMeBy/${pageSize}/${pageNo}`, query, 'GET');
-			const data = res.data.map(item => {
-				return {
-					...item,
-					imgUrlList: item.imgUrl ? JSON.parse(item.imgUrl) : []
-				}
-			})
-			paging.value.complete(data || []);
+			paging.value.complete(res.data || []);
 		// } else {
 		// 	paging.value.complete([]);
 		// }

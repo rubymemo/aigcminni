@@ -50,13 +50,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }
       }
       const res = await common_utils.httpsRequest(`/hh/dialog/pageMeBy/${pageSize}/${pageNo}`, query, "GET");
-      const data = res.data.map((item) => {
-        return {
-          ...item,
-          imgUrlList: item.imgUrl ? JSON.parse(item.imgUrl) : []
-        };
-      });
-      paging.value.complete(data || []);
+      paging.value.complete(res.data || []);
     };
     const clickAll = () => {
       isAll.value = true;
@@ -117,7 +111,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return {
             a: common_vendor.t(item.title),
             b: common_vendor.t(item.createTime),
-            c: item.imgUrlList.length ? item.imgUrlList[0].url : "",
+            c: item.imgUrl,
             d: common_vendor.o(($event) => clickItem(item)),
             e: i0,
             f: s0

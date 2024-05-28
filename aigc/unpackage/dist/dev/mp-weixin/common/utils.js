@@ -37,9 +37,6 @@ const httpsRequest = async (url, params, method, noheader, noshowerr) => {
   const data = httpsRequestResult(res, noshowerr);
   return data;
 };
-const genImgURl = (type, filename) => {
-  return `${host}/hh/comfyui_api/view?type=${type}&filename=${filename}`;
-};
 function getDay(day) {
   const days = /* @__PURE__ */ new Date();
   const gettimes = days.getTime() + 1e3 * 60 * 60 * 24 * day;
@@ -55,7 +52,6 @@ function getDay(day) {
   }
   return year + "-" + month + "-" + today;
 }
-exports.genImgURl = genImgURl;
 exports.getDay = getDay;
 exports.host = host;
 exports.httpsRequest = httpsRequest;

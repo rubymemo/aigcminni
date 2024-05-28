@@ -104,8 +104,8 @@
 
 <script setup lang="ts">
 	import { ref, onBeforeUnmount, nextTick, onMounted, getCurrentInstance } from 'vue';
-	import { robotReply, manualReply } from '@/common/mockData.ts';
-	import { httpsRequest, genImgURl, host } from '@/common/utils';
+	import { robotReply, manualReply, findNextRobotId } from '@/common/mockData.ts';
+	import { httpsRequest, genImgURl, host  } from '@/common/utils';
 	import { onLoad } from '@dcloudio/uni-app';
 
 	const res = uni.getSystemInfoSync();
@@ -131,7 +131,6 @@
 	
 	// 会话id
 	const workId = ref<string | undefined>(undefined);
-
 	const dataList = ref([
 		{
 			...robotReply[0].data,
@@ -152,6 +151,12 @@
 	const timer = ref();
 	const instance = getCurrentInstance(); // 获取组件实例
 	
+	const getUserInfo = async () => {
+		const res = await httpsRequest('/cx/meByMobile', {}, 'GET');
+		uni.setStorageSync('userInfo', JSON.stringify(res));
+		return res;
+	}
+	
 	const getWorkDataById = async (id: string) => {
 		const res = await httpsRequest(`/hh/dialog/findItemHistory/${id}`, {}, 'GET');
 		if(res) {
@@ -159,11 +164,29 @@
 				return JSON.parse(item.whoSay);
 			})
 			dataList.value = dataListTemp;
+			// 根据数据做一些初始工作,先写死，后面再改
+			const lastMsg = dataListTemp[dataListTemp.length - 1];
+			console.log(lastMsg)
+			if(lastMsg.type === 'right' && dataListTemp.length === 6) {
+				// 人说的，且是第一条
+				addMockRobotReply(3);
+				getPaintingTask();
+			}
+			if(lastMsg.type === 'left' && dataListTemp.length === 9) {
+				// 机器人说的，且接下来让人说
+				lastRobotMsg.value = true;
+				canSend.value = true;
+			}
 		}
 	}
 	
-	onLoad((params) => {
+	onLoad(async (params) => {
 		console.log('onLoad')
+		const localUserInfo: { avatar: string; userId : string} = await getUserInfo();
+		if(localUserInfo) {
+			userInfo.value = localUserInfo;
+			clientUNIId.value = localUserInfo.userId;
+		}
 		if(params.id) {
 			// 详情
 			workId.value = params.id;
@@ -222,7 +245,7 @@
 			}	
 		})
 
-		const data = workId.value ? httpsRequest('/hh/works/editById', result, 'PUT') : httpsRequest('/hh/dialog/addItemBy',result);
+		const data = workId.value ? await httpsRequest(`/hh/dialog/replaceAllItemBy/${workId.value}`, result, 'POST') : await httpsRequest('/hh/dialog/addItemBy', result);
 		if(data) {
 			workId.value = data;
 		}
@@ -240,19 +263,8 @@
 			})
 			.exec();
 	}
-
-	const getUserInfo = async () => {
-		const res = await httpsRequest('/cx/meByMobile', {}, 'GET');
-		uni.setStorageSync('userInfo', JSON.stringify(res));
-		return res;
-	}
 	onMounted(async() => {
 		// 获取用户信息
-		const localUserInfo: { avatar: string; userId : string} = await getUserInfo();
-		if(localUserInfo) {
-			userInfo.value = localUserInfo;
-			clientUNIId.value = localUserInfo.userId;
-		}
 		initScrollHeight()
 		// const sysTempRes = uni.getSystemInfoSync();
 	})
@@ -279,6 +291,11 @@
 				canSend.value = true;
 			}
 			scrollToBottom();
+			
+			// 保存
+			if(workId.value) {
+				putWorkData();
+			}
 		}, 500)
 	}
 
@@ -312,6 +329,8 @@
 									type: 'right',
 									content: '',
 									images: [uploadData.data.fileUrl],
+									compute: true,
+									refer: true,
 								})
 								addMockRobotReply(manualData.nextRobotId);
 							} else {
@@ -342,24 +361,27 @@
 	const fetchWebSocket = (promptData) => {
 		isGenLoading.value = true;
 		uni.connectSocket({
-			url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
+			url: `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${clientUNIId.value}`
+			// url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
 		});
 
 		uni.onSocketOpen(function (res) {
 			console.log('WebSocket连接已打开！');
 		});
-		uni.onSocketMessage(function (res) {
+		uni.onSocketMessage(async function (res) {
 			console.log('收到服务器内容：');
 			const msgData = JSON.parse(res.data);
 			console.log(msgData)
 			if (msgData.type === 'executed' && Number(msgData.data.node) == 100) {
 				console.log('最终结果')
-				console.log(msgData.data.output)
 				uni.closeSocket()
+				
+				const imagesRes = await httpsRequest(`/hh/comfyui_api/historyByPromptId/${promptData.prompt_id}`, {}, 'GET');
+				console.log(imagesRes)
 				const dataListTemp = JSON.parse(JSON.stringify(dataList.value))
-				dataListTemp[dataListTemp.length - 1].imagesOptions = msgData.data.output.images.map(imgItem => {
+				dataListTemp[dataListTemp.length - 1].imagesOptions = imagesRes.map(imgItem => {
 					return {
-						url: genImgURl(imgItem.type, imgItem.filename),
+						url: imgItem.fileUrl,
 						status: 'done',
 						precent: 100
 					}
@@ -369,7 +391,7 @@
 					isGenLoading.value = false;
 					
 					// 保存
-					// putWorkData();
+					putWorkData();
 				})
 			} else if (msgData.type === 'progress') {
 				// "data": {"'value": 8, "max": 8,
@@ -377,7 +399,7 @@
 					return {
 						url: '',
 						status: 'loading',
-						precent: Number(msgData.data.value) / Number(msgData.data.max) === 1 ? 98 : (Number(msgData.data.value) / Number(msgData.data.max)).toFixed(2) * 100
+						precent: Number(msgData.data.value) / Number(msgData.data.max) === 1 ? 95 : (Number(msgData.data.value) / Number(msgData.data.max)).toFixed(2) * 100
 					}
 				})
 			}
@@ -391,20 +413,24 @@
 	const getPaintingTask = async () => {
 		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
 		const lastUserMessages = UserMessages.filter(item => item.content && !item.images).map(item => item.content).join('');
-		const UserImagesMessages = UserMessages.filter(item => item.images && item.compute === true);
+		const UserImagesMessages = UserMessages.filter(item => item.images && item.compute && item.refer);
+		console.log('UserMessages')
+		console.log(UserMessages)
 		const params = {
 			promptWords: lastUserMessages + (new Date()).valueOf(),
 			promptImage: undefined,
 			clientId: clientUNIId.value
 		};
-
+		console.log(UserImagesMessages)
 		if (UserImagesMessages.length) {
-			// params.promptImage = UserImagesMessages[UserImagesMessages.length - 1].images[0];
+			const promptImageUrl = UserImagesMessages[0].images[0];
+			 const splitList = promptImageUrl.split('/');
+			 params.promptImage = splitList[splitList.length - 1];
 		}
 		console.log('promt传的参数')
 		console.log(params)
-		fetchWebSocket(res);
-		await httpsRequest('/hh/comfyui_api/postPrompt', params);
+		const promptRes = await httpsRequest('/hh/comfyui_api/postPrompt', params);
+		fetchWebSocket(promptRes);
 	}
 
 
@@ -518,7 +544,7 @@
 		getPaintingTask();
 	}
 	
-	
+	// 新增会话
 	const addNewWork = async () => {
 		await putWorkData();
 		nextTick(() => {
@@ -529,6 +555,10 @@
 				}
 			];
 			workId.value = undefined;
+			canSend.value = false;
+			inputValue.value = ''
+			lastRobotMsg.value = false;
+			isGenLoading.value = false;
 		})
 	}
 </script>

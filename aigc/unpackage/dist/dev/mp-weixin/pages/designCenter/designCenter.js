@@ -50,6 +50,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     ]);
     const timer = common_vendor.ref();
     const instance = common_vendor.getCurrentInstance();
+    const getUserInfo = async () => {
+      const res2 = await common_utils.httpsRequest("/cx/meByMobile", {}, "GET");
+      common_vendor.index.setStorageSync("userInfo", JSON.stringify(res2));
+      return res2;
+    };
     const getWorkDataById = async (id) => {
       const res2 = await common_utils.httpsRequest(`/hh/dialog/findItemHistory/${id}`, {}, "GET");
       if (res2) {
@@ -57,10 +62,25 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return JSON.parse(item.whoSay);
         });
         dataList.value = dataListTemp;
+        const lastMsg = dataListTemp[dataListTemp.length - 1];
+        console.log(lastMsg);
+        if (lastMsg.type === "right" && dataListTemp.length === 6) {
+          addMockRobotReply(3);
+          getPaintingTask();
+        }
+        if (lastMsg.type === "left" && dataListTemp.length === 9) {
+          lastRobotMsg.value = true;
+          canSend.value = true;
+        }
       }
     };
-    common_vendor.onLoad((params) => {
+    common_vendor.onLoad(async (params) => {
       console.log("onLoad");
+      const localUserInfo = await getUserInfo();
+      if (localUserInfo) {
+        userInfo.value = localUserInfo;
+        clientUNIId.value = localUserInfo.userId;
+      }
       if (params.id) {
         workId.value = params.id;
         getWorkDataById(params.id);
@@ -111,7 +131,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return params;
         }
       });
-      const data = workId.value ? common_utils.httpsRequest("/hh/works/editById", result, "PUT") : common_utils.httpsRequest("/hh/dialog/addItemBy", result);
+      const data = workId.value ? await common_utils.httpsRequest(`/hh/dialog/replaceAllItemBy/${workId.value}`, result, "POST") : await common_utils.httpsRequest("/hh/dialog/addItemBy", result);
       if (data) {
         workId.value = data;
       }
@@ -123,17 +143,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }
       }).exec();
     };
-    const getUserInfo = async () => {
-      const res2 = await common_utils.httpsRequest("/cx/meByMobile", {}, "GET");
-      common_vendor.index.setStorageSync("userInfo", JSON.stringify(res2));
-      return res2;
-    };
     common_vendor.onMounted(async () => {
-      const localUserInfo = await getUserInfo();
-      if (localUserInfo) {
-        userInfo.value = localUserInfo;
-        clientUNIId.value = localUserInfo.userId;
-      }
       initScrollHeight();
     });
     const goUserCenter = () => {
@@ -156,6 +166,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           canSend.value = true;
         }
         scrollToBottom();
+        if (workId.value) {
+          putWorkData();
+        }
       }, 500);
     };
     const onRobotBtnClick = (btnStr, messageIndex) => {
@@ -182,7 +195,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                   dataList.value.push({
                     type: "right",
                     content: "",
-                    images: [uploadData.data.fileUrl]
+                    images: [uploadData.data.fileUrl],
+                    compute: true,
+                    refer: true
                   });
                   addMockRobotReply(manualData.nextRobotId);
                 } else {
@@ -212,23 +227,25 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const fetchWebSocket = (promptData) => {
       isGenLoading.value = true;
       common_vendor.index.connectSocket({
-        url: "wss://101.126.93.249/ws/?clientId=" + clientUNIId.value
+        url: `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${clientUNIId.value}`
+        // url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
       });
       common_vendor.index.onSocketOpen(function(res2) {
         console.log("WebSocket连接已打开！");
       });
-      common_vendor.index.onSocketMessage(function(res2) {
+      common_vendor.index.onSocketMessage(async function(res2) {
         console.log("收到服务器内容：");
         const msgData = JSON.parse(res2.data);
         console.log(msgData);
         if (msgData.type === "executed" && Number(msgData.data.node) == 100) {
           console.log("最终结果");
-          console.log(msgData.data.output);
           common_vendor.index.closeSocket();
+          const imagesRes = await common_utils.httpsRequest(`/hh/comfyui_api/historyByPromptId/${promptData.prompt_id}`, {}, "GET");
+          console.log(imagesRes);
           const dataListTemp = JSON.parse(JSON.stringify(dataList.value));
-          dataListTemp[dataListTemp.length - 1].imagesOptions = msgData.data.output.images.map((imgItem) => {
+          dataListTemp[dataListTemp.length - 1].imagesOptions = imagesRes.map((imgItem) => {
             return {
-              url: common_utils.genImgURl(imgItem.type, imgItem.filename),
+              url: imgItem.fileUrl,
               status: "done",
               precent: 100
             };
@@ -236,13 +253,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           dataList.value = dataListTemp;
           common_vendor.nextTick$1(() => {
             isGenLoading.value = false;
+            putWorkData();
           });
         } else if (msgData.type === "progress") {
           dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map((imgItem) => {
             return {
               url: "",
               status: "loading",
-              precent: Number(msgData.data.value) / Number(msgData.data.max) === 1 ? 98 : (Number(msgData.data.value) / Number(msgData.data.max)).toFixed(2) * 100
+              precent: Number(msgData.data.value) / Number(msgData.data.max) === 1 ? 95 : (Number(msgData.data.value) / Number(msgData.data.max)).toFixed(2) * 100
             };
           });
         }
@@ -254,18 +272,24 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const getPaintingTask = async () => {
       const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
       const lastUserMessages = UserMessages.filter((item) => item.content && !item.images).map((item) => item.content).join("");
-      const UserImagesMessages = UserMessages.filter((item) => item.images && item.compute === true);
+      const UserImagesMessages = UserMessages.filter((item) => item.images && item.compute && item.refer);
+      console.log("UserMessages");
+      console.log(UserMessages);
       const params = {
         promptWords: lastUserMessages + (/* @__PURE__ */ new Date()).valueOf(),
         promptImage: void 0,
         clientId: clientUNIId.value
       };
-      if (UserImagesMessages.length)
-        ;
+      console.log(UserImagesMessages);
+      if (UserImagesMessages.length) {
+        const promptImageUrl = UserImagesMessages[0].images[0];
+        const splitList = promptImageUrl.split("/");
+        params.promptImage = splitList[splitList.length - 1];
+      }
       console.log("promt传的参数");
       console.log(params);
-      fetchWebSocket();
-      await common_utils.httpsRequest("/hh/comfyui_api/postPrompt", params);
+      const promptRes = await common_utils.httpsRequest("/hh/comfyui_api/postPrompt", params);
+      fetchWebSocket(promptRes);
     };
     const initContentHeight = () => {
       common_vendor.index.createSelectorQuery().in(instance).select(".contact-container").boundingClientRect((data) => {
@@ -373,6 +397,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           }
         ];
         workId.value = void 0;
+        canSend.value = false;
+        inputValue.value = "";
+        lastRobotMsg.value = false;
+        isGenLoading.value = false;
       });
     };
     return (_ctx, _cache) => {

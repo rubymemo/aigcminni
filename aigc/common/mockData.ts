@@ -101,3 +101,12 @@ export const manualReply = {
 		nextRobotId: 5,
 	}
 }
+
+export const findNextRobotId = (manualText: string) => {
+	for(let key in manualReply) {
+		if(manualReply[key].content == manualText) {
+			return manualReply[key].nextRobotId
+		}
+	}
+	return null
+}
