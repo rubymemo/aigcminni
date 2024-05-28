@@ -444,6 +444,7 @@ onMounted(() => {
         flex: 1;
         overflow-y: auto;
         padding-top: 32px;
+        padding-bottom: 20px;
 
         .session-inner-container {
           width: 980px;

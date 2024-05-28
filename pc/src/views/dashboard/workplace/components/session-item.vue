@@ -333,8 +333,8 @@ const handleChoseImg = (index: number) => {
               border-radius: 12px;
               background: linear-gradient(
                 135deg,
-                rgb(23, 242, 95) 0%,
-                rgb(37, 106, 247) 100%
+                rgb(23, 242, 95, .1) 0%,
+                rgb(37, 106, 247, .1) 100%
               );
             }
           }
