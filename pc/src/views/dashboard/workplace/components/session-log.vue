@@ -8,6 +8,7 @@
         v-for="(detailItem, index) in item.list"
         :key="index"
         class="log-detail-item"
+        @click="handleClick(detailItem)"
       >
         <img :src="logItemTag" alt="" srcset="" />
         <div class="text-container">{{ detailItem.title }}</div>
@@ -25,7 +26,9 @@
 </template>
 
 <script setup lang="ts">
+import { getSessionCommit } from '@/api/dashboard';
 import logItemTag from '@/assets/images/log-item-tag.png';
+import { useRouter } from 'vue-router';
 
 interface Props {
   logs: {
@@ -37,6 +40,36 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const router = useRouter();
+
+const handleClick = async (detailItem: any) => {
+  router.replace({
+    query: {
+      sessionId: detailItem.id,
+    },
+  });
+  // const res = getSessionCommit(detailItem.id);
+  // if (res) {
+  //   const dataListTemp = res.items.map((item) => {
+  //     return JSON.parse(item.whoSay);
+  //   });
+  //   // dataList.value = dataListTemp;
+  //   // 根据数据做一些初始工作,先写死，后面再改
+  //   const lastMsg = dataListTemp[dataListTemp.length - 1];
+  //   console.log(lastMsg);
+  //   if (lastMsg.type === 'right' && dataListTemp.length === 6) {
+  //     // 人说的，且是第一条
+  //     addMockRobotReply(3);
+  //     getPaintingTask();
+  //   }
+  //   if (lastMsg.type === 'left' && dataListTemp.length === 9) {
+  //     // 机器人说的，且接下来让人说
+  //     lastRobotMsg.value = true;
+  //     canSend.value = true;
+  //   }
+  // }
+};
 </script>
 
 <style scoped lang="less">

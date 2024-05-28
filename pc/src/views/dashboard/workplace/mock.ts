@@ -1,129 +1,116 @@
-import Mock from 'mockjs';
-import qs from 'query-string';
-import dayjs from 'dayjs';
-import { GetParams } from '@/types/global';
-import setupMock, { successResponseWrap } from '@/utils/setup-mock';
+import { SessionItemProps } from './components/session-item.vue';
 
-const textList = [
-  {
-    key: 1,
-    clickNumber: '346.3w+',
-    title: '经济日报：财政政策要精准提升…',
-    increases: 35,
+export const robotReply: Record<number, Partial<SessionItemProps>> = {
+  0: {
+    data: {
+      title: 'Hi，我是你的AI设计师素素～',
+      content: '在开始之前，需要你先回答我几个问题；\n需要我帮你设计什么？',
+      btns: ['logo', '创意营销大图'],
+      activeBtns: [],
+    },
+    slotName: 'sessionStart',
   },
-  {
-    key: 2,
-    clickNumber: '324.2w+',
-    title: '双12遇冷，消费者厌倦了电商平…',
-    increases: 22,
+  1: {
+    data: {
+      content: '您是否有参考图给我参考呢？',
+      btns: ['没有参考图', '上传参考图'],
+      activeBtns: [],
+    },
+    slotName: 'refrenceImage',
   },
-  {
-    key: 3,
-    clickNumber: '318.9w+',
-    title: '致敬坚守战“疫”一线的社区工作…',
-    increases: 9,
+  2: {
+    data: {
+      content: '现在可以开始用文字描述您想要的图片了\n通过下方输入框进行描述',
+    },
+    startCreate: true,
   },
-  {
-    key: 4,
-    clickNumber: '257.9w+',
-    title: '普高还是职高？家长们陷入选择…',
-    increases: 17,
+  3: {
+    data: {
+      title: 'Hi~ 正在为您生成创意想法...',
+      titleStyle: {
+        color: '#256AF7',
+      },
+      content:
+        '根据您提供的信息，以下是我针对图片的设计；点击图片可查看大图点击下方选择框选定图形，进入最终效果图生成。',
+      imagesOptions: [
+        // queue_remaining-任务排队中 loading - 生成中
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+      ],
+      activeImages: [],
+      compute: true, // 用于最后计算是不是保存的字段
+    },
+    slotName: 'logoSelect',
   },
-  {
-    key: 5,
-    clickNumber: '124.2w+',
-    title: '人民快评：没想到“浓眉大眼”的…',
-    increases: 37,
+  4: {
+    data: {
+      content:
+        '针对文字部分，您是否还有其它补充，如果没有直接点击没有跳过即可，如果有请在下方输入',
+      btns: ['没有'],
+      activeBtns: [],
+    },
+    slotName: 'supplyText',
   },
-];
-const imageList = [
-  {
-    key: 1,
-    clickNumber: '15.3w+',
-    title: '杨涛接替陆慷出任外交部美大司…',
-    increases: 15,
+  5: {
+    data: {
+      content: '请选择一款您喜欢的模版开始生成效果图',
+      imagesOptions: [
+        {
+          url: '/static/png/mock1.png',
+          status: 'done',
+          precent: 100,
+        },
+        {
+          url: '/static/png/mock2.png',
+          status: 'done',
+          precent: 100,
+        },
+      ],
+      activeImages: [],
+      compute: true, // 用于最后计算是不是保存的字段
+    },
+    slotName: 'templateImg',
   },
-  {
-    key: 2,
-    clickNumber: '12.2w+',
-    title: '图集：龙卷风袭击美国多州房屋…',
-    increases: 26,
+  6: {
+    data: {
+      title: 'Hi~ 最终效果图已经完成',
+      titleStyle: {
+        color: '#256AF7',
+      },
+      imagesOptions: [
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+      ],
+      activeImages: [],
+    },
+    slotName: 'lastStep'
   },
-  {
-    key: 3,
-    clickNumber: '18.9w+',
-    title: '52岁大姐贴钱照顾自闭症儿童八…',
-    increases: 9,
+};
+
+export const manualReply = {
+  logo: {
+    content: '帮我设计一个logo',
+    nextRobotId: 1,
   },
-  {
-    key: 4,
-    clickNumber: '7.9w+',
-    title: '杭州一家三口公园宿营取暖中毒',
-    increases: 0,
+  创意营销大图: {
+    content: '帮我设计一个创意营销大图',
+    nextRobotId: 1,
   },
-  {
-    key: 5,
-    clickNumber: '5.2w+',
-    title: '派出所副所长威胁市民？警方调…',
-    increases: 4,
+  没有参考图: {
+    content: '没有参考图',
+    nextRobotId: 2,
   },
-];
-const videoList = [
-  {
-    key: 1,
-    clickNumber: '367.6w+',
-    title: '这是今日10点的南京',
-    increases: 5,
+  上传参考图: {
+    content: '上传参考图',
+    nextRobotId: 2,
+    opertionType: 'chooseMedia', // 上传图片
   },
-  {
-    key: 2,
-    clickNumber: '352.2w+',
-    title: '立陶宛不断挑衅致经济受损民众…',
-    increases: 17,
+  没有: {
+    content: '没有补充',
+    nextRobotId: 5,
   },
-  {
-    key: 3,
-    clickNumber: '348.9w+',
-    title: '韩国艺人刘在石确诊新冠',
-    increases: 30,
-  },
-  {
-    key: 4,
-    clickNumber: '346.3w+',
-    title: '关于北京冬奥会，文在寅表态',
-    increases: 12,
-  },
-  {
-    key: 5,
-    clickNumber: '271.2w+',
-    title: '95后现役军人荣立一等功',
-    increases: 2,
-  },
-];
-setupMock({
-  setup() {
-    Mock.mock(new RegExp('/api/content-data'), () => {
-      const presetData = [58, 81, 53, 90, 64, 88, 49, 79];
-      const getLineData = () => {
-        const count = 8;
-        return new Array(count).fill(0).map((el, idx) => ({
-          x: dayjs()
-            .day(idx - 2)
-            .format('YYYY-MM-DD'),
-          y: presetData[idx],
-        }));
-      };
-      return successResponseWrap([...getLineData()]);
-    });
-    Mock.mock(new RegExp('/api/popular/list'), (params: GetParams) => {
-      const { type = 'text' } = qs.parseUrl(params.url).query;
-      if (type === 'image') {
-        return successResponseWrap([...videoList]);
-      }
-      if (type === 'video') {
-        return successResponseWrap([...imageList]);
-      }
-      return successResponseWrap([...textList]);
-    });
-  },
-});
+};

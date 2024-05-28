@@ -2,7 +2,7 @@ export type RoleType = '' | '*' | 'admin' | 'user';
 export interface UserState {
   // 需求里该有的
   userId?: string;
-  userName?: string;
+  username?: string;
   avatar?: string;
   nickname?: string;
   roles?: RoleType;

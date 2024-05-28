@@ -22,9 +22,11 @@ export interface PopularRecord {
 export const getSessionList = (
   pageNum: number,
   pageSize: number,
-  ownerId: string
+  ownerId: string,
 ): Promise<HttpResponse> => {
-  return axios.get(`/hh/dialog/pageMeBy/${pageSize}/${pageNum}`, { params: { ownerId } });
+  return axios.get(`/hh/dialog/pageMeBy/${pageSize}/${pageNum}`, {
+    params: { ownerId },
+  });
 };
 
 export const createSession = (params: any) => {
@@ -47,6 +49,16 @@ export const getSessionHistory = (promptId: string) => {
   return axios.get(`/hh/comfyui_api/historyByPromptId/${promptId}`);
 };
 
-export const createNewSession = () => {
+// 创建会话
+export const createNewSession = (params: any) => {
+  return axios.post('/hh/dialog/addItemBy', params);
+};
 
-}
+// 更新会话
+export const updateSession = (dialogId: number | string, params: any) => {
+  return axios.post(`/hh/dialog/replaceAllItemBy/${dialogId}`, params);
+};
+
+export const getSessionCommit = (id) => {
+  return axios.get(`/hh/dialog/findItemHistory/${id}`);
+};

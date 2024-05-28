@@ -1,132 +1,42 @@
 <template>
-  <div
-    :class="[
-      'commit-item',
-      author === 'robot' ? 'robot-commit' : 'user-commit',
-    ]"
-  >
-    <a-avatar :image-url="author === 'robot' ? '' : avatar" />
-    <div v-if="props.preset" class="preset-commit-content">
-      <div
-        v-if="props.preset === 'template'"
-        class="preset-template-commit-content"
-      >
-        <div class="commit-content">
-          <h5 class="commit-title template-title">Hi~ 创意想法已完成</h5>
-          <div class="commit-content-text">
-            根据您提供的信息，以下是我针对图片的设计
-            点击图片可查看大图，点击下方选择框选定图形，进入最终效果图生成。
-          </div>
-          <div v-if="props.data" class="commit-action">
-            <a-radio-group v-model="choseItem" class="template-commit-action">
-              <div v-for="item in 4" :key="item" class="template-image-item">
-                <div class="img-area">
-                  <div
-                    v-if="props.data.imgUrls"
-                    class="img-box"
-                    @click="handleChoseImg(item)"
-                  >
-                    <img :src="props.data.imgUrls[item - 1]" alt="" />
-                  </div>
-                  <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress }}%
-                  </div>
-                </div>
-                <a-radio
-                  :disabled="props.data.loading || props.disabled"
-                  :value="item"
-                />
-              </div>
-            </a-radio-group>
-          </div>
-        </div>
-      </div>
-      <div
-        v-if="props.preset === 'style'"
-        class="preset-template-commit-content"
-      >
-        <div class="commit-content">
-          <div class="commit-content-text">
-            请选择一款您喜欢的模板开始生成效果图
-          </div>
-          <div v-if="props.data" class="commit-action">
-            <a-radio-group v-model="choseItem" class="template-commit-action">
-              <div v-for="item in 4" :key="item" class="template-image-item">
-                <div class="img-area">
-                  <div
-                    v-if="props.data.imgUrls"
-                    class="img-box"
-                    @click="handleChoseImg(item)"
-                  >
-                    <img :src="props.data.imgUrls[item - 1]" alt="" />
-                  </div>
-                  <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress }}%
-                  </div>
-                </div>
-                <a-radio
-                  :disabled="props.data.loading || props.disabled"
-                  :value="item"
-                />
-              </div>
-            </a-radio-group>
-          </div>
-        </div>
-      </div>
-      <div
-        v-if="props.preset === 'result'"
-        class="preset-template-commit-content"
-      >
-        <div class="commit-content">
-          <h5 class="commit-title template-title">Hi~ 最终效果图已完成</h5>
-          <div v-if="props.data" class="commit-action">
-            <a-radio-group v-model="choseItem" class="template-commit-action">
-              <div v-for="item in 4" :key="item" class="template-image-item">
-                <div class="img-area">
-                  <div
-                    v-if="props.data.imgUrls"
-                    class="img-box"
-                    @click="handleChoseImg(item)"
-                  >
-                    <img :src="props.data.imgUrls[item - 1]" alt="" />
-                  </div>
-                  <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress }}%
-                  </div>
-                </div>
-                <a-radio
-                  :disabled="props.data.loading || props.disabled"
-                  :value="item"
-                />
-              </div>
-            </a-radio-group>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else class="normal-commit-content">
+  <div class="commit-item">
+    <CommonAvatar :role="props.author" />
+    <div :class="props.author === 'robot' ? 'robot-commit' : 'user-commit'">
       <div class="commit-content">
-        <h5 v-if="props.title" class="commit-title">{{ props.title }}</h5>
-        <div v-if="props.content" class="commit-content-text">
-          {{ props.content }}
+        <h5 v-if="data.title" :style="data.titleStyle" class="commit-title">{{
+          data.title
+        }}</h5>
+        <div v-if="data.content" class="commit-content-text">
+          {{ data.content }}
         </div>
-        <div v-if="props.image" class="image-box">
-          <img :src="props.image" alt="" />
-        </div>
-        <div v-if="$slots.action" class="commit-action">
-          <slot name="action" />
+        <div v-if="data.image" class="image-box">
+          <img :src="data.image" alt="" />
         </div>
         <div v-if="props.slotName" class="custom-slot-box">
-          <slot :name="props.slotName" :data="props" />
+          <slot
+            :name="props.slotName"
+            :data="props.data"
+            :disabled="props.disabled"
+          />
         </div>
+      </div>
+
+      <div
+        v-if="props.author === 'robot' && props.isLastStep"
+        class="reload-button"
+        @click="handleReload"
+      >
+        <img :src="Reload" alt="" />
+        重新生成
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import avatar from '@/assets/images/avatar.png';
-import { ref } from 'vue';
+import CommonAvatar from '@/components/common-avatar.vue';
+import { ref, toRefs } from 'vue';
+import Reload from '@/assets/images/reload.png';
 
 interface DataItem {
   title?: string;
@@ -139,24 +49,27 @@ export interface SessionItemProps {
   title?: string;
   content?: string;
   image?: string;
-  data?: DataItem;
+  data: DataItem;
   author: 'user' | 'robot';
   slotName?: string;
   preset?: 'template' | 'result' | 'style';
   disabled?: boolean;
+  isLastStep?: boolean;
 }
 </script>
 
 <script setup lang="ts">
 const props = defineProps<SessionItemProps>();
 
-const emit = defineEmits(['chooseImg']);
+const { data } = toRefs(props);
 
-const choseItem = ref('');
+const emit = defineEmits(['reload']);
 
-const handleChoseImg = (index: number) => {
-  choseItem.value = index;
-  emit('chooseImg', props.data.imgUrls[index]);
+const handleReload = () => {
+  if (data.value.loading) {
+    return;
+  }
+  emit('reload');
 };
 </script>
 
@@ -171,7 +84,6 @@ const handleChoseImg = (index: number) => {
 
     .commit-content {
       flex: 1;
-      margin-left: 16px;
 
       .image-box {
         width: 120px;
@@ -187,10 +99,10 @@ const handleChoseImg = (index: number) => {
     }
   }
   .robot-commit {
+    margin-left: 16px;
     .commit-content {
       padding: 24px;
 
-      margin-left: 16px;
       border-radius: 12px;
       background: rgb(255, 255, 255);
       padding: 24px;
@@ -220,6 +132,8 @@ const handleChoseImg = (index: number) => {
   }
 
   .user-commit {
+    margin-left: 16px;
+
     .commit-content {
       padding-top: 9px;
       color: rgb(52, 65, 86);
@@ -300,13 +214,13 @@ const handleChoseImg = (index: number) => {
           display: flex;
           flex-direction: column;
           justify-content: center;
+          max-width: 24.5%;
+          width: 200px;
 
           :deep(.arco-radio) {
             justify-content: center;
           }
           .img-area {
-            max-width: 24.5%;
-            width: 200px;
             height: 200px;
             border-radius: 12px;
             overflow: hidden;
@@ -323,7 +237,13 @@ const handleChoseImg = (index: number) => {
             }
 
             .img-loading {
-              color: #fff;
+              color: rgb(107, 116, 143);
+              font-family: PingFang SC;
+              font-size: 14px;
+              font-weight: 400;
+              line-height: 22px;
+              letter-spacing: 0px;
+              text-align: left;
               width: 100%;
               height: 100%;
               display: flex;
@@ -333,13 +253,34 @@ const handleChoseImg = (index: number) => {
               border-radius: 12px;
               background: linear-gradient(
                 135deg,
-                rgb(23, 242, 95, .1) 0%,
-                rgb(37, 106, 247, .1) 100%
+                rgba(23, 242, 95, 0.1) 0%,
+                rgba(37, 106, 247, 0.1) 100%
               );
             }
           }
         }
       }
+    }
+  }
+
+  .reload-button {
+    margin-top: 8px;
+
+    color: rgb(37, 106, 247);
+    font-family: PingFang SC;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0px;
+    text-align: left;
+    height: 22px;
+
+    display: flex;
+    align-items: center;
+    img {
+      width: 14px;
+      height: 12px;
+      margin-right: 3px;
     }
   }
 }

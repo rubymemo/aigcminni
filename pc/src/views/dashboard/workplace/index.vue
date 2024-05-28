@@ -11,7 +11,7 @@
         </a-button>
       </div>
       <div class="session-log-container">
-        <div class="log-header">会话记录</div>
+        <div class="log-header">对话记录</div>
         <div class="session-log-el">
           <SessionLog :logs="logs" />
         </div>
@@ -21,16 +21,14 @@
       <div class="top-bar">
         <div></div>
         <div class="user-info">
-          <a-avatar :image-url="avatar" :size="42" />
+          <CommonAvatar role="user" :size="42" />
           <a-dropdown>
             <div class="user-name"
-              >诗人王维
+              >{{ userInfo.nickname }}
               <icon-caret-down />
             </div>
             <template #content>
-              <a-doption>Option 1</a-doption>
-              <a-doption disabled>Option 2</a-doption>
-              <a-doption>Option 3</a-doption>
+              <a-doption>退出登录</a-doption>
             </template>
           </a-dropdown>
         </div>
@@ -45,14 +43,16 @@
               @choose-style="handleChooseStyle"
               @no-text="handleNoText"
               @commit-length-change="handleScrollBottom"
+              @last-step="lastStep"
+              @reload="reload"
             />
           </div>
         </div>
         <div class="bottom-bar">
           <div class="input-container">
             <textarea
-              :disabled="inputDisabled"
               v-model="inputText"
+              :disabled="inputDisabled"
               placeholder="输入对话后，可通过回车键发送指令"
               @keydown="enterSend"
               @input="handleInput"
@@ -96,6 +96,7 @@ import { getImagePath } from './util';
 import { useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
+import CommonAvatar from '@/components/common-avatar.vue';
 
 const logs = ref<any[]>([]);
 
@@ -112,9 +113,9 @@ const sessionBox = ref();
 
 const handleInput = () => {
   if (inputDisabled.value) {
-    inputText.value = ''
+    inputText.value = '';
   }
-}
+};
 
 const addSession = async () => {
   const res = await createSession({
@@ -138,21 +139,18 @@ const handleScrollBottom = () => {
     return;
   }
   console.log('sessionBox.value.scrollHeight', sessionBox.value.scrollHeight);
-  
- nextTick(() => {
-  sessionBox.value.scrollTo(0, sessionBox.value.scrollHeight)
- })
-}
+
+  nextTick(() => {
+    sessionBox.value.scrollTo(0, sessionBox.value.scrollHeight);
+  });
+};
 
 const handleEnableInput = () => {
   inputDisabled.value = false;
-}
+};
+let imgUpName = '';
 
-const initWs = (
-  imageName = '',
-  words = '',
-  type: 'template' | 'style' = 'template',
-) => {
+const initWs = (imageName = imgUpName, words = '', reload = false) => {
   let promptId = '';
 
   let dataRef;
@@ -162,7 +160,7 @@ const initWs = (
   const uid = userInfo.userId;
 
   wsInstance.value = new WebSocket(
-    `wss://huatu.solart.pro/ws/?clientId=${uid}`,
+    `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${uid}`,
   );
   wsInstance.value.onopen = () => {
     console.log('链接成功');
@@ -172,15 +170,24 @@ const initWs = (
       promptWords: words,
     }).then((res) => {
       console.log('promptPost', res);
-      promptId = res.data.promptId;
-      dataRef = ref({
-        loading: true,
-        progress: 0,
-      });
-      sessionListRef.value.addCommit({
-        preset: type,
-        data: dataRef,
-      });
+      promptId = res.data.prompt_id;
+      const currentCommit = sessionListRef.value.getRobotCommit();
+      console.log('currentCommit', currentCommit);
+
+      if (!reload) {
+        dataRef = ref(currentCommit.data);
+        dataRef.value.loading = true;
+        dataRef.value.progress = 0;
+        sessionListRef.value.addCommit({
+          ...currentCommit,
+          data: dataRef,
+        });
+      } else {
+        dataRef = ref(sessionListRef.value.getLastOneStep().data);
+        dataRef.value.loading = true;
+        dataRef.value.progress = 0;
+        dataRef.value.imagesOptions = [{}, {}, {}, {}];
+      }
     });
   };
   wsInstance.value.onmessage = (message: any) => {
@@ -196,12 +203,13 @@ const initWs = (
       console.log('开始生成');
     }
     if (messageInfo.type === 'executing' && messageInfo.data.node) {
-      console.log('正在执行');
+      // console.log('正在执行');
     }
     if (messageInfo.type === 'progress') {
       const step = Number((95 / messageInfo.data.max).toFixed(2));
-      dataRef.value.progress = messageInfo.data.value * step;
-      console.log('正在生成图片');
+
+      dataRef.value.progress = (messageInfo.data.value * step).toFixed(0);
+      console.log('正在生成图片', 'step', step);
     }
     if (messageInfo.type === 'executing' && !messageInfo.data.node) {
       dataRef.value.progress = 100;
@@ -212,9 +220,13 @@ const initWs = (
       }
       getSessionHistory(promptId).then((res) => {
         console.log('promptHistory', res);
-        dataRef.value.imgUrls = res.data[promptId].outputs[100].images.map(
-          (item) => item.fileUrl,
-        );
+        // dataRef.value.imagesOptions = res.data.map((item) => item.fileUrl);
+        dataRef.value.imagesOptions = res.data.map((item) => ({
+          url: item.fileUrl,
+          status: 'done',
+          precent: '100',
+        }));
+        sessionListRef.value.saveSession();
       });
       wsInstance.value?.close();
       wsInstance.value = undefined;
@@ -234,14 +246,21 @@ onBeforeMount(() => {
 });
 
 const styleImgUrl = ref('');
-let imgUploaded = false;
+const userWords = ref('');
 
 const handleSendButtonClick = () => {
-  initWs(
-    styleImgUrl.value,
-    inputText.value,
-    imgUploaded ? 'style' : 'template',
-  );
+  sessionListRef.value.addCommit({
+    author: 'user',
+    data: {
+      content: inputText.value,
+    },
+    compute: true,
+    disabledSubmit: true,
+  });
+  initWs(undefined, inputText.value);
+  inputDisabled.value = true;
+  userWords.value = inputText.value;
+  inputText.value = '';
   // sendMessageAction('', inputText.value);
 };
 
@@ -250,10 +269,15 @@ const enterSend = (event: any) => {
     console.log(event);
     sessionListRef.value.addCommit({
       author: 'user',
-      content: inputText.value,
-    })
-    initWs(styleImgUrl.value, inputText.value, 'style');
+      data: {
+        content: inputText.value,
+      },
+      compute: true,
+      disabledSubmit: true,
+    });
+    initWs(undefined, inputText.value);
     inputDisabled.value = true;
+    userWords.value = inputText.value;
     inputText.value = '';
     // 判断按下的是否是回车键的keyCode
     event.preventDefault();
@@ -261,9 +285,9 @@ const enterSend = (event: any) => {
 };
 
 // 图片上传成功
-const handleImageUploaded = (imageUrl: string) => {
-  imgUploaded = true;
-  initWs(imageUrl, '');
+const handleImageUploaded = (imageName: string) => {
+  imgUpName = imageName;
+  // initWs(imageName, '');
 };
 
 const handleChooseStyle = (imgUrl: string) => {
@@ -272,11 +296,19 @@ const handleChooseStyle = (imgUrl: string) => {
 
 const handleNoText = () => {
   inputDisabled.value = true;
-  initWs(styleImgUrl.value, '', 'style');
+  initWs(undefined, '');
+};
+
+const lastStep = (img: string) => {
+  initWs(img, userWords.value);
+};
+
+const reload = (img: string) => {
+  initWs(img, userWords.value, true);
 };
 
 onMounted(() => {
-  getSessionList(1, 10, userInfo.userId)
+  getSessionList(1, 10, userInfo.userId!)
     .then((res: any) => {
       if (res.code !== '2000') {
         return;

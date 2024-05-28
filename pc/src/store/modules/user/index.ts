@@ -14,7 +14,7 @@ const useUserStore = defineStore('user', {
   state: (): UserState => ({
     nickname: '',
     userId: undefined,
-    userName: '',
+    username: '',
     avatar: '',
     roles: '',
     
