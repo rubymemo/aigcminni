@@ -29,7 +29,7 @@
                     <img :src="props.data.imgUrls[item - 1]" alt="" />
                   </div>
                   <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress * 100 }}%
+                    图片加载中{{ props.data.progress }}%
                   </div>
                 </div>
                 <a-radio
@@ -61,8 +61,7 @@
                     <img :src="props.data.imgUrls[item - 1]" alt="" />
                   </div>
                   <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress * 100 }}%
-                    <a-progress :percent="props.data.progress" />
+                    图片加载中{{ props.data.progress }}%
                   </div>
                 </div>
                 <a-radio
@@ -92,7 +91,7 @@
                     <img :src="props.data.imgUrls[item - 1]" alt="" />
                   </div>
                   <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress * 100 }}%
+                    图片加载中{{ props.data.progress }}%
                   </div>
                 </div>
                 <a-radio
