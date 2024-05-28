@@ -4,12 +4,14 @@ const common_assets = require("../../common/assets.js");
 const common_mockData = require("../../common/mockData.js");
 const common_utils = require("../../common/utils.js");
 if (!Array) {
+  const _easycom_g_progress2 = common_vendor.resolveComponent("g-progress");
   const _easycom_g_color_btn2 = common_vendor.resolveComponent("g-color-btn");
-  _easycom_g_color_btn2();
+  (_easycom_g_progress2 + _easycom_g_color_btn2)();
 }
+const _easycom_g_progress = () => "../../components/g-progress/index.js";
 const _easycom_g_color_btn = () => "../../components/g-color-btn/index.js";
 if (!Math) {
-  _easycom_g_color_btn();
+  (_easycom_g_progress + _easycom_g_color_btn)();
 }
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "designCenter",
@@ -25,7 +27,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const lastRobotMsg = common_vendor.ref(false);
     const isGenLoading = common_vendor.ref(false);
     const userInfo = common_vendor.ref({
-      avatar: ""
+      avatar: "",
+      nickname: "",
+      username: ""
     });
     const workId = common_vendor.ref(void 0);
     const dataList = common_vendor.ref([
@@ -34,12 +38,12 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         type: "left"
         // imagesOptions: [{
         // 	url: '/static/png/mock1.png',
-        // 	status: 'done',
-        // 	precent: 100
+        // 	status: 'loading',
+        // 	precent: 80
         // },{
         // 	url: '/static/png/mock2.png',
-        // 	status: 'done',
-        // 	precent: 100
+        // 	status: 'queue_remaining',
+        // 	precent: 80
         // }],
         // activeImages: [],
       }
@@ -47,9 +51,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const timer = common_vendor.ref();
     const instance = common_vendor.getCurrentInstance();
     const getWorkDataById = async (id) => {
-      const res2 = await common_utils.httpsRequest(`/hh/works/findById/${id}`, {}, "GET");
+      const res2 = await common_utils.httpsRequest(`/hh/dialog/findItemHistory/${id}`, {}, "GET");
       if (res2) {
-        const dataListTemp = res2.map((item) => {
+        const dataListTemp = res2.items.map((item) => {
           return JSON.parse(item.whoSay);
         });
         dataList.value = dataListTemp;
@@ -66,7 +70,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
       const lastMessage = dataList.value.find((item) => item.reload && item.type === "left");
       lastMessage ? JSON.stringify(lastMessage.imagesOptions) : void 0;
-      const userInfo2 = JSON.parse(common_vendor.index.getStorageSync("userInfo"));
       let isFindTitle = false;
       const result = dataList.value.map((item, index) => {
         if (item.type === "left") {
@@ -83,11 +86,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               imgUrl: item.imagesOptions[0].url
             });
           }
+          if (index === 0) {
+            params.clipType = "info";
+            params.clipContent = JSON.stringify({
+              type: item.activeBtns.includes("logo") ? 1 : 2
+            });
+          }
           return params;
         } else {
           const params = {
-            whoId: userInfo2.userId,
-            whoName: userInfo2.username,
+            whoId: userInfo.value.userId,
+            whoName: userInfo.value.nickname || userInfo.value.username,
             whoSay: JSON.stringify(item),
             clipType: "",
             clipContent: ""
@@ -96,7 +105,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             isFindTitle = true;
             params.clipType = "info", params.clipContent = JSON.stringify({
               title: item.content,
-              type: 1
+              ownerId: userInfo.value.userId
             });
           }
           return params;
@@ -203,7 +212,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const fetchWebSocket = (promptData) => {
       isGenLoading.value = true;
       common_vendor.index.connectSocket({
-        url: "wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=" + clientUNIId.value
+        url: "wss://101.126.93.249/ws/?clientId=" + clientUNIId.value
       });
       common_vendor.index.onSocketOpen(function(res2) {
         console.log("WebSocket连接已打开！");
@@ -367,7 +376,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     return (_ctx, _cache) => {
-      return {
+      return common_vendor.e({
         a: common_vendor.o(goUserCenter),
         b: common_vendor.s(innerContentStyle.value),
         c: common_vendor.f(dataList.value, (item, index, i0) => {
@@ -400,16 +409,21 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             k: common_vendor.f(item.imagesOptions, (imageItem, imgIndex, i1) => {
               return common_vendor.e({
                 a: common_vendor.t(imageItem.status === "queue_remaining" ? "任务排队中，请稍等" : ""),
-                b: common_vendor.t(imageItem.status === "loading" ? `生成进度:${imageItem.precent}%` : ""),
-                c: imageItem.status === "loading" || imageItem.status === "queue_remaining",
-                d: imageItem.status === "done" ? imageItem.url : "",
-                e: common_vendor.o(($event) => previewImg(imageItem.url), imgIndex)
+                b: common_vendor.t(imageItem.status === "loading" ? `图片加载中${imageItem.precent}%` : ""),
+                c: "492712a1-0-" + i0 + "-" + i1,
+                d: common_vendor.p({
+                  progress: imageItem.precent
+                }),
+                e: imageItem.status === "loading",
+                f: imageItem.status === "loading" || imageItem.status === "queue_remaining",
+                g: imageItem.status === "done" ? imageItem.url : "",
+                h: common_vendor.o(($event) => previewImg(imageItem.url), imgIndex)
               }, !item.reload ? {
-                f: imageItem.url,
-                g: index < dataList.value.length - 1,
-                h: item.activeImages.includes(imageItem.url)
+                i: imageItem.url,
+                j: index < dataList.value.length - 1,
+                k: item.activeImages.includes(imageItem.url)
               } : {}, {
-                i: imgIndex
+                l: imgIndex
               });
             }),
             l: !item.reload,
@@ -443,28 +457,31 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           });
         }),
         d: scrollTop.value,
-        e: common_vendor.o(addNewWork),
-        f: common_vendor.p({
+        e: workId.value
+      }, workId.value ? {
+        f: common_vendor.o(addNewWork),
+        g: common_vendor.p({
           height: 56,
           width: 146,
           active: true
         }),
-        g: common_vendor.o(goHistoryPage),
-        h: common_vendor.p({
+        h: common_vendor.o(goHistoryPage),
+        i: common_vendor.p({
           height: 56,
           width: 146,
           active: true
-        }),
-        i: !canSend.value,
-        j: canSend.value ? "输入对话后，可通过回车键发送指令" : "请先选择机器人提供的选项",
-        k: inputValue.value,
-        l: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {
+        })
+      } : {}, {
+        j: !canSend.value,
+        k: canSend.value ? "输入对话后，可通过回车键发送指令" : "请先选择机器人提供的选项",
+        l: inputValue.value,
+        m: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {
           trim: true
         })),
-        m: common_assets._imports_1,
-        n: common_vendor.n(`send-btn ${canSend.value && inputValue.value ? "" : "disabled"} `),
-        o: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value))
-      };
+        n: common_assets._imports_1,
+        o: common_vendor.n(`send-btn ${canSend.value && inputValue.value ? "" : "disabled"} `),
+        p: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value))
+      });
     };
   }
 });

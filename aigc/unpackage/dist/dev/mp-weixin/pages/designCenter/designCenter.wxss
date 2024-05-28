@@ -174,7 +174,6 @@ button.big.data-v-492712a1 {
 }
 .robot-contact-item .images-box .image-option-box .imageCover.data-v-492712a1 {
   position: absolute;
-  line-height: 240rpx;
   text-align: center;
   width: 240rpx;
   height: 240rpx;
@@ -183,6 +182,14 @@ button.big.data-v-492712a1 {
   color: #6b748f;
   font-size: 24rpx;
   font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.robot-contact-item .images-box .image-option-box .imageCover .progress-box.data-v-492712a1 {
+  width: 186rpx;
+  margin-top: 16rpx;
 }
 .robot-contact-item .images-box .image-option-box image.data-v-492712a1 {
   width: 240rpx;

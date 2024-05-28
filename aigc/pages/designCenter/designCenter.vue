@@ -31,8 +31,13 @@
 												v-for="(imageItem, imgIndex) in item.imagesOptions" :key="imgIndex">
 												<view class="imageCover"
 													v-show="imageItem.status === 'loading' || imageItem.status === 'queue_remaining'">
+													<view>
 													{{imageItem.status === 'queue_remaining' ? '任务排队中，请稍等' : ''}}
-													{{imageItem.status === 'loading' ? `生成进度:${imageItem.precent}%` : ''}}
+													{{imageItem.status === 'loading' ? `图片加载中${imageItem.precent}%` : ''}}
+													</view>
+													<view class="progress-box" v-show="imageItem.status === 'loading'">
+														<g-progress :progress="imageItem.precent"></g-progress>
+													</view>
 												</view>
 												<image :src="imageItem.status === 'done' ? imageItem.url : ''"
 													@click="previewImg(imageItem.url)">
@@ -77,8 +82,7 @@
 		</scroll-view>
 
 		<view class="footer">
-			<!-- v-if="workId" -->
-			<view class="footer-header" >
+			<view class="footer-header" v-if="workId">
 				<g-color-btn :height="56" :width="146" :active="true" @click="addNewWork">
 					<text class="iconfont icon-tianjia" style="font-size: 26rpx;"></text>
 					新建对话
@@ -121,6 +125,8 @@
 	
 	const userInfo = ref({
 		avatar: '',
+		nickname: '',
+		username: '',
 	})
 	
 	// 会话id
@@ -132,12 +138,12 @@
 			type: 'left',
 			// imagesOptions: [{
 			// 	url: '/static/png/mock1.png',
-			// 	status: 'done',
-			// 	precent: 100
+			// 	status: 'loading',
+			// 	precent: 80
 			// },{
 			// 	url: '/static/png/mock2.png',
-			// 	status: 'done',
-			// 	precent: 100
+			// 	status: 'queue_remaining',
+			// 	precent: 80
 			// }],
 			// activeImages: [],
 		}
@@ -147,9 +153,9 @@
 	const instance = getCurrentInstance(); // 获取组件实例
 	
 	const getWorkDataById = async (id: string) => {
-		const res = await httpsRequest(`/hh/works/findById/${id}`, {}, 'GET');
+		const res = await httpsRequest(`/hh/dialog/findItemHistory/${id}`, {}, 'GET');
 		if(res) {
-			const dataListTemp = res.map(item => {
+			const dataListTemp = res.items.map(item => {
 				return JSON.parse(item.whoSay);
 			})
 			dataList.value = dataListTemp;
@@ -169,7 +175,6 @@
 		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
 		const lastMessage = dataList.value.find(item => item.reload && item.type === 'left')
 		const lastGenImg = lastMessage ? JSON.stringify(lastMessage.imagesOptions) : undefined
-		const userInfo = JSON.parse(uni.getStorageSync('userInfo'));
 		
 		let isFindTitle = false;
 		const result = dataList.value.map((item, index) => {
@@ -188,11 +193,18 @@
 						imgUrl: item.imagesOptions[0].url
 					});
 				}
+				if(index === 0) {
+					// 获取图片类型
+					params.clipType = 'info';
+					params.clipContent = JSON.stringify({
+						type: item.activeBtns.includes('logo') ? 1 : 2,
+					});
+				}
 				return params
 			} else {
 				const params = {
-					whoId: userInfo.userId,
-					whoName: userInfo.username,
+					whoId: userInfo.value.userId,
+					whoName: userInfo.value.nickname  || userInfo.value.username,
 					whoSay: JSON.stringify(item),
 					clipType: '',
 					clipContent: ''
@@ -203,7 +215,7 @@
 					params.clipType = 'info',
 					params.clipContent = JSON.stringify({
 						title: item.content,
-						type: 1,
+						ownerId: userInfo.value.userId,
 					})
 				}
 				return params
@@ -330,7 +342,7 @@
 	const fetchWebSocket = (promptData) => {
 		isGenLoading.value = true;
 		uni.connectSocket({
-			url: 'wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=' + clientUNIId.value
+			url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
 		});
 
 		uni.onSocketOpen(function (res) {
@@ -700,7 +712,7 @@
 
 				.imageCover {
 					position: absolute;
-					line-height: 240rpx;
+					// line-height: 240rpx;
 					text-align: center;
 					width: 240rpx;
 					height: 240rpx;
@@ -709,6 +721,14 @@
 					color: rgb(107, 116, 143);
 					font-size: 24rpx;
 					font-weight: 400;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					.progress-box {
+						width: 186rpx;
+						margin-top: 16rpx;
+					}
 				}
 
 				image {
