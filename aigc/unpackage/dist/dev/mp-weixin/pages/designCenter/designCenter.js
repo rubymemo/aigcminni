@@ -49,7 +49,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const getWorkDataById = async (id) => {
       const res2 = await common_utils.httpsRequest(`/hh/works/findById/${id}`, {}, "GET");
       if (res2) {
-        const dataListTemp = res2.dialogs.map((item) => {
+        const dataListTemp = res2.map((item) => {
           return JSON.parse(item.whoSay);
         });
         dataList.value = dataListTemp;
@@ -63,35 +63,46 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     });
     const putWorkData = async () => {
-      const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
+      dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
       const lastMessage = dataList.value.find((item) => item.reload && item.type === "left");
-      const lastGenImg = lastMessage ? JSON.stringify(lastMessage.imagesOptions) : void 0;
+      lastMessage ? JSON.stringify(lastMessage.imagesOptions) : void 0;
       const userInfo2 = JSON.parse(common_vendor.index.getStorageSync("userInfo"));
-      const params = {
-        works: {
-          authorId: userInfo2.userId,
-          id: workId.value || void 0,
-          title: UserMessages[0].content,
-          type: "1",
-          imgUrl: lastGenImg
-        },
-        dialogs: dataList.value.map((item) => {
-          if (item.type === "left") {
-            return {
-              whoId: 0,
-              whoName: "robot",
-              whoSay: JSON.stringify(item)
-            };
-          } else {
-            return {
-              whoId: userInfo2.userId,
-              whoName: userInfo2.username,
-              whoSay: JSON.stringify(item)
-            };
+      let isFindTitle = false;
+      const result = dataList.value.map((item, index) => {
+        if (item.type === "left") {
+          const params = {
+            whoId: 0,
+            whoName: "robot",
+            whoSay: JSON.stringify(item),
+            clipType: "",
+            clipContent: ""
+          };
+          if (item.compute && item.imagesOptions) {
+            params.clipType = "info";
+            params.clipContent = JSON.stringify({
+              imgUrl: item.imagesOptions[0].url
+            });
           }
-        })
-      };
-      const data = workId.value ? common_utils.httpsRequest("/hh/works/editById", params, "PUT") : common_utils.httpsRequest("/hh/works/addBy", params);
+          return params;
+        } else {
+          const params = {
+            whoId: userInfo2.userId,
+            whoName: userInfo2.username,
+            whoSay: JSON.stringify(item),
+            clipType: "",
+            clipContent: ""
+          };
+          if (item.compute && !isFindTitle) {
+            isFindTitle = true;
+            params.clipType = "info", params.clipContent = JSON.stringify({
+              title: item.content,
+              type: 1
+            });
+          }
+          return params;
+        }
+      });
+      const data = workId.value ? common_utils.httpsRequest("/hh/works/editById", result, "PUT") : common_utils.httpsRequest("/hh/dialog/addItemBy", result);
       if (data) {
         workId.value = data;
       }
@@ -153,20 +164,16 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           success: (chooseImageRes) => {
             const tempFilePaths = chooseImageRes.tempFiles;
             common_vendor.index.uploadFile({
-              url: "http://101.126.93.249/api/hh/comfyui_api/uploadImage",
-              //仅为示例，非真实的接口地址
+              url: `${common_utils.host}/hh/comfyui_api/uploadImage`,
               filePath: tempFilePaths[0].tempFilePath,
               name: "image",
               success: (uploadFileRes) => {
                 const uploadData = JSON.parse(uploadFileRes.data);
                 if (Number(uploadData.code) === 2e3) {
-                  const url = common_utils.genImgURl(uploadData.data.type, uploadData.data.filename);
-                  console.log(url);
                   dataList.value.push({
                     type: "right",
                     content: "",
-                    images: [url]
-                    // compute: true
+                    images: [uploadData.data.fileUrl]
                   });
                   addMockRobotReply(manualData.nextRobotId);
                 } else {
@@ -196,7 +203,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const fetchWebSocket = (promptData) => {
       isGenLoading.value = true;
       common_vendor.index.connectSocket({
-        url: "wss://101.126.93.249/ws/?clientId=" + clientUNIId.value
+        url: "wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=" + clientUNIId.value
       });
       common_vendor.index.onSocketOpen(function(res2) {
         console.log("WebSocket连接已打开！");
@@ -277,6 +284,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         compute: true
         // 用于标识加入计算
       });
+      putWorkData();
       canSend.value = false;
       inputValue.value = "";
       if (lastRobotMsg.value) {

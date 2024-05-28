@@ -31,7 +31,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const queryList = async (pageNo, pageSize) => {
       console.log(pageNo, pageSize);
-      let query = {};
+      const userInfo = JSON.parse(common_vendor.index.getStorageSync("userInfo"));
+      let query = {
+        ownerId: userInfo.userId
+      };
       if (searchValues.type) {
         query.type = searchValues.type;
       }
@@ -46,7 +49,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           query.startTime = `${common_utils.getDay(-29)} 00:00:00`;
         }
       }
-      const res = await common_utils.httpsRequest(`/hh/works/pageBy/${pageSize}/${pageNo}`, query, "GET");
+      const res = await common_utils.httpsRequest(`/hh/dialog/pageMeBy/${pageSize}/${pageNo}`, query, "GET");
       const data = res.data.map((item) => {
         return {
           ...item,

@@ -35,6 +35,7 @@ export const robotReply = {
 				{ url: '', status: 'queue_remaining', precent: 0}
 			],
 			activeImages: [],
+			compute: true, // 用于最后计算是不是保存的字段
 		}
 	},
 	4: {
@@ -57,6 +58,7 @@ export const robotReply = {
 				precent: 100
 			}],
 			activeImages: [],
+			compute: true,// 用于最后计算是不是保存的字段
 		},
 	},
 	6: {

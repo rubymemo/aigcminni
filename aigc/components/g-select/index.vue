@@ -131,8 +131,8 @@
 	}
 
 	.option-item {
-		    display: flex;
-		    align-items: center;
+		display: flex;
+		align-items: center;
 		box-sizing: border-box;
 		height: 76rpx;
 		line-height: 76rpx;

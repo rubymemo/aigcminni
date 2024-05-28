@@ -3,15 +3,16 @@ const common_vendor = require("../../common/vendor.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   props: {
-    modelValue: null,
-    height: null,
-    width: null,
-    placeholder: null,
-    options: null
+    modelValue: {},
+    height: {},
+    width: {},
+    placeholder: {},
+    options: {}
   },
   emits: ["update:modelValue", "change"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const activeTab = common_vendor.ref(null);
     const isShowOptions = common_vendor.ref(false);
     const activeOption = common_vendor.ref(null);

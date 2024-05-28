@@ -3,8 +3,6 @@ const common_vendor = require("../../../../../common/vendor.js");
 const uni_modules_zPaging_components_zPaging_js_zPagingStatic = require("../js/z-paging-static.js");
 const uni_modules_zPaging_components_zPaging_js_zPagingUtils = require("../js/z-paging-utils.js");
 const uni_modules_zPaging_components_zPaging_js_zPagingEnum = require("../js/z-paging-enum.js");
-require("../config/index.js");
-require("../js/z-paging-constant.js");
 const _sfc_main = {
   name: "z-paging-refresh",
   data() {

@@ -73,7 +73,7 @@
 <script setup lang="ts">
 	import { nextTick, ref } from 'vue';
 	import { onLoad, onBackPress, onHide, onUnload } from "@dcloudio/uni-app";
-	import { httpsRequest, genImgURl } from '@/common/utils';
+	import { httpsRequest, genImgURl, host } from '@/common/utils';
 	
 	
 	const userInfo = ref({
@@ -115,17 +115,13 @@
 			success: (chooseImageRes) => {
 				const tempFilePaths = chooseImageRes.tempFiles;
 				uni.uploadFile({
-					url: 'http://101.126.93.249/api/hh/comfyui_api/uploadImage', //仅为示例，非真实的接口地址
+					url: `${host}/hh/comfyui_api/uploadImage`, //仅为示例，非真实的接口地址
 					filePath: tempFilePaths[0].tempFilePath,
 					name: 'image',
 					success: (uploadFileRes) => {
 						const uploadData = JSON.parse(uploadFileRes.data);
-						// filename: "8bcae338-8872-4982-855a-93651ea036aa.png"
-						// subfolder: ""
-						// type: "input"
-						// `http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png`
 						if (Number(uploadData.code) === 2000) {
-							const url = genImgURl(uploadData.data.type, uploadData.data.filename);
+							const url = uploadData.data.fileUrl
 							userInfo.value.avatar = url;
 						} else {
 							uni.showToast({
@@ -145,10 +141,6 @@
 	}
 	onUnload(() => {
 		putUserInfo();
-		// uni.redirectTo({
-		//     url: '/pages/userCenter/userCenter'
-		// });
-		// return false;
 	})
 </script>
 

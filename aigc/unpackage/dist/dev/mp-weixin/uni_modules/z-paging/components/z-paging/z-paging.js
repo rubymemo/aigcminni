@@ -1,25 +1,6 @@
 "use strict";
 const uni_modules_zPaging_components_zPaging_js_zPagingMain = require("./js/z-paging-main.js");
 const common_vendor = require("../../../../common/vendor.js");
-require("./js/z-paging-static.js");
-require("./js/z-paging-constant.js");
-require("./js/z-paging-utils.js");
-require("./config/index.js");
-require("./js/modules/common-layout.js");
-require("./js/modules/data-handle.js");
-require("./js/z-paging-enum.js");
-require("./js/z-paging-interceptor.js");
-require("./js/modules/i18n.js");
-require("./i18n/index.js");
-require("./js/modules/nvue.js");
-require("./js/modules/empty.js");
-require("./js/modules/refresher.js");
-require("./js/modules/load-more.js");
-require("./js/modules/loading.js");
-require("./js/modules/chat-record-mode.js");
-require("./js/modules/scroller.js");
-require("./js/modules/back-to-top.js");
-require("./js/modules/virtual-list.js");
 const block0 = (Component2) => {
   if (!Component2.wxsCallMethods) {
     Component2.wxsCallMethods = [];

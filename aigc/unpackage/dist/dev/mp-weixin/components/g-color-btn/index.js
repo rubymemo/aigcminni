@@ -3,12 +3,13 @@ const common_vendor = require("../../common/vendor.js");
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "index",
   props: {
-    height: null,
-    width: null,
+    height: {},
+    width: {},
     active: { type: Boolean }
   },
   emits: ["click"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const onClick = () => {
       emits("click");

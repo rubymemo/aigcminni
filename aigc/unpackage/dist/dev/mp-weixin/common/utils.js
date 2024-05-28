@@ -57,4 +57,5 @@ function getDay(day) {
 }
 exports.genImgURl = genImgURl;
 exports.getDay = getDay;
+exports.host = host;
 exports.httpsRequest = httpsRequest;

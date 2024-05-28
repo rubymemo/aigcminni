@@ -61,7 +61,10 @@
 	const queryList = async (pageNo, pageSize) => {
 		console.log(pageNo, pageSize)
 		// if(pageNo === 1) {
-		let query = {}	
+		const userInfo = JSON.parse(uni.getStorageSync('userInfo'));
+		let query = {
+			ownerId: userInfo.userId
+		}	
 		if(searchValues.type) {
 			query.type =searchValues.type;
 		}
@@ -77,7 +80,7 @@
 				query.startTime = `${getDay(-29)} 00:00:00`;
 			}
 		}
-			const res = await httpsRequest(`/hh/works/pageBy/${pageSize}/${pageNo}`, query, 'GET');
+			const res = await httpsRequest(`/hh/dialog/pageMeBy/${pageSize}/${pageNo}`, query, 'GET');
 			const data = res.data.map(item => {
 				return {
 					...item,

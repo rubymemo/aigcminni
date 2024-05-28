@@ -46,14 +46,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         success: (chooseImageRes) => {
           const tempFilePaths = chooseImageRes.tempFiles;
           common_vendor.index.uploadFile({
-            url: "http://101.126.93.249/api/hh/comfyui_api/uploadImage",
+            url: `${common_utils.host}/hh/comfyui_api/uploadImage`,
             //仅为示例，非真实的接口地址
             filePath: tempFilePaths[0].tempFilePath,
             name: "image",
             success: (uploadFileRes) => {
               const uploadData = JSON.parse(uploadFileRes.data);
               if (Number(uploadData.code) === 2e3) {
-                const url = common_utils.genImgURl(uploadData.data.type, uploadData.data.filename);
+                const url = uploadData.data.fileUrl;
                 userInfo.value.avatar = url;
               } else {
                 common_vendor.index.showToast({

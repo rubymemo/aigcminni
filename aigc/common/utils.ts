@@ -1,4 +1,4 @@
-const host = 'http://101.126.93.249/api';
+export const host = 'http://101.126.93.249/api';
 // const host = 'https://huatu.solart.pro/api/hh';
 
 

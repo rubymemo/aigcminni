@@ -131,7 +131,8 @@ const initWs = (
   let dataRef;
 
   wsInstance.value = new WebSocket(
-    `wss://huatu.solart.pro/ws/?clientId=${uuid}`,
+    `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${uuid}`
+    // `wss://huatu.solart.pro/ws/?clientId=${uuid}`,
   );
   wsInstance.value.onopen = () => {
     console.log('链接成功');

@@ -101,7 +101,7 @@
 <script setup lang="ts">
 	import { ref, onBeforeUnmount, nextTick, onMounted, getCurrentInstance } from 'vue';
 	import { robotReply, manualReply } from '@/common/mockData.ts';
-	import { httpsRequest, genImgURl } from '@/common/utils';
+	import { httpsRequest, genImgURl, host } from '@/common/utils';
 	import { onLoad } from '@dcloudio/uni-app';
 
 	const res = uni.getSystemInfoSync();
@@ -149,7 +149,7 @@
 	const getWorkDataById = async (id: string) => {
 		const res = await httpsRequest(`/hh/works/findById/${id}`, {}, 'GET');
 		if(res) {
-			const dataListTemp = res.dialogs.map(item => {
+			const dataListTemp = res.map(item => {
 				return JSON.parse(item.whoSay);
 			})
 			dataList.value = dataListTemp;
@@ -171,33 +171,46 @@
 		const lastGenImg = lastMessage ? JSON.stringify(lastMessage.imagesOptions) : undefined
 		const userInfo = JSON.parse(uni.getStorageSync('userInfo'));
 		
-		const params = {
-			works: {
-				authorId: userInfo.userId,
-				id: workId.value || undefined,
-				title: UserMessages[0].content,
-				type: '1',
-				imgUrl: lastGenImg
-			},
-			dialogs : dataList.value.map(item => {
-				if(item.type === 'left') {
-					return {
-						whoId: 0,
-						whoName: 'robot',
-						whoSay: JSON.stringify(item)
-					}
-				} else {
-					return {
-						whoId: userInfo.userId,
-						whoName: userInfo.username,
-						whoSay: JSON.stringify(item)
-					}
+		let isFindTitle = false;
+		const result = dataList.value.map((item, index) => {
+			if(item.type === 'left') {
+				const params = {
+					whoId: 0,
+					whoName: 'robot',
+					whoSay: JSON.stringify(item),
+					clipType: '',
+					clipContent: ''
 				}
-				
-			})
-		}
+				if(item.compute && item.imagesOptions) {
+					// 获取封面图
+					params.clipType = 'info';
+					params.clipContent = JSON.stringify({
+						imgUrl: item.imagesOptions[0].url
+					});
+				}
+				return params
+			} else {
+				const params = {
+					whoId: userInfo.userId,
+					whoName: userInfo.username,
+					whoSay: JSON.stringify(item),
+					clipType: '',
+					clipContent: ''
+				}
+				if(item.compute && !isFindTitle) {
+					// 找到标题
+					isFindTitle = true; 
+					params.clipType = 'info',
+					params.clipContent = JSON.stringify({
+						title: item.content,
+						type: 1,
+					})
+				}
+				return params
+			}	
+		})
 
-		const data = workId.value ? httpsRequest('/hh/works/editById',params, 'PUT') : httpsRequest('/hh/works/addBy',params);
+		const data = workId.value ? httpsRequest('/hh/works/editById', result, 'PUT') : httpsRequest('/hh/dialog/addItemBy',result);
 		if(data) {
 			workId.value = data;
 		}
@@ -277,23 +290,16 @@
 				success: (chooseImageRes) => {
 					const tempFilePaths = chooseImageRes.tempFiles;
 					uni.uploadFile({
-						url: 'http://101.126.93.249/api/hh/comfyui_api/uploadImage', //仅为示例，非真实的接口地址
+						url: `${host}/hh/comfyui_api/uploadImage`,
 						filePath: tempFilePaths[0].tempFilePath,
 						name: 'image',
 						success: (uploadFileRes) => {
 							const uploadData = JSON.parse(uploadFileRes.data);
-							// filename: "8bcae338-8872-4982-855a-93651ea036aa.png"
-							// subfolder: ""
-							// type: "input"
-							// `http://101.126.93.249/api/hh/comfyui_api/view?type=input&filename=8bcae338-8872-4982-855a-93651ea036aa.png`
 							if (Number(uploadData.code) === 2000) {
-								const url = genImgURl(uploadData.data.type, uploadData.data.filename);
-								console.log(url);
 								dataList.value.push({
 									type: 'right',
 									content: '',
-									images: [url],
-									// compute: true
+									images: [uploadData.data.fileUrl],
 								})
 								addMockRobotReply(manualData.nextRobotId);
 							} else {
@@ -324,7 +330,7 @@
 	const fetchWebSocket = (promptData) => {
 		isGenLoading.value = true;
 		uni.connectSocket({
-			url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
+			url: 'wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=' + clientUNIId.value
 		});
 
 		uni.onSocketOpen(function (res) {
@@ -385,7 +391,6 @@
 		}
 		console.log('promt传的参数')
 		console.log(params)
-		// debugger
 		fetchWebSocket(res);
 		await httpsRequest('/hh/comfyui_api/postPrompt', params);
 	}
@@ -418,7 +423,7 @@
 			type: 'right',
 			compute: true // 用于标识加入计算
 		})
-		// putWorkData();
+		putWorkData();
 
 		canSend.value = false;
 		inputValue.value = '';
