@@ -317,7 +317,7 @@ onMounted(() => {
       const dataAlias = res.data.data as any[];
       const timeDataMap = dataAlias.reduce<Record<string, any>>(
         (result, cur) => {
-          const time = cur.createTime.split(' ')[0];
+          const time = cur.createTime;
           // 根据时间分组
           if (!result[time]) {
             result[time] = { time, list: [] };

@@ -1,5 +1,5 @@
 <template>
-  <div class="box">
+  <div v-if="props.logs.length" class="box">
     <div v-for="item in props.logs" :key="item.time">
       <div class="time-tag">
         {{ item.time }}
@@ -22,6 +22,9 @@
         </div>
       </div>
     </div>
+  </div>
+  <div v-else class="box">
+    <div class="empty-box"> 暂无对话记录 </div>
   </div>
 </template>
 
@@ -78,6 +81,21 @@ const handleClick = async (detailItem: any) => {
   padding: 16px;
   border-radius: 12px;
   background: rgba(236, 243, 253, 0.7);
+
+  .empty-box {
+    width: 100%;
+    height: 66px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(163, 180, 204);
+    font-family: PingFang SC;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0px;
+    text-align: left;
+  }
 
   .time-tag {
     color: rgb(107, 116, 143);
