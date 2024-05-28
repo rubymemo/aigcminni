@@ -16,7 +16,7 @@
           <div class="action-item">
             <icon-edit :size="16" />
           </div>
-          <div class="action-item">
+          <div class="action-item" @click.stop="deleteItem(detailItem)">
             <icon-delete :size="16" />
           </div>
         </div>
@@ -29,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { getSessionCommit } from '@/api/dashboard';
+import { deleteSessionItem, getSessionCommit } from '@/api/dashboard';
 import logItemTag from '@/assets/images/log-item-tag.png';
+import { Message } from '@arco-design/web-vue';
 import { useRouter } from 'vue-router';
 
 interface Props {
@@ -44,7 +45,17 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emit = defineEmits(['refresh']);
+
 const router = useRouter();
+
+const deleteItem = async (detailItem: any) => {
+  const res = await deleteSessionItem(detailItem.id);
+  if (res.code === '2000') {
+    Message.success('删除成功');
+    emit('refresh');
+  }
+};
 
 const handleClick = async (detailItem: any) => {
   router.replace({
@@ -117,6 +128,14 @@ const handleClick = async (detailItem: any) => {
     display: flex;
     border: 1px solid transparent;
     cursor: pointer;
+
+    &:hover {
+      border-color: linear-gradient(
+        180deg,
+        rgb(99, 214, 101),
+        rgb(37, 106, 247) 100%
+      );
+    }
 
     img {
       width: 24px;

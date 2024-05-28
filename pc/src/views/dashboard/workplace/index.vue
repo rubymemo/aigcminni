@@ -13,7 +13,7 @@
       <div class="session-log-container">
         <div class="log-header">对话记录</div>
         <div class="session-log-el">
-          <SessionLog :logs="logs" />
+          <SessionLog :logs="logs" @refresh="refreshLogs" />
         </div>
       </div>
     </div>
@@ -307,7 +307,7 @@ const reload = (img: string) => {
   initWs(img, userWords.value, true);
 };
 
-onMounted(() => {
+const refreshLogs = () => {
   getSessionList(1, 10, userInfo.userId!)
     .then((res: any) => {
       if (res.code !== '2000') {
@@ -333,7 +333,10 @@ onMounted(() => {
     .catch((error) => {
       console.log('error', error);
     });
+};
 
+onMounted(() => {
+  refreshLogs();
   // createSession({});
 });
 </script>
@@ -359,10 +362,11 @@ onMounted(() => {
       rgba(255, 255, 255, 0.8),
       rgba(255, 255, 255, 0) 100%
     );
+    border: 2px solid
+      linear-gradient(180deg, rgb(255, 255, 255), rgba(255, 255, 255, 0) 100%);
     overflow: hidden;
     .logo-area {
       height: 70px;
-      border: 2px solid #fff;
       border-radius: 12px 12px 0 0;
       display: flex;
       align-items: center;
@@ -376,7 +380,7 @@ onMounted(() => {
 
     .button-area {
       height: 88px;
-      border: 2px solid #fff;
+      // border: 2px solid #fff;
       border-top: 0;
       display: flex;
       justify-content: center;
@@ -418,7 +422,7 @@ onMounted(() => {
     }
 
     .session-log-container {
-      border: 2px solid #fff;
+      // border: 2px solid #fff;
       border-top: 0;
       border-bottom: 0;
       padding: 16px 14px;

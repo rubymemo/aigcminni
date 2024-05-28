@@ -62,3 +62,7 @@ export const updateSession = (dialogId: number | string, params: any) => {
 export const getSessionCommit = (id) => {
   return axios.get(`/hh/dialog/findItemHistory/${id}`);
 };
+
+export const deleteSessionItem = (id) => {
+  return axios.delete(`/hh/dialog/removeById/${id}`)
+}
