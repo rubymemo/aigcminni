@@ -305,6 +305,7 @@ const handleChoseImg = (index: number) => {
             justify-content: center;
           }
           .img-area {
+            max-width: 24.5%;
             width: 200px;
             height: 200px;
             border-radius: 12px;

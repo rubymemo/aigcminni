@@ -36,22 +36,26 @@
         </div>
       </div>
       <div class="detail-container">
-        <div class="session-container">
+        <div ref="sessionBox" class="session-container">
           <div class="session-inner-container">
             <CurrentSession
               ref="sessionListRef"
               @image-upload-success="handleImageUploaded"
+              @enabled-input="handleEnableInput"
               @choose-style="handleChooseStyle"
               @no-text="handleNoText"
+              @commit-length-change="handleScrollBottom"
             />
           </div>
         </div>
         <div class="bottom-bar">
           <div class="input-container">
             <textarea
+              :disabled="inputDisabled"
               v-model="inputText"
               placeholder="输入对话后，可通过回车键发送指令"
               @keydown="enterSend"
+              @input="handleInput"
             />
             <a-button
               v-show="inputText"
@@ -91,16 +95,26 @@ import { v4 } from 'uuid';
 import { getImagePath } from './util';
 import { useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
+import { nextTick } from 'vue';
 
 const logs = ref<any[]>([]);
 
 const inputText = ref('');
+const inputDisabled = ref(true);
 const sessionListRef = ref();
 
 const wsInstance = ref<WebSocket>();
 
 const userInfo = useUserStore();
 const router = useRouter();
+
+const sessionBox = ref();
+
+const handleInput = () => {
+  if (inputDisabled.value) {
+    inputText.value = ''
+  }
+}
 
 const addSession = async () => {
   const res = await createSession({
@@ -119,24 +133,41 @@ const addSession = async () => {
   });
 };
 
+const handleScrollBottom = () => {
+  if (!sessionBox.value) {
+    return;
+  }
+  console.log('sessionBox.value.scrollHeight', sessionBox.value.scrollHeight);
+  
+ nextTick(() => {
+  sessionBox.value.scrollTo(0, sessionBox.value.scrollHeight)
+ })
+}
+
+const handleEnableInput = () => {
+  inputDisabled.value = false;
+}
+
 const initWs = (
   imageName = '',
   words = '',
   type: 'template' | 'style' = 'template',
 ) => {
-  const uuid = v4();
-
   let promptId = '';
 
   let dataRef;
 
+  const uuid = v4();
+
+  const uid = userInfo.userId;
+
   wsInstance.value = new WebSocket(
-    `wss://huatu.solart.pro/ws/?clientId=${uuid}`,
+    `wss://huatu.solart.pro/ws/?clientId=${uid}`,
   );
   wsInstance.value.onopen = () => {
     console.log('链接成功');
     sendMessage({
-      clientId: uuid,
+      clientId: uid,
       promptImage: imageName,
       promptWords: words,
     }).then((res) => {
@@ -202,13 +233,6 @@ onBeforeMount(() => {
   wsInstance.value = undefined;
 });
 
-// const sendMessageAction = (imgName = '', words = '') => {
-//   return sendMessage({
-//     promptImage: imgName,
-//     promptWords: words,
-//   });
-// };
-
 const styleImgUrl = ref('');
 let imgUploaded = false;
 
@@ -224,7 +248,13 @@ const handleSendButtonClick = () => {
 const enterSend = (event: any) => {
   if (event.keyCode === 13 && inputText.value) {
     console.log(event);
+    sessionListRef.value.addCommit({
+      author: 'user',
+      content: inputText.value,
+    })
     initWs(styleImgUrl.value, inputText.value, 'style');
+    inputDisabled.value = true;
+    inputText.value = '';
     // 判断按下的是否是回车键的keyCode
     event.preventDefault();
   }
@@ -234,17 +264,6 @@ const enterSend = (event: any) => {
 const handleImageUploaded = (imageUrl: string) => {
   imgUploaded = true;
   initWs(imageUrl, '');
-  // sendMessage({
-  //   promptImage: imageUrl,
-  //   promptWords: '大一点',
-  //   clientId: uuid,
-  // }).then((res: any) => {
-  //   const { number, promptId } = res.data;
-  //   console.log('number, promptI', number, promptId);
-  //   getSessionHistory(promptId).then((history) => {
-  //     console.log('history', history);
-  //   });
-  // });
 };
 
 const handleChooseStyle = (imgUrl: string) => {
@@ -252,11 +271,12 @@ const handleChooseStyle = (imgUrl: string) => {
 };
 
 const handleNoText = () => {
+  inputDisabled.value = true;
   initWs(styleImgUrl.value, '', 'style');
 };
 
 onMounted(() => {
-  getSessionList(1, 10)
+  getSessionList(1, 10, userInfo.userId)
     .then((res: any) => {
       if (res.code !== '2000') {
         return;
@@ -452,6 +472,10 @@ onMounted(() => {
             outline: none;
             resize: none;
 
+            &:disabled {
+              background: transparent;
+              cursor: not-allowed;
+            }
             &::placeholder {
               color: rgb(163, 180, 204);
               font-family: 思源黑体 CN;
