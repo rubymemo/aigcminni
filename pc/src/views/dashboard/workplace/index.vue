@@ -479,7 +479,9 @@ onMounted(() => {
         padding-bottom: 20px;
 
         .session-inner-container {
-          width: 980px;
+          width: 67%;
+          max-width: 980px;
+          min-width: 480px;
           margin: auto;
         }
       }
@@ -491,7 +493,9 @@ onMounted(() => {
           margin: auto;
           border-radius: 8px;
           background: rgb(255, 255, 255);
-          width: 980px;
+          width: 67%;
+          max-width: 980px;
+          min-width: 480px;
 
           display: flex;
           align-items: center;

@@ -1,6 +1,8 @@
 <template>
   <div class="commit-item">
-    <CommonAvatar :role="props.author" />
+    <div class="avatar-area">
+      <CommonAvatar :role="props.author" />
+    </div>
     <div :class="props.author === 'robot' ? 'robot-commit' : 'user-commit'">
       <div class="commit-content">
         <h5 v-if="data.title" :style="data.titleStyle" class="commit-title">{{
@@ -78,6 +80,10 @@ const handleReload = () => {
   width: 100%;
 
   .commit-item {
+
+    .avatar-area {
+      min-width: 40px;
+    }
     display: flex;
     width: 100%;
     margin-bottom: 32px;
