@@ -29,7 +29,7 @@
                     <img :src="props.data.imgUrls[item - 1]" alt="" />
                   </div>
                   <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress * 100 }}%
+                    图片加载中{{ props.data.progress }}%
                   </div>
                 </div>
                 <a-radio
@@ -61,8 +61,7 @@
                     <img :src="props.data.imgUrls[item - 1]" alt="" />
                   </div>
                   <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress * 100 }}%
-                    <a-progress :percent="props.data.progress" />
+                    图片加载中{{ props.data.progress }}%
                   </div>
                 </div>
                 <a-radio
@@ -92,7 +91,7 @@
                     <img :src="props.data.imgUrls[item - 1]" alt="" />
                   </div>
                   <div v-else class="img-loading">
-                    图片加载中{{ props.data.progress * 100 }}%
+                    图片加载中{{ props.data.progress }}%
                   </div>
                 </div>
                 <a-radio
@@ -306,6 +305,7 @@ const handleChoseImg = (index: number) => {
             justify-content: center;
           }
           .img-area {
+            max-width: 24.5%;
             width: 200px;
             height: 200px;
             border-radius: 12px;
@@ -333,8 +333,8 @@ const handleChoseImg = (index: number) => {
               border-radius: 12px;
               background: linear-gradient(
                 135deg,
-                rgb(23, 242, 95) 0%,
-                rgb(37, 106, 247) 100%
+                rgb(23, 242, 95, .1) 0%,
+                rgb(37, 106, 247, .1) 100%
               );
             }
           }

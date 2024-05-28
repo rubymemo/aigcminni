@@ -1,5 +1,5 @@
 <template>
-  <div class="current-session-box">
+  <div ref="boxRef" class="current-session-box">
     <SessionItem
       v-for="(item, index) in commitList"
       v-bind="item"
@@ -59,6 +59,7 @@ import SessionItem, { SessionItemProps } from './session-item.vue';
 import { ref } from 'vue';
 import { v4 } from 'uuid';
 import { getImagePath } from '../util';
+import { watch } from 'vue';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -71,12 +72,22 @@ const emit = defineEmits([
   'waitInput',
   'textComplete',
   'noText',
-  'chooseStyle'
+  'chooseStyle',
+  'enabledInput',
+  'commitLengthChange'
 ]);
 
 const disabledUpload = ref(false);
 
 const commitList = ref<CommitItem[]>([]);
+
+const boxRef = ref();
+
+watch(() => commitList.value.length, () => {
+  emit('commitLengthChange')
+}, {
+  flush: 'post'
+})
 
 const addCommit = (params: Partial<SessionItemProps>) => {
   const author = params.author || 'robot';
@@ -118,7 +129,7 @@ const noImageUpload = () => {
   addCommit({
     content: '您现在可以输入内容了',
   });
-  emit('waitInput');
+  emit('enabledInput');
   disabledUpload.value = true;
 };
 
@@ -133,11 +144,13 @@ const customUpload = (option: any): any => {
     addCommit({
       author: 'user',
       // image: `http://101.126.93.249/api/hh/comfyui_api/view?type=${res.data.type}&filename=${res.data.filename}`,
-      image: getImagePath(res.data.filename, res.data.type),
+      image: res.data.fileUrl,
     });
     emit('imageUploadSuccess', res.data.filename);
   });
 };
+
+
 
 const handleChooseTemplate = (imgUrl: string) => {
   addCommit({
@@ -150,6 +163,7 @@ const handleChooseTemplate = (imgUrl: string) => {
       '针对文字部分，您是否还有其它补充，如果没有直接点击没有跳过即可，如果有请在下方输入',
     slotName: 'supplyText',
   });
+  emit('enabledInput');
   emit('chooseStyle', imgUrl)
 };
 
@@ -168,6 +182,7 @@ defineExpose({
 <style scoped lang="less">
 .current-session-box {
   width: 100%;
+  padding-bottom: 100px;
 
   .action-button {
     margin-right: 16px;

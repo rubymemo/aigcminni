@@ -22,8 +22,9 @@ export interface PopularRecord {
 export const getSessionList = (
   pageNum: number,
   pageSize: number,
+  ownerId: string
 ): Promise<HttpResponse> => {
-  return axios.get<LoginRes>(`/hh/works/pageBy/${pageSize}/${pageNum}`);
+  return axios.get(`/hh/dialog/pageMeBy/${pageSize}/${pageNum}`, { params: { ownerId } });
 };
 
 export const createSession = (params: any) => {
@@ -45,3 +46,7 @@ export const sendMessage = (params: any) => {
 export const getSessionHistory = (promptId: string) => {
   return axios.get(`/hh/comfyui_api/historyByPromptId/${promptId}`);
 };
+
+export const createNewSession = () => {
+
+}
