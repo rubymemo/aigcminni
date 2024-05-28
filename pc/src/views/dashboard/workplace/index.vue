@@ -213,7 +213,7 @@ const initWs = (
       getSessionHistory(promptId).then((res) => {
         console.log('promptHistory', res);
         dataRef.value.imgUrls = res.data[promptId].outputs[100].images.map(
-          (item) => getImagePath(item.filename, item.type),
+          (item) => item.fileUrl,
         );
       });
       wsInstance.value?.close();
