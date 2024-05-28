@@ -88,8 +88,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     });
     const putWorkData = async () => {
       dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
-      const lastMessage = dataList.value.find((item) => item.reload && item.type === "left");
-      lastMessage ? JSON.stringify(lastMessage.imagesOptions) : void 0;
+      dataList.value.find((item) => item.reload && item.type === "left");
       let isFindTitle = false;
       const result = dataList.value.map((item, index) => {
         if (item.type === "left") {
@@ -196,7 +195,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                     type: "right",
                     content: "",
                     images: [uploadData.data.fileUrl],
-                    compute: true,
                     refer: true
                   });
                   addMockRobotReply(manualData.nextRobotId);
@@ -272,7 +270,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const getPaintingTask = async () => {
       const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
       const lastUserMessages = UserMessages.filter((item) => item.content && !item.images).map((item) => item.content).join("");
-      const UserImagesMessages = UserMessages.filter((item) => item.images && item.compute && item.refer);
+      const UserImagesMessages = dataList.value.filter((item, index) => item.type === "right" && item.refer === true);
       console.log("UserMessages");
       console.log(UserMessages);
       const params = {
@@ -297,7 +295,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         if (data) {
           let top = data.height - scrollTop.value;
           if (top > 0) {
-            scrollTop.value = top + 500;
+            scrollTop.value = top + 900;
           }
         }
       }).exec();

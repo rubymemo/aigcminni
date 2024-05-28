@@ -197,7 +197,6 @@
 	const putWorkData = async () => {
 		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
 		const lastMessage = dataList.value.find(item => item.reload && item.type === 'left')
-		const lastGenImg = lastMessage ? JSON.stringify(lastMessage.imagesOptions) : undefined
 		
 		let isFindTitle = false;
 		const result = dataList.value.map((item, index) => {
@@ -329,7 +328,6 @@
 									type: 'right',
 									content: '',
 									images: [uploadData.data.fileUrl],
-									compute: true,
 									refer: true,
 								})
 								addMockRobotReply(manualData.nextRobotId);
@@ -413,7 +411,7 @@
 	const getPaintingTask = async () => {
 		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
 		const lastUserMessages = UserMessages.filter(item => item.content && !item.images).map(item => item.content).join('');
-		const UserImagesMessages = UserMessages.filter(item => item.images && item.compute && item.refer);
+		const UserImagesMessages = dataList.value.filter((item, index) => item.type === 'right' && item.refer === true);
 		console.log('UserMessages')
 		console.log(UserMessages)
 		const params = {
@@ -441,7 +439,7 @@
 				if (data) {
 					let top = data.height - scrollTop.value;
 					if (top > 0) {
-						scrollTop.value = top + 500;
+						scrollTop.value = top + 900;
 					}
 				}
 			}).exec();
