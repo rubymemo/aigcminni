@@ -42,7 +42,7 @@ const robotReply = {
   },
   4: {
     data: {
-      content: "针对文字部分，您是否还有其它补充，如果没有直接点击没有跳过即可，如果有请在下方输入",
+      content: "请输入您的品牌名称",
       btns: ["没有"],
       activeBtns: []
     }
@@ -71,10 +71,10 @@ const robotReply = {
         color: "#256AF7"
       },
       imagesOptions: [
-        { url: "", status: "queue_remaining", precent: 0 },
-        { url: "", status: "queue_remaining", precent: 0 },
-        { url: "", status: "queue_remaining", precent: 0 },
         { url: "", status: "queue_remaining", precent: 0 }
+        // { url: '', status: 'queue_remaining', precent: 0},
+        // { url: '', status: 'queue_remaining', precent: 0},
+        // { url: '', status: 'queue_remaining', precent: 0}
       ],
       activeImages: []
     }

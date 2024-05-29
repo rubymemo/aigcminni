@@ -30,7 +30,7 @@
 											<view class="image-option-box"
 												v-for="(imageItem, imgIndex) in item.imagesOptions" :key="imgIndex">
 												<view class="imageCover"
-													v-show="imageItem.status === 'loading' || imageItem.status === 'queue_remaining'">
+													v-if="imageItem.status === 'loading' || imageItem.status === 'queue_remaining'">
 													<view>
 													{{imageItem.status === 'queue_remaining' ? '任务排队中，请稍等' : ''}}
 													{{imageItem.status === 'loading' ? `图片加载中${imageItem.precent}%` : ''}}
@@ -59,7 +59,7 @@
 									</radio-group>
 								</view>
 							</view>
-							<view v-if="item.reload && !isGenLoading" :class="`reload ${isGenLoading ? 'loading' : ''}`" @click="reloadGen"><view class="iconfont icon-loading"></view>重新生成</view>
+							<!-- <view v-if="item.reload && !isGenLoading" :class="`reload ${isGenLoading ? 'loading' : ''}`" @click="reloadGen"><view class="iconfont icon-loading"></view>重新生成</view> -->
 						</view>
 					</view>
 
@@ -103,8 +103,8 @@
 </template>
 
 <script setup lang="ts">
-	import { ref, onBeforeUnmount, nextTick, onMounted, getCurrentInstance } from 'vue';
-	import { robotReply, manualReply, findNextRobotId } from '@/common/mockData.ts';
+	import { ref, onBeforeUnmount, nextTick, onMounted, getCurrentInstance, reactive } from 'vue';
+	import { robotReply as defaultRobotReply, manualReply, findNextRobotId } from '@/common/mockData.ts';
 	import { httpsRequest, genImgURl, host  } from '@/common/utils';
 	import { onLoad } from '@dcloudio/uni-app';
 
@@ -113,7 +113,7 @@
 		'padding-top': res.statusBarHeight + 'px'
 	})
 
-	// 试试滚动
+	// 滚动
 	const scrollTop = ref(0);
 
 	const canSend = ref(false);
@@ -122,6 +122,8 @@
 	const clientUNIId = ref('');
 	const lastRobotMsg = ref(false);
 	const isGenLoading = ref(false);
+	const workflowList = ref([]); // 模版
+	const RobotReply = reactive({ ...defaultRobotReply });
 	
 	const userInfo = ref({
 		avatar: '',
@@ -133,7 +135,7 @@
 	const workId = ref<string | undefined>(undefined);
 	const dataList = ref([
 		{
-			...robotReply[0].data,
+			...RobotReply[0].data,
 			type: 'left',
 			// imagesOptions: [{
 			// 	url: '/static/png/mock1.png',
@@ -170,14 +172,27 @@
 			if(lastMsg.type === 'right' && dataListTemp.length === 6) {
 				// 人说的，且是第一条
 				addMockRobotReply(3);
-				getPaintingTask();
+				const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
+				getPaintingTask('logo_draw', UserMessages[0].content);
 			}
-			if(lastMsg.type === 'left' && dataListTemp.length === 9) {
-				// 机器人说的，且接下来让人说
+			if(lastMsg.type === 'left' && dataListTemp.length >= 9) {
 				lastRobotMsg.value = true;
-				canSend.value = true;
+				if(dataListTemp.length === 9) {
+					// 机器人说的:请输入您的品牌名称
+					canSend.value = true;
+				}
 			}
 		}
+	}
+	// 获取模版
+	const fetchWorkFlowList = async (type) => {
+		const workflowListTemp = await httpsRequest(`/hh/prompt_workflow/listByType/${type}`, {}, 'GET');
+		workflowList.value = workflowListTemp;
+		RobotReply[5].data.imagesOptions = workflowListTemp.map(item => ({
+			url: item.imgUrl,
+			status: 'done',
+			precent: 100
+		}))
 	}
 	
 	onLoad(async (params) => {
@@ -187,6 +202,9 @@
 			userInfo.value = localUserInfo;
 			clientUNIId.value = localUserInfo.userId;
 		}
+	
+		fetchWorkFlowList('logo_compose');
+		
 		if(params.id) {
 			// 详情
 			workId.value = params.id;
@@ -194,10 +212,7 @@
 		}
 	})
 	// 上传数据
-	const putWorkData = async () => {
-		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
-		const lastMessage = dataList.value.find(item => item.reload && item.type === 'left')
-		
+	const putWorkData = async () => {		
 		let isFindTitle = false;
 		const result = dataList.value.map((item, index) => {
 			if(item.type === 'left') {
@@ -208,7 +223,7 @@
 					clipType: '',
 					clipContent: ''
 				}
-				if(item.compute && item.imagesOptions) {
+				if(item.imagesOptions) {
 					// 获取封面图
 					params.clipType = 'info';
 					params.clipContent = JSON.stringify({
@@ -269,7 +284,7 @@
 	})
 
 	const goUserCenter = () => {
-		uni.navigateTo({
+		uni.redirectTo({
 			url: '/pages/userCenter/userCenter'
 		})
 	}
@@ -278,7 +293,7 @@
 	const addMockRobotReply = (robotId : number) => {
 		clearTimeout(timer.value);
 		timer.value = setTimeout(() => {
-			const robotReplyData = robotReply[robotId];
+			const robotReplyData = RobotReply[robotId];
 			dataList.value.push({
 				...robotReplyData.data,
 				startCreate: robotReplyData.startCreate,
@@ -292,7 +307,7 @@
 			scrollToBottom();
 			
 			// 保存
-			if(workId.value) {
+			if(workId.value && [4, 5].includes(robotId)) {
 				putWorkData();
 			}
 		}, 500)
@@ -318,7 +333,7 @@
 				success: (chooseImageRes) => {
 					const tempFilePaths = chooseImageRes.tempFiles;
 					uni.uploadFile({
-						url: `${host}/hh/comfyui_api/uploadImage`,
+						url: `${host}/hh/comfyui_api_v2/uploadImage`,
 						filePath: tempFilePaths[0].tempFilePath,
 						name: 'image',
 						success: (uploadFileRes) => {
@@ -327,7 +342,7 @@
 								dataList.value.push({
 									type: 'right',
 									content: '',
-									images: [uploadData.data.fileUrl],
+									images: [uploadData.data],
 									refer: true,
 								})
 								addMockRobotReply(manualData.nextRobotId);
@@ -374,12 +389,12 @@
 				console.log('最终结果')
 				uni.closeSocket()
 				
-				const imagesRes = await httpsRequest(`/hh/comfyui_api/historyByPromptId/${promptData.prompt_id}`, {}, 'GET');
-				console.log(imagesRes)
+				const imagesRes = await httpsRequest(`/hh/comfyui_api_v2/historyByPromptId/${promptData.prompt_id}`, {}, 'GET');
+				if(!imagesRes) return;
 				const dataListTemp = JSON.parse(JSON.stringify(dataList.value))
-				dataListTemp[dataListTemp.length - 1].imagesOptions = imagesRes.map(imgItem => {
+				dataListTemp[dataListTemp.length - 1].imagesOptions = imagesRes.map(imgItemSrc => {
 					return {
-						url: imgItem.fileUrl,
+						url: imgItemSrc,
 						status: 'done',
 						precent: 100
 					}
@@ -408,26 +423,22 @@
 		})
 	}
 
-	const getPaintingTask = async () => {
-		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
-		const lastUserMessages = UserMessages.filter(item => item.content && !item.images).map(item => item.content).join('');
+	const getPaintingTask = async (code: string, promptWords: string) => {
 		const UserImagesMessages = dataList.value.filter((item, index) => item.type === 'right' && item.refer === true);
-		console.log('UserMessages')
-		console.log(UserMessages)
 		const params = {
-			promptWords: lastUserMessages + (new Date()).valueOf(),
-			promptImage: undefined,
+			code,
+			promptWords: promptWords,
+			fileUrl: undefined,
 			clientId: clientUNIId.value
 		};
-		console.log(UserImagesMessages)
 		if (UserImagesMessages.length) {
-			const promptImageUrl = UserImagesMessages[0].images[0];
-			 const splitList = promptImageUrl.split('/');
-			 params.promptImage = splitList[splitList.length - 1];
+			// 是否有用户参考图
+			const promptImageUrl = UserImagesMessages[UserImagesMessages.length - 1].images[0];
+			 params.fileUrl = promptImageUrl;
 		}
 		console.log('promt传的参数')
 		console.log(params)
-		const promptRes = await httpsRequest('/hh/comfyui_api/postPrompt', params);
+		const promptRes = await httpsRequest('/hh/comfyui_api_v2/doPrompt', params);
 		fetchWebSocket(promptRes);
 	}
 
@@ -465,12 +476,13 @@
 		inputValue.value = '';
 
 		if (lastRobotMsg.value) {
-			// 这里写死是最后一步了
+			// 这里写死是选择模版。
 			addMockRobotReply(5);
 		} else {
-			// 这里写死下一步生成了
+			// 这里写死下一步生成了logo
 			addMockRobotReply(3);
-			const res = await getPaintingTask();
+			const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
+			const res = await getPaintingTask('logo_draw', UserMessages[0].content);
 		}
 	}
 
@@ -486,20 +498,25 @@
 		dataList.value[messageIndex].activeImages = [imgUrl];
 
 		if (lastRobotMsg.value) {
-			// 最后
+			// 最后选模版
 			dataList.value.push({
 				type: 'right',
 				content: '我已经选定了',
 				images: [imgUrl],
-				compute: true // 用于标识加入计算
+				// compute: true // 用于标识加入计算
 			})
 			addMockRobotReply(6);
-			getPaintingTask();
+			
+			const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === imgUrl);
+			const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
+			const promptText = UserMessages.length === 2 ? UserMessages[1].content : ''
+			getPaintingTask(findWorkFlow.code, promptText);
 		} else {
 			dataList.value.push({
 				type: 'right',
 				content: '我已经选定了',
 				images: [imgUrl],
+				refer: true // 用于标识下发任务时的图片
 			})
 			addMockRobotReply(4);
 			lastRobotMsg.value = true;
@@ -508,23 +525,30 @@
 	}
 
 	const previewImg = (url : string) => {
+		console.log(url);
 		uni.previewImage({ 
 			urls: [url],
 		});
 	}
 
 	onBeforeUnmount(() => {
-		clearTimeout(timer.value);
+		try{
+			uni.closeSocket()
+			clearTimeout(timer.value);
+		}catch(e){
+			//TODO handle the exception
+		}
 	})
 
 	const goHistoryPage = () => {
-		uni.navigateTo({
+		uni.redirectTo({
 			url: '/pages/historyDesign/historyDesign'
 		})
 	}
 	
 	// 重新生成
 	const reloadGen = () => {
+		// 后面会改
 		if(isGenLoading.value) {
 			uni.showToast({
 				icon: 'none',
@@ -539,16 +563,24 @@
 				precent: 0
 			}
 		})
-		getPaintingTask();
+		const workFlowUrl = dataList.value[dataList.value.length - 2].images[0]; // 用户选了哪个模版
+		const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === workFlowUrl);
+		// getPaintingTask(findWorkFlow.code);
 	}
 	
 	// 新增会话
 	const addNewWork = async () => {
 		await putWorkData();
+		try{
+			uni.closeSocket()
+			clearTimeout(timer.value);
+		}catch(e){
+			//TODO handle the exception
+		}
 		nextTick(() => {
 			dataList.value = [
 				{
-					...robotReply[0].data,
+					...RobotReply[0].data,
 					type: 'left',
 				}
 			];
