@@ -13,7 +13,11 @@
       <div class="session-log-container">
         <div class="log-header">对话记录</div>
         <div class="session-log-el">
-          <SessionLog :logs="logs" @refresh="refreshLogs" />
+          <SessionLog
+            :logs="logs"
+            @refresh="refreshLogs"
+            @chosen-session="changeSession"
+          />
         </div>
       </div>
     </div>
@@ -86,13 +90,11 @@ import SessionLog from './components/session-log.vue';
 import CurrentSession from './components/current-session.vue';
 import { onBeforeMount, onMounted, ref } from 'vue';
 import {
-  createSession,
   getSessionHistory,
   getSessionList,
   sendMessage,
 } from '@/api/dashboard';
 import { v4 } from 'uuid';
-import { getImagePath } from './util';
 import { useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
@@ -119,12 +121,10 @@ const handleInput = () => {
 };
 
 const logoutAction = () => {
-  console.log('asdfsdf');
-  
-  logout()
+  logout();
   localStorage.setItem('token', '');
-  router.replace('/login')
-}
+  router.replace('/login');
+};
 
 const handleScrollBottom = () => {
   if (!sessionBox.value) {
@@ -144,8 +144,7 @@ const changeSession = (id: any) => {
     currentSessionId.value = id;
     sessionListRef.value.refreshSession(id);
   }
-
-}
+};
 
 const handleEnableInput = () => {
   inputDisabled.value = false;
@@ -156,8 +155,6 @@ const initWs = (imageName = imgUpName, words = '', reload = false) => {
   let promptId = '';
 
   let dataRef;
-
-  const uuid = v4();
 
   const uid = userInfo.userId;
 
@@ -213,7 +210,10 @@ const initWs = (imageName = imgUpName, words = '', reload = false) => {
       dataRef.value.progress = (messageInfo.data.value * step).toFixed(0);
       console.log('正在生成图片', 'step', step);
     }
-    if (messageInfo.type === 'executing' && !messageInfo.data.node) {
+    if (
+      messageInfo.type === 'executed' &&
+      Number(messageInfo.data.node) === 100
+    ) {
       dataRef.value.progress = 100;
       dataRef.value.loading = false;
       console.log('生成完成', messageInfo);
