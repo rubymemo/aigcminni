@@ -21,7 +21,7 @@
               </svg> -->
             </div>
             <div class="action-item" @click.stop="deleteItem(detailItem)">
-              <span class="iconfont icon-delete1"></span>
+              <span class="iconfont icon-a-delete"></span>
               <!-- <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-delete"></use>
               </svg> -->
@@ -194,12 +194,12 @@ const handleClick = async (detailItem: any) => {
           width: 14px;
           height: 14px;
         }
-        .iconfont.icon-write1,  .iconfont.icon-delete1 {
+        .iconfont.icon-write1,  .iconfont.icon-a-delete {
           color: #A3B4CC;
           font-size: 14px;
         }
         &:hover {
-          .icon-write1,.icon-delete1 {
+          .icon-write1,.icon-a-delete {
             background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%,rgb(37, 106, 247) 100%); 
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;

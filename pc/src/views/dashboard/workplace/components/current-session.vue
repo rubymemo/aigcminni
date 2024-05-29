@@ -99,6 +99,7 @@
               </div>
               <div v-else class="img-loading">
                 图片加载中{{ data.progress }}%
+
               </div>
             </div>
             <a-radio :disabled="disabled" :value="imgItem" />
@@ -140,6 +141,8 @@ import { v4 } from 'uuid';
 import { robotReply } from '../mock';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
+import GProgress from './g-progress.vue';
+
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -481,6 +484,10 @@ defineExpose({
   );
   margin-right: 16px;
 
+  &:hover {
+    color: white !important;
+    background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%,rgb(37, 106, 247) 100%) !important;
+  }
   &.active-button {
     color: rgb(255, 255, 255);
     background: linear-gradient(
@@ -495,6 +502,7 @@ defineExpose({
     height: 12px;
     margin-top: 5px;
   }
+ 
   &::v-deep {
     .arco-btn-icon {
       margin-right: 6px !important;

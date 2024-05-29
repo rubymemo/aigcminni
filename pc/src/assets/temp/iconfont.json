@@ -6,18 +6,18 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "40526201",
+      "name": "组合 7173",
+      "font_class": "a-delete",
+      "unicode": "e636",
+      "unicode_decimal": 58934
+    },
+    {
       "icon_id": "40524043",
       "name": "write",
       "font_class": "write1",
       "unicode": "e606",
       "unicode_decimal": 58886
-    },
-    {
-      "icon_id": "40524036",
-      "name": "delete",
-      "font_class": "delete1",
-      "unicode": "e607",
-      "unicode_decimal": 58887
     },
     {
       "icon_id": "40518280",
@@ -32,13 +32,6 @@
       "font_class": "success",
       "unicode": "e604",
       "unicode_decimal": 58884
-    },
-    {
-      "icon_id": "40518248",
-      "name": "delete",
-      "font_class": "delete",
-      "unicode": "e603",
-      "unicode_decimal": 58883
     },
     {
       "icon_id": "40518216",
