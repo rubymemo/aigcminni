@@ -64,10 +64,25 @@ export const getSessionCommit = (id) => {
 };
 
 export const deleteSessionItem = (id) => {
-  return axios.delete(`/hh/dialog/removeById/${id}`)
-}
-
+  return axios.delete(`/hh/dialog/removeById/${id}`);
+};
 
 export const editSessionTitle = (params) => {
-  return axios.put(`/hh/dialog/editById`, params)
-}
+  return axios.put(`/hh/dialog/editById`, params);
+};
+
+export const sendMessageV2 = (params: any) => {
+  return axios.post('/hh/comfyui_api_v2/doPrompt', params);
+};
+
+export const getHistoryByPromptId = (promptId: string) => {
+  return axios.get(`/hh/comfyui_api_v2/historyByPromptId/${promptId}`);
+};
+
+export const uploadImageV2 = (params: any) => {
+  return axios.post('/hh/comfyui_api_v2/uploadImage', params);
+};
+
+export const getWorkFlow = (type: string) => {
+  return axios.get(`/hh/prompt_workflow/listByType/${type}`);
+};

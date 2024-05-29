@@ -41,7 +41,10 @@
               @click="data.activeBtns = [data.btns[1]]"
             >
               <template #icon>
-                <span class="iconfont icon-plus" style="font-size: 12px; color: #3E93FB"></span>
+                <span
+                  class="iconfont icon-plus"
+                  style="font-size: 12px; color: #3e93fb"
+                ></span>
               </template>
               {{ data.btns[1] }}</a-button
             >
@@ -73,7 +76,7 @@
                 <img :src="data.imagesOptions[imgItem - 1].url" alt="" />
               </div>
               <div v-else class="img-loading">
-                图片加载中{{ data.progress }}%
+                <p>图片加载中{{ data.progress }}%</p>
                 <GProgress :progress="data.progress" />
               </div>
             </div>
@@ -92,25 +95,26 @@
           :disabled="disabled"
           @change="handleChoseTemplateImg(data, $event)"
         >
-          <div v-for="imgItem in 2" :key="imgItem" class="template-image-item">
+          <div
+            v-for="imgItem in data.imagesOptions"
+            :key="imgItem.code"
+            class="template-image-item"
+          >
             <div class="img-area">
               <div
-                v-if="data.imagesOptions[imgItem - 1].url"
+                v-if="imgItem.url"
                 class="img-box"
-                @click="handleChoseTemplateImg(data, imgItem)"
+                @click="handleChoseTemplateImg(data, imgItem.code)"
               >
-                <img
-                  :src="convertImgUrl(data.imagesOptions[imgItem - 1].url)"
-                  alt=""
-                />
+                <img :src="imgItem.url" alt="" />
               </div>
               <div v-else class="img-loading">
                 图片加载中{{ data.progress }}%
                 <GProgress :progress="data.progress" />
               </div>
             </div>
-            <a-radio :disabled="disabled" :value="imgItem">
-              <template #radio v-if="chosenTemplateItem === imgItem">
+            <a-radio :disabled="disabled" :value="imgItem.code">
+              <template #radio v-if="chosenTemplateItem === imgItem.code">
                 <span class="iconfont icon-success checked-icon" />
               </template>
             </a-radio>
@@ -119,7 +123,7 @@
       </template>
       <template #lastStep="{ data }">
         <div class="template-commit-action">
-          <div v-for="imgItem in 4" :key="imgItem" class="template-image-item">
+          <div v-for="imgItem in 1" :key="imgItem" class="template-image-item">
             <div class="img-area">
               <div
                 v-if="data.imagesOptions[imgItem - 1].url"
@@ -146,6 +150,7 @@ import {
   getSessionCommit,
   updateSession,
   uploadImage,
+  uploadImageV2,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
 import { onMounted, ref, watch } from 'vue';
@@ -154,7 +159,7 @@ import { robotReply } from '../mock';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
 import GProgress from './g-progress.vue';
-
+import { cloneDeep } from 'lodash';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -185,7 +190,7 @@ const emit = defineEmits([
   'commitLengthChange',
   'lastStep',
   'reload',
-  'refreshSessionHistory'
+  'refreshSessionHistory',
 ]);
 
 const disabledUpload = ref(false);
@@ -199,7 +204,7 @@ const sessionId = ref<number | string>(route.query.sessionId as string);
 
 const userInfo = useUserStore();
 const robotCommitStep = ref(0);
-
+const couldCreateAndUpdate = ref(false);
 watch(
   () => commitList.value.length,
   () => {
@@ -211,7 +216,7 @@ watch(
 );
 
 const chosenLogoItem = ref<number>();
-const chosenTemplateItem = ref<number>();
+const chosenTemplateItem = ref<string>();
 const lastStep = ref(false);
 const uploadImageName = ref('');
 
@@ -224,26 +229,20 @@ const handleChoseImg = (data: any, index: any) => {
   handleChooseTemplate(url);
 };
 
-const handleChoseTemplateImg = (data: any, index: any) => {
-  console.log(data, index);
-  chosenTemplateItem.value = index;
-  const { url } = data.imagesOptions[index - 1];
+const handleChoseTemplateImg = (data: any, code: string) => {
+  console.log(data, code);
+  chosenTemplateItem.value = code;
+  const { url } = data.imagesOptions.find((item: any) => item.code === code);
   data.activeImages = [url];
   addCommit({
     author: 'user',
     data: {
-      image: convertImgUrl(url),
+      image: url,
       content: '我已经选定了',
     },
   });
-  emit('lastStep', uploadImageName.value);
+  emit('lastStep', code);
   lastStep.value = true;
-};
-
-const convertImgUrl = (url: string) => {
-  const nameArr = url.split('/');
-  const name = nameArr[nameArr.length - 1];
-  return `/src/assets/images/${name}`;
 };
 
 const saveSession = async () => {
@@ -301,15 +300,15 @@ const saveSession = async () => {
     ? updateSession(sessionId.value, result)
     : createNewSession(result));
 
-    emit('refreshSessionHistory')
-  
+  emit('refreshSessionHistory');
+
   sessionId.value = data.data;
 };
 
-const getRobotCommit = (index?: number) => {
+const getRobotCommit = () => {
   const c = robotReply[robotCommitStep.value];
   robotCommitStep.value += 1;
-  return c;
+  return cloneDeep(c);
 };
 
 const addCommit = (params: Partial<CommitItem>) => {
@@ -322,7 +321,11 @@ const addCommit = (params: Partial<CommitItem>) => {
   });
   const lastCommit = commitList.value[commitList.value.length - 1];
   //
-  if (lastCommit.disabledSubmit || commitList.value.length === 1) {
+  if (
+    lastCommit.disabledSubmit ||
+    commitList.value.length === 1 ||
+    !couldCreateAndUpdate.value
+  ) {
     return;
   }
   saveSession();
@@ -364,6 +367,7 @@ const noImageUpload = (type: string, data: any) => {
   });
   addCommit(getRobotCommit());
   emit('enabledInput');
+  couldCreateAndUpdate.value = true;
   disabledUpload.value = true;
 };
 
@@ -375,20 +379,22 @@ const customUpload = (option: any): any => {
   formData.append('image', fileItem.file);
 
   // robotCommitStep.value = 3;
-  return uploadImage(formData).then((res: any) => {
+  return uploadImageV2(formData).then((res: any) => {
     disabledUpload.value = true;
+    const imgUrl = res.data;
     addCommit({
       author: 'user',
       // image: `http://101.126.93.249/api/hh/comfyui_api/view?type=${res.data.type}&filename=${res.data.filename}`,
       data: {
-        image: res.data.fileUrl,
+        image: imgUrl,
       },
       disabledSubmit: true,
     });
-    uploadImageName.value = res.data.fileName;
+    uploadImageName.value = imgUrl;
     addCommit(getRobotCommit());
     emit('enabledInput');
-    emit('imageUploadSuccess', res.data.fileName);
+    couldCreateAndUpdate.value = true;
+    emit('imageUploadSuccess', imgUrl);
   });
 };
 
@@ -402,7 +408,8 @@ const handleChooseTemplate = (imgUrl: string) => {
     disabledSubmit: true,
   });
   addCommit(getRobotCommit());
-  emit('enabledInput');
+  emit('enabledInput', false);
+  couldCreateAndUpdate.value = true;
   emit('chooseStyle', imgUrl);
 };
 
@@ -410,7 +417,7 @@ const noTextSupply = () => {
   addCommit({
     author: 'user',
     data: {
-      content: '没有补充',
+      content: '没有品牌',
     },
   });
   emit('noText');
@@ -449,15 +456,6 @@ const refreshSession = async (id: any) => {
     // dataList.value = dataListTemp;
     // 根据数据做一些初始工作,先写死，后面再改
     const lastMsg = dataListTemp[dataListTemp.length - 1];
-    console.log(lastMsg);
-    if (lastMsg.type === 'right' && dataListTemp.length === 6) {
-      console.log();
-    }
-    if (lastMsg.type === 'left' && dataListTemp.length === 9) {
-      // 机器人说的，且接下来让人说
-      lastStep.value = true;
-      emit('enabledInput');
-    }
   }
 };
 
@@ -466,7 +464,7 @@ defineExpose({
   getRobotCommit,
   saveSession,
   getLastOneStep,
-  refreshSession
+  refreshSession,
 });
 </script>
 
@@ -498,7 +496,11 @@ defineExpose({
 
   &:hover {
     color: white !important;
-    background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%,rgb(37, 106, 247) 100%) !important;
+    background: linear-gradient(
+      135deg,
+      rgb(23, 242, 95) 0%,
+      rgb(37, 106, 247) 100%
+    ) !important;
     .iconfont.icon-plus {
       color: white !important;
     }
@@ -517,7 +519,7 @@ defineExpose({
     height: 12px;
     margin-top: 5px;
   }
- 
+
   &::v-deep {
     .arco-btn-icon {
       margin-right: 6px !important;
@@ -550,7 +552,11 @@ defineExpose({
   flex-direction: column;
   justify-content: center;
   width: 200px;
-  margin: 0 8px 8px 0;
+  margin: 0 24px 16px 0;
+
+  &:last-child {
+    margin-right: 0;
+  }
 
   .checked-icon {
     color: rgb(37, 106, 247);
@@ -576,6 +582,7 @@ defineExpose({
     }
 
     .img-loading {
+      padding: 24px;
       color: rgb(107, 116, 143);
       font-family: PingFang SC;
       font-size: 14px;
@@ -595,6 +602,11 @@ defineExpose({
         rgba(23, 242, 95, 0.1) 0%,
         rgba(37, 106, 247, 0.1) 100%
       );
+
+      p {
+        margin: 0;
+        margin-bottom: 8px;
+      }
     }
   }
 }

@@ -23,14 +23,14 @@
         </div>
       </div>
 
-      <div
+      <!-- <div
         v-if="props.author === 'robot' && props.isLastStep"
         class="reload-button"
         @click="handleReload"
       >
         <img :src="Reload" alt="" />
         重新生成
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -80,7 +80,6 @@ const handleReload = () => {
   width: 100%;
 
   .commit-item {
-
     .avatar-area {
       min-width: 40px;
     }
@@ -98,6 +97,8 @@ const handleReload = () => {
         box-sizing: border-box;
         border: 1px solid rgb(232, 233, 235);
         border-radius: 12px;
+        background-color: #fff;
+        margin-top: 8px;
 
         img {
           width: 100%;

@@ -46,8 +46,7 @@ export const robotReply: Record<number, Partial<SessionItemProps>> = {
   },
   4: {
     data: {
-      content:
-        '针对文字部分，您是否还有其它补充，如果没有直接点击没有跳过即可，如果有请在下方输入',
+      content: '请输入品牌名称',
       btns: ['没有'],
       activeBtns: [],
     },
@@ -87,7 +86,7 @@ export const robotReply: Record<number, Partial<SessionItemProps>> = {
       ],
       activeImages: [],
     },
-    slotName: 'lastStep'
+    slotName: 'lastStep',
   },
 };
 

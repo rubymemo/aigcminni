@@ -2,25 +2,25 @@
   <div class="layout">
     <div class="left-bar">
       <div class="left-bar-content">
-      <div class="logo-area">
-        <img :src="Logo" alt="huatu" />
-      </div>
-      <div class="button-area">
-        <a-button class="create-session-button" @click="changeSession('')">
-          <span class="iconfont icon-plus add-new-icon"></span>
-          新建会话
-        </a-button>
-      </div>
-      <div class="session-log-container">
-        <div class="log-header">对话记录</div>
-        <div class="session-log-el">
-          <SessionLog
-            :logs="logs"
-            @refresh="refreshLogs"
-            @chosen-session="changeSession"
-          />
+        <div class="logo-area">
+          <img :src="Logo" alt="huatu" />
         </div>
-      </div>
+        <div class="button-area">
+          <a-button class="create-session-button" @click="changeSession('')">
+            <span class="iconfont icon-plus add-new-icon"></span>
+            新建会话
+          </a-button>
+        </div>
+        <div class="session-log-container">
+          <div class="log-header">对话记录</div>
+          <div class="session-log-el">
+            <SessionLog
+              :logs="logs"
+              @refresh="refreshLogs"
+              @chosen-session="changeSession"
+            />
+          </div>
+        </div>
       </div>
       <div class="left-bar-bg"></div>
     </div>
@@ -92,9 +92,10 @@ import SessionLog from './components/session-log.vue';
 import CurrentSession from './components/current-session.vue';
 import { onBeforeMount, onMounted, ref } from 'vue';
 import {
-  getSessionHistory,
+  getHistoryByPromptId,
   getSessionList,
-  sendMessage,
+  getWorkFlow,
+  sendMessageV2,
 } from '@/api/dashboard';
 import { v4 } from 'uuid';
 import { useUserStore } from '@/store';
@@ -134,14 +135,15 @@ const handleScrollBottom = () => {
   if (!sessionBox.value) {
     return;
   }
-  console.log('sessionBox.value.scrollHeight', sessionBox.value.scrollHeight);
-
   nextTick(() => {
     sessionBox.value.scrollTo(0, sessionBox.value.scrollHeight);
   });
 };
 
 const currentSessionId = ref('');
+
+// 发送消息的时候是否开启wss
+const initWssWhenSend = ref(true);
 
 const changeSession = (id: any) => {
   if (!id || id !== currentSessionId.value) {
@@ -154,8 +156,9 @@ const handleEnableInput = () => {
   inputDisabled.value = false;
 };
 let imgUpName = '';
-
-const initWs = (imageName = imgUpName, words = '', reload = false) => {
+// 此次生成图片的工作流
+let workCode = '';
+const initWs = (imageName = imgUpName, words = '', code = workCode) => {
   let promptId = '';
 
   let dataRef;
@@ -167,30 +170,24 @@ const initWs = (imageName = imgUpName, words = '', reload = false) => {
   );
   wsInstance.value.onopen = () => {
     console.log('链接成功');
-    sendMessage({
+    sendMessageV2({
       clientId: uid,
-      promptImage: imageName,
+      fileUrl: imageName,
       promptWords: words,
+      code,
     }).then((res) => {
       console.log('promptPost', res);
       promptId = res.data.prompt_id;
       const currentCommit = sessionListRef.value.getRobotCommit();
       console.log('currentCommit', currentCommit);
 
-      if (!reload) {
-        dataRef = ref(currentCommit.data);
-        dataRef.value.loading = true;
-        dataRef.value.progress = 0;
-        sessionListRef.value.addCommit({
-          ...currentCommit,
-          data: dataRef,
-        });
-      } else {
-        dataRef = ref(sessionListRef.value.getLastOneStep().data);
-        dataRef.value.loading = true;
-        dataRef.value.progress = 0;
-        dataRef.value.imagesOptions = [{}, {}, {}, {}];
-      }
+      dataRef = ref(currentCommit.data);
+      dataRef.value.loading = true;
+      dataRef.value.progress = 0;
+      sessionListRef.value.addCommit({
+        ...currentCommit,
+        data: dataRef,
+      });
     });
   };
   wsInstance.value.onmessage = (message: any) => {
@@ -211,40 +208,40 @@ const initWs = (imageName = imgUpName, words = '', reload = false) => {
     if (messageInfo.type === 'progress') {
       const step = Number((95 / messageInfo.data.max).toFixed(2));
 
-      dataRef.value.progress = (messageInfo.data.value * step).toFixed(0);
+      dataRef.value.progress = Number(
+        (messageInfo.data.value * step).toFixed(0),
+      );
       console.log('正在生成图片', 'step', step);
     }
-    if (
-      messageInfo.type === 'executed' &&
-      Number(messageInfo.data.node) === 100
-    ) {
+    if (messageInfo.type === 'executing' && !messageInfo.data.node) {
       dataRef.value.progress = 100;
       dataRef.value.loading = false;
       console.log('生成完成', messageInfo);
       if (!promptId) {
         return;
       }
-      getSessionHistory(promptId).then((res) => {
+      getHistoryByPromptId(promptId).then((res) => {
         console.log('promptHistory', res);
         // dataRef.value.imagesOptions = res.data.map((item) => item.fileUrl);
         dataRef.value.imagesOptions = res.data.map((item) => ({
-          url: item.fileUrl,
+          url: item,
           status: 'done',
-          precent: '100',
+          precent: 100,
         }));
-        sessionListRef.value.saveSession();
       });
       wsInstance.value?.close();
       wsInstance.value = undefined;
     }
   };
   wsInstance.value.onclose = () => {
+    // 生成logo后再发送消息不启动wss
+    initWssWhenSend.value = false;
     console.log('关闭链接');
   };
 };
 
 onBeforeMount(() => {
-  if(!localStorage.getItem("token")){
+  if (!localStorage.getItem('token')) {
     router.replace('/login');
     return;
   }
@@ -255,8 +252,21 @@ onBeforeMount(() => {
   wsInstance.value = undefined;
 });
 
-const styleImgUrl = ref('');
 const userWords = ref('');
+
+const handleGetWorkFlow = () => {
+  const robotApply = sessionListRef.value.getRobotCommit();
+  getWorkFlow('logo_compose').then((res) => {
+    console.log(res, robotApply);
+    robotApply.data.imagesOptions = res.data.map((item: any) => ({
+      url: item.imgUrl,
+      status: 'done',
+      precent: 100,
+      code: item.code,
+    }));
+    sessionListRef.value.addCommit(robotApply);
+  });
+};
 
 const handleSendButtonClick = () => {
   sessionListRef.value.addCommit({
@@ -267,7 +277,12 @@ const handleSendButtonClick = () => {
     compute: true,
     disabledSubmit: true,
   });
-  initWs(undefined, inputText.value);
+  if (initWssWhenSend.value) {
+    initWs(imgUpName, inputText.value, workCode);
+  }
+  if (workCode === 'workFlow') {
+    handleGetWorkFlow();
+  }
   inputDisabled.value = true;
   userWords.value = inputText.value;
   inputText.value = '';
@@ -285,7 +300,14 @@ const enterSend = (event: any) => {
       compute: true,
       disabledSubmit: true,
     });
-    initWs(undefined, inputText.value);
+    if (initWssWhenSend.value) {
+      initWs(imgUpName, inputText.value, workCode);
+    }
+    console.log('workFlow', workCode);
+
+    if (workCode === 'workFlow') {
+      handleGetWorkFlow();
+    }
     inputDisabled.value = true;
     userWords.value = inputText.value;
     inputText.value = '';
@@ -297,24 +319,30 @@ const enterSend = (event: any) => {
 // 图片上传成功
 const handleImageUploaded = (imageName: string) => {
   imgUpName = imageName;
+  // 这里上传成功是为了生成logo，将工作流置为
+  workCode = 'logo_draw';
   // initWs(imageName, '');
 };
 
 const handleChooseStyle = (imgUrl: string) => {
-  styleImgUrl.value = imgUrl;
+  workCode = 'workFlow';
+  imgUpName = imgUrl;
 };
 
 const handleNoText = () => {
   inputDisabled.value = true;
-  initWs(undefined, '');
+  userWords.value = '';
+  handleGetWorkFlow();
 };
 
-const lastStep = (img: string) => {
-  initWs(img, userWords.value);
+const lastStep = (workFlowCode: string) => {
+  workCode = workFlowCode;
+  initWs(imgUpName, userWords.value);
 };
 
+// 本期没有重载
 const reload = (img: string) => {
-  initWs(img, userWords.value, true);
+  // initWs(img, userWords.value);
 };
 
 const refreshLogs = () => {
@@ -345,7 +373,7 @@ const refreshLogs = () => {
     });
 };
 
-onMounted(async() => {
+onMounted(async () => {
   const userData = await getUserInfo();
   userInfoRef.value = userData.data;
   refreshLogs();
@@ -375,7 +403,11 @@ onMounted(async() => {
       width: 366px;
       height: 100%;
       border-radius: 12px;
-      background-image: linear-gradient(180deg, #f2f7fe, rgba(255, 255, 255, 0) 100%);
+      background-image: linear-gradient(
+        180deg,
+        #f2f7fe,
+        rgba(255, 255, 255, 0) 100%
+      );
     }
     .left-bar-bg {
       position: absolute;
@@ -387,7 +419,7 @@ onMounted(async() => {
         180deg,
         rgba(255, 255, 255),
         rgba(255, 255, 255, 0) 100%
-      )
+      );
     }
   }
   .left-bar {
