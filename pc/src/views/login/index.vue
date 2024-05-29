@@ -8,7 +8,7 @@
         />
       </span>
       <span class="right-side">
-          <a-dropdown trigger="click">
+          <a-dropdown trigger="hover">
             <a-avatar
               :size="32"
               :style="{ marginRight: '8px', cursor: 'pointer', backgroundColor: isUserLogin ? '#c9cdd4' : undefined }"

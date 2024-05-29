@@ -29,7 +29,7 @@
         <div></div>
         <div class="user-info">
           <CommonAvatar role="user" :size="36" />
-          <a-dropdown>
+          <a-dropdown trigger="hover">
             <div class="user-name"
               >{{ userInfo.nickname }}
               <icon-caret-down />
