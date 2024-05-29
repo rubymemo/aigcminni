@@ -7,20 +7,23 @@
       <div
         v-for="(detailItem, index) in item.list"
         :key="index"
-        class="log-detail-item"
+        class="log-detail-item-box"
         @click="handleClick(detailItem)"
       >
-        <img :src="logItemTag" alt="" srcset="" />
-        <div class="text-container">{{ detailItem.title }}</div>
-        <div class="log-actions">
-          <div class="action-item" @click.stop="editItem(detailItem)">
-            <!-- <icon-edit :size="16" /> -->
-            <img :src="Edit" alt="" />
-          </div>
-          <div class="action-item" @click.stop="deleteItem(detailItem)">
-            <img :src="Delete" alt="" />
+        <div class="log-detail-item">
+          <img :src="logItemTag" alt="" srcset="" />
+          <div class="text-container">{{ detailItem.title }}</div>
+          <div class="log-actions">
+            <div class="action-item" @click.stop="editItem(detailItem)">
+              <!-- <icon-edit :size="16" /> -->
+              <img :src="Edit" alt="" />
+            </div>
+            <div class="action-item" @click.stop="deleteItem(detailItem)">
+              <img :src="Delete" alt="" />
+            </div>
           </div>
         </div>
+        <div class="bg"></div>
       </div>
     </div>
   </div>
@@ -119,13 +122,21 @@ const handleClick = async (detailItem: any) => {
     text-align: left;
     margin-bottom: 8px;
   }
-
+  .log-detail-item-box {
+    margin-bottom: 16px;
+    padding: 1px;
+    border-radius: 12px;
+    background: rgb(255, 255, 255);
+    &:hover {
+      background: linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%);
+    }
+  }
   .log-detail-item {
     width: 100%;
     border-radius: 12px;
     background: rgb(255, 255, 255);
     padding: 16px;
-    margin-bottom: 16px;
+    // margin-bottom: 16px;
     display: flex;
     border: 1px solid transparent;
     cursor: pointer;

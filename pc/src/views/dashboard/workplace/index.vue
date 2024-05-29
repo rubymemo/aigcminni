@@ -244,6 +244,10 @@ const initWs = (imageName = imgUpName, words = '', reload = false) => {
 };
 
 onBeforeMount(() => {
+  if(!localStorage.getItem("token")){
+    router.replace('/login');
+    return;
+  }
   if (!wsInstance.value) {
     return;
   }
