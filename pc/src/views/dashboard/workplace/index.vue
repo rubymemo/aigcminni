@@ -28,7 +28,7 @@
               <icon-caret-down />
             </div>
             <template #content>
-              <a-doption>退出登录</a-doption>
+              <a-doption @click="logoutAction">退出登录</a-doption>
             </template>
           </a-dropdown>
         </div>
@@ -97,6 +97,7 @@ import { useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
 import CommonAvatar from '@/components/common-avatar.vue';
+import { logout } from '@/api/user';
 
 const logs = ref<any[]>([]);
 
@@ -117,22 +118,13 @@ const handleInput = () => {
   }
 };
 
-const addSession = async () => {
-  const res = await createSession({
-    works: {
-      authorId: userInfo.userId,
-      type: 1,
-      title: '新键会话',
-    },
-    dialogs: [],
-  });
-  console.log(res);
-  router.replace({
-    query: {
-      promptId: res.data,
-    },
-  });
-};
+const logoutAction = () => {
+  console.log('asdfsdf');
+  
+  logout()
+  localStorage.setItem('token', '');
+  router.replace('/login')
+}
 
 const handleScrollBottom = () => {
   if (!sessionBox.value) {
