@@ -135,7 +135,7 @@ import {
   uploadImage,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { v4 } from 'uuid';
 import { robotReply } from '../mock';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
@@ -217,7 +217,7 @@ const handleChoseTemplateImg = (data: any, index: any) => {
   addCommit({
     author: 'user',
     data: {
-      image: url,
+      image: convertImgUrl(url),
       content: '我已经选定了',
     },
   });
@@ -403,12 +403,13 @@ const getLastOneStep = () => {
   return commitList.value[commitList.value.length - 1];
 };
 
-onBeforeRouteUpdate(async (to) => {
-  if (to.query.sessionId === sessionId.value) {
+const refreshSession = async (id: any) => {
+  if (!id) {
+    robotCommitStep.value = 0;
+    commitList.value = [];
+    addCommit(getRobotCommit());
     return;
   }
-  const { sessionId: id } = to.query;
-
   const res = await getSessionCommit(id);
   if (res) {
     let robotIndex = 0;
@@ -441,7 +442,7 @@ onBeforeRouteUpdate(async (to) => {
       emit('enabledInput');
     }
   }
-});
+};
 
 defineExpose({
   addCommit,

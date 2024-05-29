@@ -45,7 +45,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits(['refresh']);
+const emit = defineEmits(['refresh', 'chosenSession']);
 
 const router = useRouter();
 
@@ -58,11 +58,7 @@ const deleteItem = async (detailItem: any) => {
 };
 
 const handleClick = async (detailItem: any) => {
-  router.replace({
-    query: {
-      sessionId: detailItem.id,
-    },
-  });
+  emit('chosenSession', detailItem.id);
   // const res = getSessionCommit(detailItem.id);
   // if (res) {
   //   const dataListTemp = res.items.map((item) => {

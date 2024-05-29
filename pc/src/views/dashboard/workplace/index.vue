@@ -5,7 +5,7 @@
         <img :src="Logo" alt="huatu" />
       </div>
       <div class="button-area">
-        <a-button class="create-session-button" @click="addSession">
+        <a-button class="create-session-button" @click="changeSession('')">
           <icon-plus class="add-color" />
           新建会话
         </a-button>
@@ -144,6 +144,16 @@ const handleScrollBottom = () => {
     sessionBox.value.scrollTo(0, sessionBox.value.scrollHeight);
   });
 };
+
+const currentSessionId = ref('');
+
+const changeSession = (id: any) => {
+  if (id && id !== currentSessionId.value) {
+    currentSessionId.value = id;
+    sessionListRef.value.refreshSession(id);
+  }
+
+}
 
 const handleEnableInput = () => {
   inputDisabled.value = false;
