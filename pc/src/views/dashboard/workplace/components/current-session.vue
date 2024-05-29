@@ -487,6 +487,9 @@ defineExpose({
   &:hover {
     color: white !important;
     background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%,rgb(37, 106, 247) 100%) !important;
+    .iconfont.icon-plus {
+      color: white !important;
+    }
   }
   &.active-button {
     color: rgb(255, 255, 255);
