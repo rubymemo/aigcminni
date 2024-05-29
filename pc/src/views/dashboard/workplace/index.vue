@@ -502,9 +502,19 @@ onMounted(async () => {
       border-top: 0;
       border-bottom: 0;
       padding: 16px 14px;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
 
       .session-log-el {
+        flex: 1;
+        overflow: hidden;
         margin-top: 16px;
+
+        .box {
+          height: 100%;
+        }
       }
     }
   }

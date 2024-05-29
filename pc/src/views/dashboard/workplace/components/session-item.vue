@@ -108,6 +108,7 @@ const handleReload = () => {
     }
   }
   .robot-commit {
+    flex: 1;
     margin-left: 16px;
     .commit-content {
       padding: 24px;
@@ -141,6 +142,7 @@ const handleReload = () => {
   }
 
   .user-commit {
+    flex: 1;
     margin-left: 16px;
 
     .commit-content {

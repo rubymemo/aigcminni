@@ -11,15 +11,20 @@
         :class="!detailItem.__editting && 'log-detail-item-normal'"
         @click="handleClick(detailItem)"
       >
-      <div v-if="detailItem.__editting" class="log-editting-item">
+        <div v-if="detailItem.__editting" class="log-editting-item">
           <img :src="logItemTag" alt="" srcset="" />
           <div class="edit-area">
-            <textarea 
-            v-model="detailItem.__title"
-            />
+            <textarea v-model="detailItem.__title" />
             <div class="edit-handle-area">
-              <span class="iconfont icon-check" :class="!detailItem.__title && 'disabled-icon-click'" @click="saveTitle(detailItem)"></span>
-              <span class="iconfont icon-close" @click="dropEdit(detailItem)"></span>
+              <span
+                class="iconfont icon-check"
+                :class="!detailItem.__title && 'disabled-icon-click'"
+                @click.stop="saveTitle(detailItem)"
+              ></span>
+              <span
+                class="iconfont icon-close"
+                @click.stop="dropEdit(detailItem)"
+              ></span>
             </div>
           </div>
         </div>
@@ -46,7 +51,11 @@
 </template>
 
 <script setup lang="ts">
-import { deleteSessionItem, editSessionTitle, getSessionCommit } from '@/api/dashboard';
+import {
+  deleteSessionItem,
+  editSessionTitle,
+  getSessionCommit,
+} from '@/api/dashboard';
 import logItemTag from '@/assets/images/log-item-tag.png';
 import Delete from '@/assets/images/delete.png';
 import Edit from '@/assets/images/edit.png';
@@ -72,7 +81,7 @@ const editItem = (detailItem: any) => {
   detailItem.__editting = true;
   // eslint-disable-next-line no-underscore-dangle
   detailItem.__title = detailItem.title;
-}
+};
 
 const saveTitle = async (detailItem: any) => {
   // eslint-disable-next-line no-underscore-dangle
@@ -82,24 +91,22 @@ const saveTitle = async (detailItem: any) => {
   const res = await editSessionTitle({
     id: detailItem.id,
     // eslint-disable-next-line no-underscore-dangle
-    title: detailItem.__title
-  })
+    title: detailItem.__title,
+  });
   if (res.code === '2000') {
     // eslint-disable-next-line no-underscore-dangle
-    detailItem.title =  detailItem.__title;
+    detailItem.title = detailItem.__title;
     Reflect.deleteProperty(detailItem, '__editting');
-    emit('refresh')
+    emit('refresh');
   }
-  
-}
+};
 
 const dropEdit = (detailItem: any) => {
   console.log('detailItem', detailItem);
-  
+
   Reflect.deleteProperty(detailItem, '__title');
   Reflect.deleteProperty(detailItem, '__editting');
-
-}
+};
 
 const deleteItem = async (detailItem: any) => {
   const res = await deleteSessionItem(detailItem.id);
@@ -110,6 +117,10 @@ const deleteItem = async (detailItem: any) => {
 };
 
 const handleClick = async (detailItem: any) => {
+  // eslint-disable-next-line no-underscore-dangle
+  if (detailItem.__editting) {
+    return;
+  }
   emit('chosenSession', detailItem.id);
   // const res = getSessionCommit(detailItem.id);
   // if (res) {
@@ -175,7 +186,11 @@ const handleClick = async (detailItem: any) => {
 
   .log-detail-item-normal {
     &:hover {
-      background: linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%);
+      background: linear-gradient(
+        135deg,
+        rgb(23, 242, 95),
+        rgb(37, 106, 247) 100%
+      );
     }
   }
 
@@ -184,9 +199,8 @@ const handleClick = async (detailItem: any) => {
     height: 107px;
     border-radius: 12px;
     background: rgb(255, 255, 255);
-    padding: 12px  16px;
+    padding: 12px 16px;
     box-sizing: border-box;
-    margin-bottom: 16px;
     display: flex;
 
     .edit-area {
@@ -218,15 +232,14 @@ const handleClick = async (detailItem: any) => {
       }
 
       span {
-        margin-right: 12px;
+        cursor: pointer;
+        margin-right: 15px;
 
         &:last-child {
           margin-right: 0;
         }
       }
     }
-
-
 
     img {
       margin: 4px;
@@ -293,13 +306,19 @@ const handleClick = async (detailItem: any) => {
           width: 14px;
           height: 14px;
         }
-        .iconfont.icon-write1,  .iconfont.icon-a-delete {
-          color: #A3B4CC;
+        .iconfont.icon-write1,
+        .iconfont.icon-a-delete {
+          color: #a3b4cc;
           font-size: 14px;
         }
         &:hover {
-          .icon-write1,.icon-a-delete {
-            background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%,rgb(37, 106, 247) 100%); 
+          .icon-write1,
+          .icon-a-delete {
+            background: linear-gradient(
+              135deg,
+              rgb(23, 242, 95) 0%,
+              rgb(37, 106, 247) 100%
+            );
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
           }
