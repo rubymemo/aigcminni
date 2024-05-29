@@ -171,6 +171,7 @@ const emit = defineEmits([
   'commitLengthChange',
   'lastStep',
   'reload',
+  'refreshSessionHistory'
 ]);
 
 const disabledUpload = ref(false);
@@ -286,6 +287,8 @@ const saveSession = async () => {
     ? updateSession(sessionId.value, result)
     : createNewSession(result));
 
+    emit('refreshSessionHistory')
+  
   sessionId.value = data.data;
 };
 

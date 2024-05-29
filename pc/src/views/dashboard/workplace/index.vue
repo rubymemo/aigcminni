@@ -52,6 +52,7 @@
               @commit-length-change="handleScrollBottom"
               @last-step="lastStep"
               @reload="reload"
+              @refresh-session-history="refreshLogs"
             />
           </div>
         </div>
@@ -517,7 +518,7 @@ onMounted(() => {
         padding-bottom: 20px;
 
         .session-inner-container {
-          width: 67%;
+          width: 75%;
           max-width: 980px;
           min-width: 480px;
           margin: auto;
@@ -531,7 +532,7 @@ onMounted(() => {
           margin: auto;
           border-radius: 8px;
           background: rgb(255, 255, 255);
-          width: 67%;
+          width: 75%;
           max-width: 980px;
           min-width: 480px;
 
