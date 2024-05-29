@@ -7,7 +7,7 @@
       </div>
       <div class="button-area">
         <a-button class="create-session-button" @click="changeSession('')">
-          <icon-plus class="add-color" />
+          <span class="iconfont icon-plus add-new-icon"></span>
           新建会话
         </a-button>
       </div>
@@ -447,8 +447,10 @@ onMounted(async() => {
         letter-spacing: 0px;
         text-align: left;
 
-        .add-color {
-          margin-right: 4px;
+        .add-new-icon {
+          color: white;
+          font-size: 12px;
+          margin-right: 6px;
         }
       }
     }
@@ -498,6 +500,7 @@ onMounted(async() => {
       .user-info {
         display: flex;
         align-items: center;
+        cursor: pointer;
         .user-name {
           margin-left: 8px;
           color: rgb(52, 65, 86);

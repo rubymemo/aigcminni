@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "40524043",
+      "name": "write",
+      "font_class": "write1",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "40524036",
+      "name": "delete",
+      "font_class": "delete1",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
       "icon_id": "40518280",
       "name": "write",
       "font_class": "write",
@@ -43,7 +57,7 @@
     {
       "icon_id": "40518149",
       "name": "plus",
-      "font_class": "path",
+      "font_class": "plus",
       "unicode": "e600",
       "unicode_decimal": 58880
     }

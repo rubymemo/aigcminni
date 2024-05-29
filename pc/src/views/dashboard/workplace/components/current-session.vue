@@ -41,7 +41,7 @@
               @click="data.activeBtns = [data.btns[1]]"
             >
               <template #icon>
-                <img :src="PlusBlue" alt="" />
+                <span class="iconfont icon-plus" style="font-size: 12px; color: #3E93FB"></span>
               </template>
               {{ data.btns[1] }}</a-button
             >
@@ -140,7 +140,6 @@ import { v4 } from 'uuid';
 import { robotReply } from '../mock';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
-import PlusBlue from '@/assets/images/plus-blue.png';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -495,6 +494,11 @@ defineExpose({
     width: 12px;
     height: 12px;
     margin-top: 5px;
+  }
+  &::v-deep {
+    .arco-btn-icon {
+      margin-right: 6px !important;
+    }
   }
 }
 .current-session-box {
