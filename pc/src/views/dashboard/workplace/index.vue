@@ -85,9 +85,7 @@
 </template>
 
 <script lang="ts" setup>
-import dayjs from 'dayjs';
 import Logo from '@/assets/images/logo.png';
-import avatar from '@/assets/images/avatar.png';
 import SendSvg from '@/assets/svg/send.svg';
 import SendIcon from '@/assets/images/send-icon.png';
 import SessionLog from './components/session-log.vue';
@@ -103,7 +101,7 @@ import { useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
 import CommonAvatar from '@/components/common-avatar.vue';
-import { logout } from '@/api/user';
+import { getUserInfo, logout } from '@/api/user';
 
 const logs = ref<any[]>([]);
 
@@ -117,6 +115,8 @@ const userInfo = useUserStore();
 const router = useRouter();
 
 const sessionBox = ref();
+
+const userInfoRef = ref();
 
 const handleInput = () => {
   if (inputDisabled.value) {
@@ -144,7 +144,7 @@ const handleScrollBottom = () => {
 const currentSessionId = ref('');
 
 const changeSession = (id: any) => {
-  if (id && id !== currentSessionId.value) {
+  if (!id || id !== currentSessionId.value) {
     currentSessionId.value = id;
     sessionListRef.value.refreshSession(id);
   }
@@ -314,7 +314,7 @@ const reload = (img: string) => {
 };
 
 const refreshLogs = () => {
-  getSessionList(1, 10, userInfo.userId!)
+  getSessionList(1, 10, userInfoRef.value.userId!)
     .then((res: any) => {
       if (res.code !== '2000') {
         return;
@@ -341,8 +341,11 @@ const refreshLogs = () => {
     });
 };
 
-onMounted(() => {
+onMounted(async() => {
+  const userData = await getUserInfo();
+  userInfoRef.value = userData.data;
   refreshLogs();
+
   // createSession({});
 });
 </script>
