@@ -60,6 +60,7 @@
         <a-radio-group
           v-model="chosenLogoItem"
           class="template-commit-action"
+          :disabled="disabled"
           @change="handleChoseImg(data, $event)"
         >
           <div v-for="imgItem in 4" :key="imgItem" class="template-image-item">
@@ -73,9 +74,14 @@
               </div>
               <div v-else class="img-loading">
                 图片加载中{{ data.progress }}%
+                <GProgress :progress="data.progress" />
               </div>
             </div>
-            <a-radio :disabled="data.loading || disabled" :value="imgItem" />
+            <a-radio :disabled="data.loading || disabled" :value="imgItem">
+              <template #radio v-if="chosenLogoItem === imgItem">
+                <span class="iconfont icon-success checked-icon" />
+              </template>
+            </a-radio>
           </div>
         </a-radio-group>
       </template>
@@ -83,6 +89,7 @@
         <a-radio-group
           v-model="chosenTemplateItem"
           class="template-commit-action"
+          :disabled="disabled"
           @change="handleChoseTemplateImg(data, $event)"
         >
           <div v-for="imgItem in 2" :key="imgItem" class="template-image-item">
@@ -99,10 +106,14 @@
               </div>
               <div v-else class="img-loading">
                 图片加载中{{ data.progress }}%
-
+                <GProgress :progress="data.progress" />
               </div>
             </div>
-            <a-radio :disabled="disabled" :value="imgItem" />
+            <a-radio :disabled="disabled" :value="imgItem">
+              <template #radio v-if="chosenTemplateItem === imgItem">
+                <span class="iconfont icon-success checked-icon" />
+              </template>
+            </a-radio>
           </div>
         </a-radio-group>
       </template>
@@ -119,6 +130,7 @@
               </div>
               <div v-else class="img-loading">
                 图片加载中{{ data.progress }}%
+                <GProgress :progress="data.progress" />
               </div>
             </div>
           </div>
@@ -539,6 +551,10 @@ defineExpose({
   justify-content: center;
   width: 200px;
   margin: 0 8px 8px 0;
+
+  .checked-icon {
+    color: rgb(37, 106, 247);
+  }
 
   :deep(.arco-radio) {
     justify-content: center;
