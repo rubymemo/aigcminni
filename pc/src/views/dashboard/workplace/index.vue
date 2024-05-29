@@ -1,6 +1,7 @@
 <template>
   <div class="layout">
     <div class="left-bar">
+      <div class="left-bar-content">
       <div class="logo-area">
         <img :src="Logo" alt="huatu" />
       </div>
@@ -20,6 +21,8 @@
           />
         </div>
       </div>
+      </div>
+      <div class="left-bar-bg"></div>
     </div>
     <div class="right-container">
       <div class="top-bar">
@@ -354,18 +357,45 @@ onMounted(() => {
   background-image: url(@/assets/images/background.png);
 
   .left-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .left-bar-content {
+      position: relative;
+      z-index: 1;
+      width: 366px;
+      height: 100%;
+      border-radius: 12px;
+      background-image: linear-gradient(180deg, #f2f7fe, rgba(255, 255, 255, 0) 100%);
+    }
+    .left-bar-bg {
+      position: absolute;
+      top: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255),
+        rgba(255, 255, 255, 0) 100%
+      )
+    }
+  }
+  .left-bar {
+    padding: 2px;
     width: 370px;
     height: 100%;
     border-radius: 12px;
     box-sizing: border-box;
     border-radius: 12px;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.8),
-      rgba(255, 255, 255, 0) 100%
-    );
-    border: 2px solid
-      linear-gradient(180deg, rgb(255, 255, 255), rgba(255, 255, 255, 0) 100%);
+    // background: linear-gradient(
+    //   180deg,
+    //   rgba(255, 255, 255, 0.8),
+    //   rgba(255, 255, 255, 0) 100%
+    // );
+    // border: 2px solid
+    //   linear-gradient(180deg, rgb(255, 255, 255), rgba(255, 255, 255, 0) 100%);
     overflow: hidden;
     .logo-area {
       height: 70px;
@@ -373,7 +403,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       padding-left: 24px;
-
+      border-bottom: solid 2px rgba(255, 255, 255, 0.7);
       img {
         width: 104px;
         height: 30px;
@@ -383,6 +413,8 @@ onMounted(() => {
     .button-area {
       height: 88px;
       // border: 2px solid #fff;
+      border-bottom: solid 2px rgba(255, 255, 255, 0.7);
+
       border-top: 0;
       display: flex;
       justify-content: center;
