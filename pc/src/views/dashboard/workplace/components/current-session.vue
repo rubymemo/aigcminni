@@ -71,7 +71,7 @@
               <div
                 v-if="data.imagesOptions[imgItem - 1].url"
                 class="img-box"
-                @click="handleChoseImg(data, imgItem)"
+                @click="!disabled && handleChoseImg(data, imgItem)"
               >
                 <img :src="data.imagesOptions[imgItem - 1].url" alt="" />
               </div>
@@ -104,7 +104,7 @@
               <div
                 v-if="imgItem.url"
                 class="img-box"
-                @click="handleChoseTemplateImg(data, imgItem.code)"
+                @click="!disabled && handleChoseTemplateImg(data, imgItem.code)"
               >
                 <img :src="imgItem.url" alt="" />
               </div>
