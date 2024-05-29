@@ -527,6 +527,10 @@ defineExpose({
   width: 100%;
   display: flex;
   flex-wrap: wrap;
+
+  :deep(.arco-radio) {
+    margin-right: 0;
+  }
 }
 
 .template-image-item {

@@ -29,10 +29,10 @@
           <div class="log-actions">
             <div class="action-item" @click.stop="editItem(detailItem)">
               <!-- <icon-edit :size="16" /> -->
-              <img :src="Edit" alt="" />
+              <span class="iconfont icon-write1"></span>
             </div>
             <div class="action-item" @click.stop="deleteItem(detailItem)">
-              <img :src="Delete" alt="" />
+              <span class="iconfont icon-a-delete"></span>
             </div>
           </div>
         </div>
