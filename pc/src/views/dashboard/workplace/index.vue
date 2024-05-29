@@ -28,7 +28,7 @@
       <div class="top-bar">
         <div></div>
         <div class="user-info">
-          <CommonAvatar role="user" :size="42" />
+          <CommonAvatar role="user" :size="36" />
           <a-dropdown>
             <div class="user-name"
               >{{ userInfo.nickname }}
