@@ -92,10 +92,12 @@ const handleReload = () => {
       flex: 1;
 
       .image-box {
-        width: 120px;
-        height: 120px;
+        width: 200px;
+        height: 200px;
         overflow: hidden;
-        border-radius: 8px;
+        box-sizing: border-box;
+        border: 1px solid rgb(232, 233, 235);
+        border-radius: 12px;
 
         img {
           width: 100%;
