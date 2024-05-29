@@ -13,11 +13,12 @@
         <img :src="logItemTag" alt="" srcset="" />
         <div class="text-container">{{ detailItem.title }}</div>
         <div class="log-actions">
-          <div class="action-item">
-            <icon-edit :size="16" />
+          <div class="action-item" @click.stop="editItem(detailItem)">
+            <!-- <icon-edit :size="16" /> -->
+            <img :src="Edit" alt="" />
           </div>
           <div class="action-item" @click.stop="deleteItem(detailItem)">
-            <icon-delete :size="16" />
+            <img :src="Delete" alt="" />
           </div>
         </div>
       </div>
@@ -31,6 +32,8 @@
 <script setup lang="ts">
 import { deleteSessionItem, getSessionCommit } from '@/api/dashboard';
 import logItemTag from '@/assets/images/log-item-tag.png';
+import Delete from '@/assets/images/delete.png';
+import Edit from '@/assets/images/edit.png';
 import { Message } from '@arco-design/web-vue';
 import { useRouter } from 'vue-router';
 
@@ -47,7 +50,9 @@ const props = defineProps<Props>();
 
 const emit = defineEmits(['refresh', 'chosenSession']);
 
-const router = useRouter();
+const editItem = (detailItem: any) => {
+  console.log(detailItem)
+}
 
 const deleteItem = async (detailItem: any) => {
   const res = await deleteSessionItem(detailItem.id);
@@ -161,12 +166,17 @@ const handleClick = async (detailItem: any) => {
         height: 100%;
         display: flex;
         align-items: center;
-        margin-right: 8px;
+        margin-right: 6px;
         padding: 0 4px;
         cursor: pointer;
 
         &:last-child {
           margin-right: 0;
+        }
+
+        img {
+          width: 14px;
+          height: 14px;
         }
       }
     }

@@ -449,6 +449,7 @@ defineExpose({
   getRobotCommit,
   saveSession,
   getLastOneStep,
+  refreshSession
 });
 </script>
 
