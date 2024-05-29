@@ -356,7 +356,7 @@ onMounted(() => {
   box-sizing: border-box;
   background: rgb(242, 244, 247);
   background-image: url(@/assets/images/background.png);
-
+  background-size: 100% 100%;
   .left-bar {
     position: relative;
     display: flex;
