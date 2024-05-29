@@ -92,7 +92,10 @@
                 class="img-box"
                 @click="handleChoseTemplateImg(data, imgItem)"
               >
-                <img :src="data.imagesOptions[imgItem - 1].url" alt="" />
+                <img
+                  :src="convertImgUrl(data.imagesOptions[imgItem - 1].url)"
+                  alt=""
+                />
               </div>
               <div v-else class="img-loading">
                 图片加载中{{ data.progress }}%
@@ -220,6 +223,12 @@ const handleChoseTemplateImg = (data: any, index: any) => {
   });
   emit('lastStep', uploadImageName.value);
   lastStep.value = true;
+};
+
+const convertImgUrl = (url: string) => {
+  const nameArr = url.split('/');
+  const name = nameArr[nameArr.length - 1];
+  return `/src/assets/images/${name}`;
 };
 
 const saveSession = async () => {
