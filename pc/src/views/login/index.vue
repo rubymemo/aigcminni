@@ -11,9 +11,17 @@
           <a-dropdown trigger="click">
             <a-avatar
               :size="32"
-              :style="{ marginRight: '8px', cursor: 'pointer', backgroundColor: isUserLogin ? '#3370ff' : undefined }"
+              :style="{ marginRight: '8px', cursor: 'pointer', backgroundColor: isUserLogin ? '#c9cdd4' : undefined }"
             >
-            {{ isUserLogin ? name : '未登录' }}
+            <template v-if="avatar && isUserLogin">
+              <img
+                alt="avatar"
+                :src="avatar"
+              />
+            </template>
+            <template v-else>
+              {{ isUserLogin ? name : '未登录' }}
+            </template>
             </a-avatar>
             <template #content>
               <a-doption>
@@ -68,6 +76,9 @@
   const router = useRouter();
   const name = computed(() => {
     return userStore.username || userStore.nickname || userStore.userId;
+  })
+  const avatar = computed(() => {
+    return userStore.avatar;
   })
 
   const cardList = [
