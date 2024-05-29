@@ -66,3 +66,8 @@ export const getSessionCommit = (id) => {
 export const deleteSessionItem = (id) => {
   return axios.delete(`/hh/dialog/removeById/${id}`)
 }
+
+
+export const editSessionTitle = (params) => {
+  return axios.put(`/hh/dialog/editById`, params)
+}

@@ -8,23 +8,31 @@
         v-for="(detailItem, index) in item.list"
         :key="index"
         class="log-detail-item-box"
+        :class="!detailItem.__editting && 'log-detail-item-normal'"
         @click="handleClick(detailItem)"
       >
-        <div class="log-detail-item">
+      <div v-if="detailItem.__editting" class="log-editting-item">
+          <img :src="logItemTag" alt="" srcset="" />
+          <div class="edit-area">
+            <textarea 
+            v-model="detailItem.__title"
+            />
+            <div class="edit-handle-area">
+              <span class="iconfont icon-check" :class="!detailItem.__title && 'disabled-icon-click'" @click="saveTitle(detailItem)"></span>
+              <span class="iconfont icon-close" @click="dropEdit(detailItem)"></span>
+            </div>
+          </div>
+        </div>
+        <div v-else class="log-detail-item" @click="handleClick(detailItem)">
           <img :src="logItemTag" alt="" srcset="" />
           <div class="text-container">{{ detailItem.title }}</div>
           <div class="log-actions">
             <div class="action-item" @click.stop="editItem(detailItem)">
-              <span class="iconfont icon-write1"></span>
-              <!-- <svg class="icon icon-write1" aria-hidden="true">
-                <use xlink:href="#icon-write1"></use>
-              </svg> -->
+              <!-- <icon-edit :size="16" /> -->
+              <img :src="Edit" alt="" />
             </div>
             <div class="action-item" @click.stop="deleteItem(detailItem)">
-              <span class="iconfont icon-a-delete"></span>
-              <!-- <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-delete"></use>
-              </svg> -->
+              <img :src="Delete" alt="" />
             </div>
           </div>
         </div>
@@ -38,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { deleteSessionItem, getSessionCommit } from '@/api/dashboard';
+import { deleteSessionItem, editSessionTitle, getSessionCommit } from '@/api/dashboard';
 import logItemTag from '@/assets/images/log-item-tag.png';
 import Delete from '@/assets/images/delete.png';
 import Edit from '@/assets/images/edit.png';
@@ -50,6 +58,7 @@ interface Props {
     time: string;
     list: {
       title: string;
+      [props: string]: any;
     }[];
   }[];
 }
@@ -59,7 +68,37 @@ const props = defineProps<Props>();
 const emit = defineEmits(['refresh', 'chosenSession']);
 
 const editItem = (detailItem: any) => {
-  console.log(detailItem)
+  // eslint-disable-next-line no-underscore-dangle
+  detailItem.__editting = true;
+  // eslint-disable-next-line no-underscore-dangle
+  detailItem.__title = detailItem.title;
+}
+
+const saveTitle = async (detailItem: any) => {
+  // eslint-disable-next-line no-underscore-dangle
+  if (!detailItem.__title) {
+    return;
+  }
+  const res = await editSessionTitle({
+    id: detailItem.id,
+    // eslint-disable-next-line no-underscore-dangle
+    title: detailItem.__title
+  })
+  if (res.code === '2000') {
+    // eslint-disable-next-line no-underscore-dangle
+    detailItem.title =  detailItem.__title;
+    Reflect.deleteProperty(detailItem, '__editting');
+    emit('refresh')
+  }
+  
+}
+
+const dropEdit = (detailItem: any) => {
+  console.log('detailItem', detailItem);
+  
+  Reflect.deleteProperty(detailItem, '__title');
+  Reflect.deleteProperty(detailItem, '__editting');
+
 }
 
 const deleteItem = async (detailItem: any) => {
@@ -132,10 +171,70 @@ const handleClick = async (detailItem: any) => {
     padding: 1px;
     border-radius: 12px;
     background: rgb(255, 255, 255);
+  }
+
+  .log-detail-item-normal {
     &:hover {
       background: linear-gradient(135.00deg, rgb(23, 242, 95),rgb(37, 106, 247) 100%);
     }
   }
+
+  .log-editting-item {
+    width: 306px;
+    height: 107px;
+    border-radius: 12px;
+    background: rgb(255, 255, 255);
+    padding: 12px  16px;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+    display: flex;
+
+    .edit-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-left: 8px;
+
+      textarea {
+        height: 56px;
+        width: 100%;
+        line-height: 24px;
+        border: none;
+        outline: none;
+        resize: none;
+        display: block;
+        background-color: #fff;
+        margin-bottom: 6px;
+      }
+    }
+
+    .edit-handle-area {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 16px;
+
+      .disabled-icon-click {
+        cursor: not-allowed;
+      }
+
+      span {
+        margin-right: 12px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
+
+
+    img {
+      margin: 4px;
+      height: 24px;
+      width: 24px;
+    }
+  }
+
   .log-detail-item {
     width: 100%;
     border-radius: 12px;
