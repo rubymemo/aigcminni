@@ -12,7 +12,8 @@
           {{ data.content }}
         </div>
         <div v-if="data.image" class="image-box">
-          <img :src="data.image" alt="" />
+          <!-- <img :src="data.image" alt="" /> -->
+          <a-image :width="200" :src="data.image" />
         </div>
         <div v-if="props.slotName" class="custom-slot-box">
           <slot
