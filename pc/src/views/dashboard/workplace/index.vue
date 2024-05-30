@@ -172,7 +172,7 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
     sendMessageV2({
       clientId: uid,
       fileUrl: imageName,
-      promptWords: words,
+      promptWords: `${words} `,
       code,
     }).then((res) => {
       console.log('promptPost', res);
