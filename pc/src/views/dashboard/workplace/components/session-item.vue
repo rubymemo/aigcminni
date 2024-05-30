@@ -96,7 +96,7 @@ const handleReload = () => {
         height: 200px;
         overflow: hidden;
         box-sizing: border-box;
-        border: 1px solid rgb(232, 233, 235);
+        // border: 1px solid rgb(232, 233, 235);
         border-radius: 12px;
         background-color: #fff;
         margin-top: 8px;
@@ -236,8 +236,8 @@ const handleReload = () => {
             height: 200px;
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 16px;
-
+            // margin-bottom: 16px;
+            margin-bottom: 8px;
             .img-box {
               width: 100%;
               height: 100%;

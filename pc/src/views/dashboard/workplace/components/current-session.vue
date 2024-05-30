@@ -592,7 +592,8 @@ defineExpose({
     height: 200px;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+    // margin-bottom: 16px;
 
     .img-box {
       width: 100%;
