@@ -15,9 +15,14 @@
           <div class="log-header">对话记录</div>
           <div class="session-log-el">
             <SessionLog
-              :logs="logs"
+              :logs="logsState.logs"
+              :loading="logsState.loading"
+              :finished="logsState.finished"
+              :first-load-complete="logsState.firstLoadComplete"
+              @load-more="loadLogs"
               @refresh="refreshLogs"
               @chosen-session="changeSession"
+              @delete-item="deleteItem"
             />
           </div>
         </div>
@@ -105,6 +110,7 @@ import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
 import CommonAvatar from '@/components/common-avatar.vue';
 import { getUserInfo, logout } from '@/api/user';
+import { reactive } from 'vue';
 
 const logs = ref<any[]>([]);
 
@@ -120,6 +126,23 @@ const router = useRouter();
 const sessionBox = ref();
 
 const userInfoRef = ref();
+
+const logsState = reactive<{
+  logs: any[],
+  loading: boolean,
+  finished: boolean,
+  pageIndex: 1,
+  pageSize: 10,
+  firstLoadComplete: boolean;
+}>({
+  logs: [],
+  loading: false,
+  finished: false,
+  pageIndex: 1,
+  pageSize: 10,
+  firstLoadComplete: false
+
+});
 
 const handleInput = () => {
   if (inputDisabled.value) {
@@ -147,6 +170,7 @@ const currentSessionId = ref('');
 const changeSession = (id: any) => {
   if (!id || id !== currentSessionId.value) {
     currentSessionId.value = id;
+    wsInstance.value?.close();
     sessionListRef.value.refreshSession(id);
   }
 };
@@ -343,44 +367,45 @@ const reload = (img: string) => {
   // initWs(img, userWords.value);
 };
 
-const refreshLogs = () => {
-  getSessionList(1, 10, userInfoRef.value.userId!)
+const loadLogs = () => {
+  logsState.loading = true;
+  getSessionList(logsState.pageIndex, logsState.pageSize, userInfoRef.value.userId!)
     .then((res: any) => {
       if (res.code !== '2000') {
         return;
       }
-      console.log('res.data', res.data);
       const dataAlias = res.data.data as any[];
-      const timeDataMap = dataAlias.reduce<Record<string, any>>(
-        (result, cur) => {
-          const time = cur.createTime;
-          // 根据时间分组
-          if (!result[time]) {
-            result[time] = { time, list: [] };
-          }
-          result[time].list.push(cur);
-          return result;
-        },
-        {},
-      );
 
-      logs.value = Object.values(timeDataMap);
+      logsState.logs = logsState.logs.concat(dataAlias);
+      logsState.pageIndex += 1;
+      logsState.finished = logsState.logs.length >= res.data.total;
     })
     .catch((error) => {
       console.log('error', error);
+    }).finally(() => {
+      logsState.loading = false;
+      logsState.firstLoadComplete = true;
     });
+}
+
+const refreshLogs = () => {
+  logsState.pageIndex = 1;
+  logsState.logs = [];
+  loadLogs();
 };
 
 const goHome = () => {
   router.push('/login');
+};
+
+const deleteItem = (index: number) => {
+  logsState.logs.splice(index, 1);
 }
 
 onMounted(async () => {
   const userData = await getUserInfo();
   userInfoRef.value = userData.data;
   refreshLogs();
-
-  // createSession({});
 });
 </script>
 
@@ -518,10 +543,26 @@ onMounted(async () => {
 
       .session-log-el {
         flex: 1;
-        overflow-y: scroll;
+        // overflow-y: scroll;
+        overflow: hidden;
         margin-top: 16px;
         scrollbar-width: none;
         -ms-overflow-style: none;
+
+        .scroll-list {
+          height: 100%;
+
+          :deep {
+            .arco-scrollbar {
+              height: 100%;
+
+              .arco-list {
+                height: 100%;
+                overflow-y: scroll;
+              }
+            }
+          }
+        }
 
         .box {
           height: 100%;

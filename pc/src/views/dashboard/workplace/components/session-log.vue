@@ -1,12 +1,11 @@
 <template>
-  <div v-if="props.logs.length" class="box">
-    <div v-for="item in props.logs" :key="item.time">
+  <a-list class="list" @reach-bottom="handleReachBottom">
+    <div class="box">
+    <div v-for="(detailItem, index) in props.logs" :key="detailItem.createTime">
       <div class="time-tag">
-        {{ item.time }}
+        {{ detailItem.createTime }}
       </div>
       <div
-        v-for="(detailItem, index) in item.list"
-        :key="index"
         class="log-detail-item-box"
         :class="detailItem.__editting ? 'log-detail-item-editting' : 'log-detail-item-normal'"
         @click="handleClick(detailItem)"
@@ -36,7 +35,7 @@
               <!-- <icon-edit :size="16" /> -->
               <span class="iconfont icon-write1"></span>
             </div>
-            <div class="action-item" @click.stop="deleteItem(detailItem)">
+            <div class="action-item" @click.stop="deleteItem(detailItem, index)">
               <span class="iconfont icon-a-delete"></span>
             </div>
           </div>
@@ -44,10 +43,16 @@
         <div class="bg"></div>
       </div>
     </div>
+    <div class="extra-info">
+      <a-spin v-if="props.loading" />
+      <div v-else-if="props.finished">
+        <div v-if="!props.logs.length" class="empty-box">暂无对话记录</div>
+        <template v-else>已经是全部历史记录了</template>
+      </div>
+    </div>
   </div>
-  <div v-else class="box">
-    <div class="empty-box"> 暂无对话记录 </div>
-  </div>
+  </a-list>
+
 </template>
 
 <script setup lang="ts">
@@ -60,21 +65,28 @@ import logItemTag from '@/assets/images/log-item-tag.png';
 import Delete from '@/assets/images/delete.png';
 import Edit from '@/assets/images/edit.png';
 import { Message } from '@arco-design/web-vue';
-import { useRouter } from 'vue-router';
 
 interface Props {
   logs: {
-    time: string;
-    list: {
-      title: string;
-      [props: string]: any;
-    }[];
+    createTime: string;
+    title: string;
+    [props: string]: any;
   }[];
+  loading: boolean;
+  finished: boolean;
+  firstLoadComplete: boolean;
 }
 
 const props = defineProps<Props>();
 
-const emit = defineEmits(['refresh', 'chosenSession']);
+const emit = defineEmits(['refresh', 'chosenSession', 'loadMore', 'deleteItem']);
+
+const handleReachBottom = () => {
+  if (props.loading || props.finished || !props.firstLoadComplete) {
+    return;
+  }
+  emit('loadMore');
+}
 
 const editItem = (detailItem: any) => {
   // eslint-disable-next-line no-underscore-dangle
@@ -97,22 +109,19 @@ const saveTitle = async (detailItem: any) => {
     // eslint-disable-next-line no-underscore-dangle
     detailItem.title = detailItem.__title;
     Reflect.deleteProperty(detailItem, '__editting');
-    emit('refresh');
   }
 };
 
 const dropEdit = (detailItem: any) => {
-  console.log('detailItem', detailItem);
-
   Reflect.deleteProperty(detailItem, '__title');
   Reflect.deleteProperty(detailItem, '__editting');
 };
 
-const deleteItem = async (detailItem: any) => {
+const deleteItem = async (detailItem: any, deleteIndex: number) => {
   const res = await deleteSessionItem(detailItem.id);
   if (res.code === '2000') {
     Message.success('删除成功');
-    emit('refresh');
+    emit('deleteItem', deleteIndex)
   }
 };
 
@@ -146,6 +155,26 @@ const handleClick = async (detailItem: any) => {
 </script>
 
 <style scoped lang="less">
+.list {
+  height: 100%;
+
+
+  :deep {
+    .arco-scrollbar {
+      height: 100%;
+
+      .arco-list {
+        height: 100%;
+        overflow-y: scroll;
+      }
+    }
+
+    .arco-list-bordered {
+      border: none;
+    }
+  }
+}
+
 .box {
   width: 100%;
   padding: 16px;
@@ -357,5 +386,12 @@ const handleClick = async (detailItem: any) => {
       }
     }
   }
+}
+
+.extra-info {
+  min-height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

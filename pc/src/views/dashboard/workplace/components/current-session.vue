@@ -312,8 +312,11 @@ const saveSession = async () => {
   const data = await (sessionId.value
     ? updateSession(sessionId.value, result)
     : createNewSession(result));
-
-  emit('refreshSessionHistory');
+  
+  // 仅限创建时刷新历史记录列表
+  if (!sessionId.value) {
+    emit('refreshSessionHistory');
+  }
 
   sessionId.value = data.data;
 };
@@ -445,6 +448,8 @@ const refreshSession = async (id: any) => {
     commitList.value = [];
     chosenLogoItem.value = 0
     chosenTemplateItem.value = ''
+    sessionId.value = id;
+    couldCreateAndUpdate.value = false;
     addCommit(getRobotCommit());
     return;
   }
