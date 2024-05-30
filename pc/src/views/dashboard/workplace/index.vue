@@ -516,6 +516,8 @@ onMounted(async () => {
         flex: 1;
         overflow-y: scroll;
         margin-top: 16px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
 
         .box {
           height: 100%;
