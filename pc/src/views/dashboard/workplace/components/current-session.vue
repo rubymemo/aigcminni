@@ -73,7 +73,8 @@
                 class="img-box"
                 @click="!disabled && handleChoseImg(data, imgItem)"
               >
-                <img :src="data.imagesOptions[imgItem - 1].url" alt="" />
+                <a-image :width="200" :src="data.imagesOptions[imgItem - 1].url" />
+                <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
                 <p>图片加载中{{ data.progress }}%</p>
@@ -109,7 +110,8 @@
                 class="img-box"
                 @click="!disabled && handleChoseTemplateImg(data, imgItem.code)"
               >
-                <img :src="imgItem.url" alt="" />
+                <a-image :width="200" :src="imgItem.url" />
+                <!-- <img :src="imgItem.url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
                 <p>图片加载中{{ data.progress }}%</p>
@@ -136,7 +138,8 @@
                 class="img-box"
                 @click="handleChoseImg(data, imgItem)"
               >
-                <img :src="data.imagesOptions[imgItem - 1].url" alt="" />
+                <a-image :width="200" :src="data.imagesOptions[imgItem - 1].url" />
+                <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
                 <p>图片加载中{{ data.progress }}%</p>
