@@ -3,7 +3,7 @@
     <div class="left-bar">
       <div class="left-bar-content">
         <div class="logo-area">
-          <img :src="Logo" alt="huatu" />
+          <img class="logo-img" :src="Logo" alt="huatu" @click="goHome"/>
         </div>
         <div class="button-area">
           <a-button class="create-session-button" @click="changeSession('')">
@@ -32,7 +32,8 @@
           <a-dropdown trigger="hover">
             <div class="user-name"
               >{{ userInfo.nickname }}
-              <icon-caret-down />
+              <!-- <icon-caret-down /> -->
+              <span class="iconfont icon-down"></span>
             </div>
             <template #content>
               <a-doption @click="logoutAction">退出登录</a-doption>
@@ -370,6 +371,10 @@ const refreshLogs = () => {
     });
 };
 
+const goHome = () => {
+  router.push('/login');
+}
+
 onMounted(async () => {
   const userData = await getUserInfo();
   userInfoRef.value = userData.data;
@@ -443,9 +448,10 @@ onMounted(async () => {
       align-items: center;
       padding-left: 24px;
       border-bottom: solid 2px rgba(255, 255, 255, 0.7);
-      img {
+      img.logo-img {
         width: 104px;
         height: 30px;
+        cursor: pointer;
       }
     }
 
@@ -551,6 +557,13 @@ onMounted(async () => {
           line-height: 22px;
           letter-spacing: 0px;
           text-align: left;
+          display: flex;
+          align-items: center;
+          .iconfont.icon-down {
+            font-size: 5px;
+            color: #666666;
+            margin-left: 8px;
+          }
         }
       }
     }

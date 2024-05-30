@@ -285,7 +285,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       const UserImagesMessages = dataList.value.filter((item, index) => item.type === "right" && item.refer === true);
       const params = {
         code,
-        promptWords,
+        promptWords: promptWords || " ",
         fileUrl: void 0,
         clientId: clientUNIId.value
       };

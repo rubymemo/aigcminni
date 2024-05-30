@@ -427,7 +427,7 @@
 		const UserImagesMessages = dataList.value.filter((item, index) => item.type === 'right' && item.refer === true);
 		const params = {
 			code,
-			promptWords: promptWords,
+			promptWords: promptWords || ' ',
 			fileUrl: undefined,
 			clientId: clientUNIId.value
 		};
