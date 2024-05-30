@@ -11,9 +11,14 @@
         <div v-if="data.content" class="commit-content-text">
           {{ data.content }}
         </div>
-        <div v-if="data.image" class="image-box">
+        <div v-if="data.images && data.images.length" class="image-box">
           <!-- <img :src="data.image" alt="" /> -->
-          <a-image :width="200" :height="200" fit="scale-down" :src="data.image" />
+          <a-image
+            :width="200"
+            :height="200"
+            fit="scale-down"
+            :src="data.images[0]"
+          />
         </div>
         <div v-if="props.slotName" class="custom-slot-box">
           <slot

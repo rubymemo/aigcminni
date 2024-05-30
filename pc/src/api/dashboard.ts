@@ -29,17 +29,6 @@ export const getSessionList = (
   });
 };
 
-export const createSession = (params: any) => {
-  return axios.post<LoginRes>('/hh/works/addBy', params);
-};
-
-export const uploadImage = (params: any) => {
-  return axios.post(
-    'http://101.126.93.249/api/hh/comfyui_api/uploadImage',
-    params,
-  );
-};
-
 export const sendMessage = (params: any) => {
   return axios.post('/hh/comfyui_api/postPrompt', params);
 };

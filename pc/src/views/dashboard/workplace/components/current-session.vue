@@ -73,7 +73,12 @@
                 class="img-box"
                 @click="!disabled && handleChoseImg(data, imgItem)"
               >
-                <a-image :width="200" :height="200" fit="scale-down" :src="data.imagesOptions[imgItem - 1].url" />
+                <a-image
+                  :width="200"
+                  :height="200"
+                  fit="scale-down"
+                  :src="data.imagesOptions[imgItem - 1].url"
+                />
                 <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
@@ -110,7 +115,12 @@
                 class="img-box"
                 @click="!disabled && handleChoseTemplateImg(data, imgItem.code)"
               >
-                <a-image :width="200" :height="200" fit="scale-down" :src="imgItem.url" />
+                <a-image
+                  :width="200"
+                  :height="200"
+                  fit="scale-down"
+                  :src="imgItem.url"
+                />
                 <!-- <img :src="imgItem.url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
@@ -138,7 +148,12 @@
                 class="img-box"
                 @click="handleChoseImg(data, imgItem)"
               >
-                <a-image :width="200" :height="200" fit="scale-down" :src="data.imagesOptions[imgItem - 1].url" />
+                <a-image
+                  :width="200"
+                  :height="200"
+                  fit="scale-down"
+                  :src="data.imagesOptions[imgItem - 1].url"
+                />
                 <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
@@ -200,7 +215,8 @@ const emit = defineEmits([
   'lastStep',
   'reload',
   'refreshSessionHistory',
-  'noImgeUpload'
+  'noImgeUpload',
+  'regenerateLogo',
 ]);
 
 const disabledUpload = ref(false);
@@ -247,7 +263,7 @@ const handleChoseTemplateImg = (data: any, code: string) => {
   addCommit({
     author: 'user',
     data: {
-      image: url,
+      images: [url],
       content: '我已经选定了',
     },
   });
@@ -312,7 +328,7 @@ const saveSession = async () => {
   const data = await (sessionId.value
     ? updateSession(sessionId.value, result)
     : createNewSession(result));
-  
+
   // 仅限创建时刷新历史记录列表
   if (!sessionId.value) {
     emit('refreshSessionHistory');
@@ -337,10 +353,7 @@ const addCommit = (params: Partial<CommitItem>) => {
   });
   const lastCommit = commitList.value[commitList.value.length - 1];
   //
-  if (
-    lastCommit.disabledSubmit ||
-    commitList.value.length === 1
-  ) {
+  if (lastCommit.disabledSubmit || commitList.value.length === 1) {
     return;
   }
   saveSession();
@@ -382,7 +395,7 @@ const noImageUpload = (type: string, data: any) => {
   });
   addCommit(getRobotCommit());
   emit('enabledInput');
-  emit('noImgeUpload')
+  emit('noImgeUpload');
   couldCreateAndUpdate.value = true;
 };
 
@@ -401,7 +414,7 @@ const customUpload = (option: any): any => {
       author: 'user',
       // image: `http://101.126.93.249/api/hh/comfyui_api/view?type=${res.data.type}&filename=${res.data.filename}`,
       data: {
-        image: imgUrl,
+        images: [imgUrl],
       },
       disabledSubmit: true,
     });
@@ -417,7 +430,7 @@ const handleChooseTemplate = (imgUrl: string) => {
   addCommit({
     author: 'user',
     data: {
-      image: imgUrl,
+      images: [imgUrl],
       content: '我已经选定了',
     },
     disabledSubmit: true,
@@ -443,16 +456,19 @@ const getLastOneStep = () => {
 };
 
 const refreshSession = async (id: any) => {
+  chosenLogoItem.value = 0;
+  chosenTemplateItem.value = '';
+  sessionId.value = id;
   if (!id) {
     robotCommitStep.value = 0;
     commitList.value = [];
-    chosenLogoItem.value = 0
-    chosenTemplateItem.value = ''
-    sessionId.value = id;
     couldCreateAndUpdate.value = false;
     addCommit(getRobotCommit());
     return;
   }
+
+  // 后续发生的操作可以直接保存了
+  couldCreateAndUpdate.value = true;
   const res = await getSessionCommit(id);
   if (res) {
     let robotIndex = 0;
@@ -463,18 +479,57 @@ const refreshSession = async (id: any) => {
         result.author = 'robot';
         result.slotName = robotReply[robotIndex].slotName;
         robotIndex += 1;
-        robotCommitStep.value = robotIndex;
       } else {
         result.author = 'user';
+        // 兼容小程序的数据结构
+        if (data.image) {
+          data.images = [data.image];
+        }
       }
       return result;
     });
+
+    // 停在生成logo那一步
+    if (
+      dataListTemp.length === 7 &&
+      // 没有生成成功
+      !dataListTemp[6].data.imagesOptions[0].url
+    ) {
+      // 拿到上传的图片url
+      const url = dataListTemp[3].data.images
+        ? dataListTemp[3].data.images[0]
+        : '';
+      const userWords = dataListTemp[5].data.content;
+      // 前6步记录恢复
+      commitList.value = dataListTemp.slice(0, 6);
+      robotCommitStep.value = 3;
+      emit('regenerateLogo', url, userWords);
+      return;
+    }
+
+    console.log('dataListTemp', dataListTemp);
+
+    // 找到选定的logo
+    const chosenLogostyle = dataListTemp[7].data.images[0];
+    emit('chooseStyle', chosenLogostyle);
+
+    chosenLogoItem.value =
+      dataListTemp[6].data.imagesOptions.findIndex(
+        (imgItem: any) => imgItem.url === chosenLogostyle,
+      ) + 1;
+
+    if (dataListTemp.length === 9) {
+      robotCommitStep.value = robotIndex;
+      commitList.value = dataListTemp;
+      emit('enabledInput');
+      return;
+    }
     commitList.value = dataListTemp;
+    // commitList.value = dataListTemp;
     console.log('dataListTemp', dataListTemp);
 
     // dataList.value = dataListTemp;
     // 根据数据做一些初始工作,先写死，后面再改
-    const lastMsg = dataListTemp[dataListTemp.length - 1];
   }
 };
 
@@ -583,7 +638,7 @@ defineExpose({
     box-sizing: border-box;
     border: 1px solid rgb(163, 180, 204);
     background: rgb(255, 255, 255);
-    border-radius: 50%
+    border-radius: 50%;
   }
   .checked-icon {
     color: rgb(37, 106, 247);

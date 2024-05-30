@@ -3,7 +3,7 @@
     <div class="left-bar">
       <div class="left-bar-content">
         <div class="logo-area">
-          <img class="logo-img" :src="Logo" alt="huatu" @click="goHome"/>
+          <img class="logo-img" :src="Logo" alt="huatu" @click="goHome" />
         </div>
         <div class="button-area">
           <a-button class="create-session-button" @click="changeSession('')">
@@ -60,6 +60,7 @@
               @reload="reload"
               @refresh-session-history="refreshLogs"
               @no-imge-upload="handleImageUploaded"
+              @regenerate-logo="handleRegenerateLogo"
             />
           </div>
         </div>
@@ -112,8 +113,6 @@ import CommonAvatar from '@/components/common-avatar.vue';
 import { getUserInfo, logout } from '@/api/user';
 import { reactive } from 'vue';
 
-const logs = ref<any[]>([]);
-
 const inputText = ref('');
 const inputDisabled = ref(true);
 const sessionListRef = ref();
@@ -128,11 +127,11 @@ const sessionBox = ref();
 const userInfoRef = ref();
 
 const logsState = reactive<{
-  logs: any[],
-  loading: boolean,
-  finished: boolean,
-  pageIndex: 1,
-  pageSize: 10,
+  logs: any[];
+  loading: boolean;
+  finished: boolean;
+  pageIndex: 1;
+  pageSize: 10;
   firstLoadComplete: boolean;
 }>({
   logs: [],
@@ -140,8 +139,7 @@ const logsState = reactive<{
   finished: false,
   pageIndex: 1,
   pageSize: 10,
-  firstLoadComplete: false
-
+  firstLoadComplete: false,
 });
 
 const handleInput = () => {
@@ -171,6 +169,7 @@ const changeSession = (id: any) => {
   if (!id || id !== currentSessionId.value) {
     currentSessionId.value = id;
     wsInstance.value?.close();
+    inputDisabled.value = true;
     sessionListRef.value.refreshSession(id);
   }
 };
@@ -219,12 +218,16 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
     console.log('收到消息', data, messageInfo.type);
 
     if (messageInfo.type === 'status') {
-      console.log('sid', data.sid);
       console.log('任务变更', messageInfo, data);
     }
     if (messageInfo.type === 'execution_start') {
       console.log('开始生成');
     }
+
+    if (!promptId || !data.prompt_id || promptId !== data.prompt_id) {
+      return;
+    }
+
     if (messageInfo.type === 'executing' && messageInfo.data.node) {
       // console.log('正在执行');
     }
@@ -288,6 +291,13 @@ const handleGetWorkFlow = () => {
     }));
     sessionListRef.value.addCommit(robotApply);
   });
+};
+
+const handleRegenerateLogo = (imgUrl: string, words: string) => {
+  workCode = 'logo_draw';
+  imgUpName = imgUrl;
+  userWords.value = words;
+  initWs(imgUrl, words);
 };
 
 const handleSendButtonClick = () => {
@@ -369,7 +379,11 @@ const reload = (img: string) => {
 
 const loadLogs = () => {
   logsState.loading = true;
-  getSessionList(logsState.pageIndex, logsState.pageSize, userInfoRef.value.userId!)
+  getSessionList(
+    logsState.pageIndex,
+    logsState.pageSize,
+    userInfoRef.value.userId!,
+  )
     .then((res: any) => {
       if (res.code !== '2000') {
         return;
@@ -382,11 +396,12 @@ const loadLogs = () => {
     })
     .catch((error) => {
       console.log('error', error);
-    }).finally(() => {
+    })
+    .finally(() => {
       logsState.loading = false;
       logsState.firstLoadComplete = true;
     });
-}
+};
 
 const refreshLogs = () => {
   logsState.pageIndex = 1;
@@ -400,7 +415,7 @@ const goHome = () => {
 
 const deleteItem = (index: number) => {
   logsState.logs.splice(index, 1);
-}
+};
 
 onMounted(async () => {
   const userData = await getUserInfo();
