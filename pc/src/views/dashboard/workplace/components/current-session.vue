@@ -136,7 +136,7 @@
                 <img :src="data.imagesOptions[imgItem - 1].url" alt="" />
               </div>
               <div v-else class="img-loading">
-                图片加载中{{ data.progress }}%
+                <p>图片加载中{{ data.progress }}%</p>
                 <GProgress :progress="data.progress" />
               </div>
             </div>
@@ -194,6 +194,7 @@ const emit = defineEmits([
   'lastStep',
   'reload',
   'refreshSessionHistory',
+  'noImgeUpload'
 ]);
 
 const disabledUpload = ref(false);
@@ -370,8 +371,8 @@ const noImageUpload = (type: string, data: any) => {
   });
   addCommit(getRobotCommit());
   emit('enabledInput');
+  emit('noImgeUpload')
   couldCreateAndUpdate.value = true;
-  disabledUpload.value = true;
 };
 
 const customUpload = (option: any): any => {
@@ -434,6 +435,8 @@ const refreshSession = async (id: any) => {
   if (!id) {
     robotCommitStep.value = 0;
     commitList.value = [];
+    chosenLogoItem.value = 0
+    chosenTemplateItem.value = ''
     addCommit(getRobotCommit());
     return;
   }

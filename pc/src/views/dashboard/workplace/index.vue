@@ -53,6 +53,7 @@
               @last-step="lastStep"
               @reload="reload"
               @refresh-session-history="refreshLogs"
+              @no-imge-upload="handleImageUploaded"
             />
           </div>
         </div>
@@ -141,9 +142,6 @@ const handleScrollBottom = () => {
 };
 
 const currentSessionId = ref('');
-
-// 发送消息的时候是否开启wss
-const initWssWhenSend = ref(true);
 
 const changeSession = (id: any) => {
   if (!id || id !== currentSessionId.value) {
@@ -234,8 +232,6 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
     }
   };
   wsInstance.value.onclose = () => {
-    // 生成logo后再发送消息不启动wss
-    initWssWhenSend.value = false;
     console.log('关闭链接');
   };
 };
@@ -277,7 +273,7 @@ const handleSendButtonClick = () => {
     compute: true,
     disabledSubmit: true,
   });
-  if (initWssWhenSend.value) {
+  if (workCode === 'logo_draw') {
     initWs(imgUpName, inputText.value, workCode);
   }
   if (workCode === 'workFlow') {
@@ -300,7 +296,7 @@ const enterSend = (event: any) => {
       compute: true,
       disabledSubmit: true,
     });
-    if (initWssWhenSend.value) {
+    if (workCode === 'logo_draw') {
       initWs(imgUpName, inputText.value, workCode);
     }
     console.log('workFlow', workCode);
@@ -317,7 +313,7 @@ const enterSend = (event: any) => {
 };
 
 // 图片上传成功
-const handleImageUploaded = (imageName: string) => {
+const handleImageUploaded = (imageName = '') => {
   imgUpName = imageName;
   // 这里上传成功是为了生成logo，将工作流置为
   workCode = 'logo_draw';
