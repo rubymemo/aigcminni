@@ -20,6 +20,7 @@ const router = createRouter({
       name: 'login',
       component: () => import('@/views/login/index.vue'),
       meta: {
+        title: '首页',
         requiresAuth: false,
       },
     },
@@ -33,5 +34,9 @@ const router = createRouter({
 });
 
 createRouteGuard(router);
+
+router.afterEach(to => {
+  document.title = to.meta.title as string;
+})
 
 export default router;
