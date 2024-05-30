@@ -33,6 +33,7 @@ button.big.data-v-999f11f3 {
   height: 130rpx;
   align-items: center;
   border-top: solid 1px #EDF1F6;
+  padding: 0 16rpx;
 }
 .list-item.data-v-999f11f3 {
   display: flex;

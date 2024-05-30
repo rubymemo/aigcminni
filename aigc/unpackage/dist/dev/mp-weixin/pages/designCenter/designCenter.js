@@ -159,7 +159,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       initScrollHeight();
     });
     const goUserCenter = () => {
-      common_vendor.index.redirectTo({
+      common_vendor.index.navigateTo({
         url: "/pages/userCenter/userCenter"
       });
     };
@@ -286,7 +286,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       const params = {
         code,
         promptWords: promptWords || " ",
-        fileUrl: void 0,
+        fileUrl: "",
         clientId: clientUNIId.value
       };
       if (UserImagesMessages.length) {
@@ -335,32 +335,41 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         await getPaintingTask("logo_draw", UserMessages[0].content);
       }
     };
+    const genResultImgByTemp = () => {
+      const findWorkFlow = workflowList.value.find((workflow) => workflow.imgUrl === imgUrl);
+      const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
+      const promptText = UserMessages.length === 2 ? UserMessages[1].content : "";
+      getPaintingTask(findWorkFlow.code, promptText);
+    };
     const onUserSelectImg = (evt, messageIndex) => {
-      const imgUrl = evt.detail.value;
-      if (!imgUrl) {
+      const imgValue = JSON.parse(evt.detail.value);
+      if (imgValue.status !== "done") {
+        return;
+      }
+      console.log("选择");
+      console.log(imgValue);
+      const imgUrl2 = imgValue.url;
+      if (!imgUrl2) {
         return;
       }
       if (messageIndex !== dataList.value.length - 1) {
         return;
       }
-      dataList.value[messageIndex].activeImages = [imgUrl];
+      dataList.value[messageIndex].activeImages = [imgUrl2];
       if (lastRobotMsg.value) {
         dataList.value.push({
           type: "right",
           content: "我已经选定了",
-          images: [imgUrl]
+          images: [imgUrl2]
           // compute: true // 用于标识加入计算
         });
         addMockRobotReply(6);
-        const findWorkFlow = workflowList.value.find((workflow) => workflow.imgUrl === imgUrl);
-        const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
-        const promptText = UserMessages.length === 2 ? UserMessages[1].content : "";
-        getPaintingTask(findWorkFlow.code, promptText);
+        genResultImgByTemp();
       } else {
         dataList.value.push({
           type: "right",
           content: "我已经选定了",
-          images: [imgUrl],
+          images: [imgUrl2],
           refer: true
           // 用于标识下发任务时的图片
         });
@@ -383,7 +392,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     });
     const goHistoryPage = () => {
-      common_vendor.index.redirectTo({
+      common_vendor.index.navigateTo({
         url: "/pages/historyDesign/historyDesign"
       });
     };
@@ -454,8 +463,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
                 g: imageItem.status === "done" ? imageItem.url : "",
                 h: common_vendor.o(($event) => previewImg(imageItem.url), imgIndex)
               }, !item.reload ? {
-                i: imageItem.url,
-                j: index < dataList.value.length - 1,
+                i: JSON.stringify(imageItem),
+                j: index < dataList.value.length - 1 || imageItem.status !== "done",
                 k: item.activeImages.includes(imageItem.url)
               } : {}, {
                 l: imgIndex
@@ -495,14 +504,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           width: 146,
           active: true
         }),
-        h: common_vendor.o(goHistoryPage),
-        i: common_vendor.p({
-          height: 56,
-          width: 146,
-          active: true
-        })
+        h: common_vendor.o(goHistoryPage)
       } : {}, {
-        j: !canSend.value,
+        i: !canSend.value,
+        j: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value)),
         k: canSend.value ? "输入对话后，可通过回车键发送指令" : "请先选择机器人提供的选项",
         l: inputValue.value,
         m: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {

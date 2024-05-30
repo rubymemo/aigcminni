@@ -59,7 +59,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       paging.value.reload();
     };
     const clickItem = (item) => {
-      common_vendor.index.redirectTo({
+      common_vendor.index.reLaunch({
         url: `/pages/designCenter/designCenter?id=${item.id}`
       });
     };

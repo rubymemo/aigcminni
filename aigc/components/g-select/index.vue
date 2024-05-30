@@ -91,7 +91,7 @@
 			border-radius: 200rpx;
 			text-align: center;
 			// color: $gray-color;
-			font-size: 28rpx;
+			font-size: 26rpx;
 			font-weight: 400;
 		}
 

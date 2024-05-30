@@ -48,9 +48,9 @@
 													<radio 
 														v-if="!item.reload" 
 														class="img-radio" 
-														:value="imageItem.url" 
+														:value="JSON.stringify(imageItem)" 
 														color="#256AF7"
-														:disabled="index < dataList.length - 1"
+														:disabled="index < dataList.length - 1 || imageItem.status !== 'done'"
 														:checked="item.activeImages.includes(imageItem.url)"
 													/>
 												</view>
@@ -87,10 +87,13 @@
 					<text class="iconfont icon-tianjia" style="font-size: 26rpx;"></text>
 					新建对话
 				</g-color-btn>
-				<g-color-btn :height="56" :width="146" :active="true" @click="goHistoryPage">历史会话</g-color-btn>
+				<view @click="goHistoryPage" class="history-btn">
+					历史会话
+				</view>
+				<!-- <g-color-btn :height="56" :width="146" :active="true" @click="goHistoryPage">历史会话</g-color-btn> -->
 			</view>
 			<view class="input-box">
-				<input v-model.trim="inputValue" :disabled="!canSend"
+				<input v-model.trim="inputValue" :disabled="!canSend" confirm-type="send" @confirm="onSendMessage(canSend && inputValue)"
 					:placeholder="canSend ? '输入对话后，可通过回车键发送指令' : '请先选择机器人提供的选项'" placeholder-style="color: #A3B4CC" />
 				<view :class="`send-btn ${(canSend && inputValue) ? '' : 'disabled'} `"
 					@click="onSendMessage(canSend && inputValue)">
@@ -284,7 +287,7 @@
 	})
 
 	const goUserCenter = () => {
-		uni.redirectTo({
+		uni.navigateTo({
 			url: '/pages/userCenter/userCenter'
 		})
 	}
@@ -428,7 +431,7 @@
 		const params = {
 			code,
 			promptWords: promptWords || ' ',
-			fileUrl: undefined,
+			fileUrl: '',
 			clientId: clientUNIId.value
 		};
 		if (UserImagesMessages.length) {
@@ -485,9 +488,22 @@
 			const res = await getPaintingTask('logo_draw', UserMessages[0].content);
 		}
 	}
+	
+	const genResultImgByTemp = () => {
+		const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === imgUrl);
+		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
+		const promptText = UserMessages.length === 2 ? UserMessages[1].content : ''
+		getPaintingTask(findWorkFlow.code, promptText);
+	}
 
 	const onUserSelectImg = (evt, messageIndex) => {
-		const imgUrl = evt.detail.value;
+		const imgValue = JSON.parse(evt.detail.value);
+		if(imgValue.status !== 'done') {
+			return;
+		}
+		console.log('选择')
+		console.log(imgValue);
+		const imgUrl = imgValue.url;
 		if (!imgUrl) {
 			return;
 		}
@@ -507,10 +523,7 @@
 			})
 			addMockRobotReply(6);
 			
-			const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === imgUrl);
-			const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
-			const promptText = UserMessages.length === 2 ? UserMessages[1].content : ''
-			getPaintingTask(findWorkFlow.code, promptText);
+			genResultImgByTemp();
 		} else {
 			dataList.value.push({
 				type: 'right',
@@ -541,9 +554,12 @@
 	})
 
 	const goHistoryPage = () => {
-		uni.redirectTo({
+		uni.navigateTo({
 			url: '/pages/historyDesign/historyDesign'
 		})
+		// uni.redirectTo({
+		// 	url: '/pages/historyDesign/historyDesign'
+		// })
 	}
 	
 	// 重新生成
@@ -644,6 +660,11 @@
 		width: 100%;
 		border-radius: 40rpx 40rpx 0 0;
 		background: white;
+		
+		.history-btn {
+			color: $gray-color;
+			font-size: 26rpx;
+		}
 
 		.input-box {
 			padding: 40rpx 32rpx;

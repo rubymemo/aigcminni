@@ -66,6 +66,10 @@ button.big.data-v-492712a1 {
   border-radius: 40rpx 40rpx 0 0;
   background: white;
 }
+.footer .history-btn.data-v-492712a1 {
+  color: #6B748F;
+  font-size: 26rpx;
+}
 .footer .input-box.data-v-492712a1 {
   padding: 40rpx 32rpx;
   display: flex;

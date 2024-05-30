@@ -95,9 +95,12 @@
 	}
 	
 	const clickItem = (item) => {
-		uni.redirectTo({
+		uni.reLaunch({
 			url: `/pages/designCenter/designCenter?id=${item.id}`,
 		})
+		// uni.redirectTo({
+		// 	url: `/pages/designCenter/designCenter?id=${item.id}`,
+		// })
 	}
 </script>
 
@@ -109,6 +112,7 @@
 		height: 130rpx;
 		align-items: center;
 		border-top: solid 1px #EDF1F6;
+		padding: 0 16rpx;
 	}
 	.list-item {
 		display: flex;
