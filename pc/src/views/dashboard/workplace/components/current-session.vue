@@ -256,6 +256,9 @@ const handleChoseTemplateImg = (data: any, code: string) => {
 };
 
 const saveSession = async () => {
+  if (!couldCreateAndUpdate.value) {
+    return;
+  }
   let isFindTitle = false;
   const result = commitList.value.map((item, index) => {
     console.log(item, item.author);
@@ -333,8 +336,7 @@ const addCommit = (params: Partial<CommitItem>) => {
   //
   if (
     lastCommit.disabledSubmit ||
-    commitList.value.length === 1 ||
-    !couldCreateAndUpdate.value
+    commitList.value.length === 1
   ) {
     return;
   }

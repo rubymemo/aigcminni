@@ -226,6 +226,7 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
           status: 'done',
           precent: 100,
         }));
+        sessionListRef.value.saveSession();
       });
       wsInstance.value?.close();
       wsInstance.value = undefined;
