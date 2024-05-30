@@ -119,17 +119,22 @@ body {
   overflow: hidden;
 }
 
+/* 定义滚动条样式 */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
+  height: 5px;
 }
-::-webkit-scrollbar-thumb {
-  background-color: #30353a99;
+
+/*定义滚动条轨道 内阴影+圆角*/
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 0px rgba(240, 240, 240, 0.5);
   border-radius: 10px;
-  border-style: dashed;
-  border-color: transparent; // 滚动
-  border-width: 2px; // 往内压缩时注意 外部的宽高和这个宽高是否合适，否则有可能导致内压缩宽度不够显示不出来
-  background-clip: padding-box; // 背景将被限制在内容和边距之内,往内压缩
+  background-color: rgba(50, 50, 50, .1);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #30353a99; // 注意设置的不是background-color，二者有区别
+
+/*定义滑块 内阴影+圆角*/
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  box-shadow: inset 0 0 0px rgba(240, 240, 240, 0.5);
+  background-color: rgba(50, 50, 50, .3);
 }

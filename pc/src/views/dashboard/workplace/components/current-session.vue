@@ -109,7 +109,7 @@
                 <img :src="imgItem.url" alt="" />
               </div>
               <div v-else class="img-loading">
-                图片加载中{{ data.progress }}%
+                <p>图片加载中{{ data.progress }}%</p>
                 <GProgress :progress="data.progress" />
               </div>
             </div>

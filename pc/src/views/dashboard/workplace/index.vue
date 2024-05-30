@@ -511,7 +511,7 @@ onMounted(async () => {
 
       .session-log-el {
         flex: 1;
-        overflow: scroll;
+        overflow-y: scroll;
         margin-top: 16px;
 
         .box {
