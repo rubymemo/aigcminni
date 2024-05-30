@@ -120,6 +120,9 @@
               <template #radio v-if="chosenTemplateItem === imgItem.code">
                 <span class="iconfont icon-success checked-icon" />
               </template>
+              <template #radio v-else>
+                <span class="radio-no-checked" />
+              </template>
             </a-radio>
           </div>
         </a-radio-group>
