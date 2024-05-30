@@ -84,6 +84,9 @@
               <template #radio v-if="chosenLogoItem === imgItem">
                 <span class="iconfont icon-success checked-icon" />
               </template>
+              <template #radio v-else>
+                <span class="radio-no-checked" />
+              </template>
             </a-radio>
           </div>
         </a-radio-group>
@@ -558,8 +561,17 @@ defineExpose({
     margin-right: 0;
   }
 
+  .radio-no-checked {
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    border: 1px solid rgb(163, 180, 204);
+    background: rgb(255, 255, 255);
+    border-radius: 50%
+  }
   .checked-icon {
     color: rgb(37, 106, 247);
+    height: 16px;
   }
 
   :deep(.arco-radio) {
