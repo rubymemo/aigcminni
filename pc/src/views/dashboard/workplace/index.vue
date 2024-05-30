@@ -572,7 +572,7 @@ onMounted(async () => {
         padding-bottom: 20px;
 
         .session-inner-container {
-          width: 75%;
+          // width: 75%;
           max-width: 980px;
           min-width: 480px;
           margin: auto;
