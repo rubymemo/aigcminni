@@ -185,13 +185,14 @@ const handleClick = async (detailItem: any) => {
   }
 
   .log-detail-item-normal {
-    &:hover {
+    &:hover,&.active {
       background: linear-gradient(
         135deg,
         rgb(23, 242, 95),
         rgb(37, 106, 247) 100%
       );
     }
+     
   }
 
   .log-editting-item {
@@ -226,6 +227,22 @@ const handleClick = async (detailItem: any) => {
       display: flex;
       justify-content: flex-end;
       font-size: 16px;
+
+      .icon-check, .icon-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgb(163, 180, 204);
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        font-size: 15px;
+        border-radius: 4px;
+
+        &:hover {
+          background-color: rgba(163, 180, 204, 0.2);
+        }
+      }
 
       .disabled-icon-click {
         cursor: not-allowed;

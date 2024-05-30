@@ -12,6 +12,7 @@ body {
   background-color: var(--color-bg-1);
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
+
 }
 
 .echarts-tooltip-diy {
@@ -116,4 +117,19 @@ body {
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #30353a99;
+  border-radius: 10px;
+  border-style: dashed;
+  border-color: transparent; // 滚动
+  border-width: 2px; // 往内压缩时注意 外部的宽高和这个宽高是否合适，否则有可能导致内压缩宽度不够显示不出来
+  background-clip: padding-box; // 背景将被限制在内容和边距之内,往内压缩
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #30353a99; // 注意设置的不是background-color，二者有区别
 }

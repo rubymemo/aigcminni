@@ -398,6 +398,8 @@ onMounted(async () => {
     align-items: center;
     justify-content: center;
     .left-bar-content {
+      display: flex;
+      flex-direction: column;
       position: relative;
       z-index: 1;
       width: 366px;
@@ -509,7 +511,7 @@ onMounted(async () => {
 
       .session-log-el {
         flex: 1;
-        overflow: hidden;
+        overflow: scroll;
         margin-top: 16px;
 
         .box {
