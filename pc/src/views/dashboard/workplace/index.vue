@@ -489,6 +489,10 @@ onMounted(async () => {
           font-size: 12px;
           margin-right: 6px;
         }
+
+        &:hover {
+          opacity: 0.8;
+        }
       }
     }
 
