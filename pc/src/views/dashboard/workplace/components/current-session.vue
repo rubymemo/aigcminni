@@ -73,7 +73,7 @@
                 class="img-box"
                 @click="!disabled && handleChoseImg(data, imgItem)"
               >
-                <a-image :width="200" :src="data.imagesOptions[imgItem - 1].url" />
+                <a-image :width="200" :height="200" fit="scale-down" :src="data.imagesOptions[imgItem - 1].url" />
                 <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
@@ -110,7 +110,7 @@
                 class="img-box"
                 @click="!disabled && handleChoseTemplateImg(data, imgItem.code)"
               >
-                <a-image :width="200" :src="imgItem.url" />
+                <a-image :width="200" :height="200" fit="scale-down" :src="imgItem.url" />
                 <!-- <img :src="imgItem.url" alt="" /> -->
               </div>
               <div v-else class="img-loading">
@@ -138,7 +138,7 @@
                 class="img-box"
                 @click="handleChoseImg(data, imgItem)"
               >
-                <a-image :width="200" :src="data.imagesOptions[imgItem - 1].url" />
+                <a-image :width="200" :height="200" fit="scale-down" :src="data.imagesOptions[imgItem - 1].url" />
                 <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
               </div>
               <div v-else class="img-loading">

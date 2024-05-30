@@ -13,7 +13,7 @@
         </div>
         <div v-if="data.image" class="image-box">
           <!-- <img :src="data.image" alt="" /> -->
-          <a-image :width="200" :src="data.image" />
+          <a-image :width="200" :height="200" fit="scale-down" :src="data.image" />
         </div>
         <div v-if="props.slotName" class="custom-slot-box">
           <slot
