@@ -8,7 +8,7 @@
         v-for="(detailItem, index) in item.list"
         :key="index"
         class="log-detail-item-box"
-        :class="!detailItem.__editting && 'log-detail-item-normal'"
+        :class="detailItem.__editting ? 'log-detail-item-editting' : 'log-detail-item-normal'"
         @click="handleClick(detailItem)"
       >
         <div v-if="detailItem.__editting" class="log-editting-item">
@@ -195,8 +195,16 @@ const handleClick = async (detailItem: any) => {
      
   }
 
+  .log-detail-item-editting {
+    background: linear-gradient(
+        135deg,
+        rgb(23, 242, 95),
+        rgb(37, 106, 247) 100%
+      );
+  }
+
   .log-editting-item {
-    width: 306px;
+    width: 100%;
     height: 107px;
     border-radius: 12px;
     background: rgb(255, 255, 255);
