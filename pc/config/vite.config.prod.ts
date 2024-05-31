@@ -18,8 +18,8 @@ export default mergeConfig(
       rollupOptions: {
         output: {
           manualChunks: {
+            vue: ['vue', 'vue-router', 'pinia', '@vueuse/core'],
             arco: ['@arco-design/web-vue'],
-            vue: ['vue', 'vue-router', 'pinia', '@vueuse/core', 'vue-i18n'],
           },
         },
       },

@@ -117,7 +117,6 @@
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
-  import { useI18n } from 'vue-i18n';
   import { useStorage } from '@vueuse/core';
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/loading';
@@ -130,7 +129,6 @@
 
   const emit = defineEmits(['ok']);
   const router = useRouter();
-  const { t } = useI18n();
   const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
   const userStore = useUserStore();
@@ -217,7 +215,7 @@
         //   },
         // });
         emit('ok');
-        Message.normal(t('login.form.login.success'));
+        Message.normal('欢迎使用');
         switchVisible();
         // const { mobile, password } = values;
         // 实际生产环境需要进行加密存储。
