@@ -217,6 +217,7 @@ const emit = defineEmits([
   'refreshSessionHistory',
   'noImgeUpload',
   'regenerateLogo',
+  'beforeLastStep',
 ]);
 
 const disabledUpload = ref(false);
@@ -507,7 +508,9 @@ const refreshSession = async (id: any) => {
       return;
     }
 
-    console.log('dataListTemp', dataListTemp);
+    if (dataListTemp.length === 7) {
+      return;
+    }
 
     // 找到选定的logo
     const chosenLogostyle = dataListTemp[7].data.images[0];
@@ -524,7 +527,38 @@ const refreshSession = async (id: any) => {
       emit('enabledInput');
       return;
     }
-    commitList.value = dataListTemp;
+
+    let userWords = dataListTemp[9].data.content;
+    if (userWords === '没有品牌') {
+      userWords = '';
+    }
+console.log('dataListTemp[9]', dataListTemp[9]);
+
+    robotCommitStep.value = robotIndex;
+    // 保存用户选好的logo和用户最后输入的内容
+    emit('beforeLastStep', chosenLogostyle, userWords);
+
+    if (dataListTemp.length === 11) {
+      commitList.value = dataListTemp;
+      return;
+    }
+    // eslint-disable-next-line prefer-destructuring
+    const templateImageUrl = dataListTemp[11].data.images[0];
+    chosenTemplateItem.value = dataListTemp[10].data.imagesOptions.find(
+      (item: any) => item.url === templateImageUrl,
+    ).code;
+    // 最后一步生成失败
+    if (
+      dataListTemp.length === 12 ||
+      (dataListTemp.length === 13 &&
+        !dataListTemp[12].data.imagesOptions[0].url)
+    ) {
+      robotCommitStep.value = 6;
+      commitList.value = dataListTemp.slice(0, 12);
+      emit('lastStep', chosenTemplateItem.value);
+    } else {
+      commitList.value = dataListTemp;
+    }
     // commitList.value = dataListTemp;
     console.log('dataListTemp', dataListTemp);
 

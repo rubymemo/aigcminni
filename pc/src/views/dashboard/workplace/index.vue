@@ -61,6 +61,7 @@
               @refresh-session-history="refreshLogs"
               @no-imge-upload="handleImageUploaded"
               @regenerate-logo="handleRegenerateLogo"
+              @before-last-step="handleBeforeLastStep"
             />
           </div>
         </div>
@@ -299,6 +300,11 @@ const handleRegenerateLogo = (imgUrl: string, words: string) => {
   userWords.value = words;
   initWs(imgUrl, words);
 };
+
+const handleBeforeLastStep = (img: string, words: string) => {
+  imgUpName = img;
+  userWords.value = words;
+}
 
 const handleSendButtonClick = () => {
   sessionListRef.value.addCommit({
