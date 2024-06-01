@@ -184,9 +184,18 @@ let workCode = '';
 const initWs = (imageName = imgUpName, words = '', code = workCode) => {
   let promptId = '';
 
-  let dataRef;
-
   const uid = userInfo.userId;
+
+  const currentCommit = sessionListRef.value.getRobotCommit();
+  console.log('currentCommit', currentCommit);
+
+  const dataRef = ref(currentCommit.data);
+  dataRef.value.loading = true;
+  dataRef.value.progress = 0;
+  sessionListRef.value.addCommit({
+    ...currentCommit,
+    data: dataRef,
+  });
 
   wsInstance.value = new WebSocket(
     `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${uid}`,
@@ -201,16 +210,6 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
     }).then((res) => {
       console.log('promptPost', res);
       promptId = res.data.prompt_id;
-      const currentCommit = sessionListRef.value.getRobotCommit();
-      console.log('currentCommit', currentCommit);
-
-      dataRef = ref(currentCommit.data);
-      dataRef.value.loading = true;
-      dataRef.value.progress = 0;
-      sessionListRef.value.addCommit({
-        ...currentCommit,
-        data: dataRef,
-      });
     });
   };
   wsInstance.value.onmessage = (message: any) => {
@@ -304,7 +303,7 @@ const handleRegenerateLogo = (imgUrl: string, words: string) => {
 const handleBeforeLastStep = (img: string, words: string) => {
   imgUpName = img;
   userWords.value = words;
-}
+};
 
 const handleSendButtonClick = () => {
   sessionListRef.value.addCommit({
