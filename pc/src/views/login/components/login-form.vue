@@ -1,13 +1,15 @@
 <template>
+  <!-- :hideTitle="true" -->
   <a-modal
     :width="448"
     :visible="modalVisible"
-    :hideTitle="true"
+    class="login-form-modal"
     :footer="false"
     :modalStyle="{
       borderRadius: '12px',
     }"
   >
+  <template #title></template>
     <span class="close-icon" @click="switchVisible">
       <icon-close />
     </span>
@@ -242,6 +244,12 @@
 </script>
 
 <style lang="less" scoped>
+  :deep(.arco-modal-header) {
+    display: none !important;
+  }
+.login-form-modal {
+
+}
   .close-icon {
     width: 20px;
     height: 20px;
