@@ -578,10 +578,13 @@ defineExpose({
 
 <style scoped lang="less">
 :deep {
+  .arco-btn-secondary {
+    border: none !important;
+  }
   .arco-btn-secondary.arco-btn-disabled {
-    color: unset;
-    background-color: unset;
-    border: unset;
+    color: unset !important;
+    background-color: unset !important;
+    border: unset !important;
   }
 }
 .action-button {
