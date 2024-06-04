@@ -183,7 +183,9 @@ let imgUpName = '';
 let workCode = '';
 const initWs = (imageName = imgUpName, words = '', code = workCode) => {
   let promptId = '';
-
+  let nodeCount: number;
+  let currentStep = 0;
+  let stepLength = 0;
   const uid = userInfo.userId;
 
   const currentCommit = sessionListRef.value.getRobotCommit();
@@ -210,6 +212,8 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
     }).then((res) => {
       console.log('promptPost', res);
       promptId = res.data.prompt_id;
+      nodeCount = res.data.node_count;
+      stepLength = Number((95 / nodeCount).toFixed(2));
     });
   };
   wsInstance.value.onmessage = (message: any) => {
@@ -228,16 +232,24 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
       return;
     }
 
+    // 有缓存需要把步数减掉
+    if (messageInfo.type === 'execution_cached') {
+      const nodesCacheLength = messageInfo.data.nodes?.length ?? 0; 
+      nodeCount -= nodesCacheLength;
+      stepLength = Number((95 / nodeCount).toFixed(2));
+    }
+
     if (messageInfo.type === 'executing' && messageInfo.data.node) {
       // console.log('正在执行');
+      currentStep += 1;
+      dataRef.value.progress = Number((currentStep * stepLength).toFixed(0));
+      console.log('进度', currentStep);
+      
     }
     if (messageInfo.type === 'progress') {
-      const step = Number((95 / messageInfo.data.max).toFixed(2));
-
-      dataRef.value.progress = Number(
-        (messageInfo.data.value * step).toFixed(0),
-      );
-      console.log('正在生成图片', 'step', step);
+      currentStep += 1;
+      dataRef.value.progress = Number((currentStep * stepLength).toFixed(0));
+      console.log('进度', currentStep);
     }
     if (messageInfo.type === 'executing' && !messageInfo.data.node) {
       dataRef.value.progress = 100;
