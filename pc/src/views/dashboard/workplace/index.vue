@@ -199,9 +199,7 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
     data: dataRef,
   });
 
-  wsInstance.value = new WebSocket(
-    `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${uid}`,
-  );
+  wsInstance.value = new WebSocket(`wss://huatu.solart.pro/ws?clientId=${uid}`);
   wsInstance.value.onopen = () => {
     console.log('链接成功');
     sendMessageV2({
@@ -234,9 +232,8 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
 
     // 有缓存需要把步数减掉
     if (messageInfo.type === 'execution_cached') {
-      const nodesCacheLength = messageInfo.data.nodes?.length ?? 0; 
-      nodeCount -= nodesCacheLength;
-      stepLength = Number((95 / nodeCount).toFixed(2));
+      const nodesCacheLength = messageInfo.data.nodes?.length ?? 0;
+      currentStep += nodesCacheLength;
     }
 
     if (messageInfo.type === 'executing' && messageInfo.data.node) {
@@ -244,7 +241,6 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
       currentStep += 1;
       dataRef.value.progress = Number((currentStep * stepLength).toFixed(0));
       console.log('进度', currentStep);
-      
     }
     if (messageInfo.type === 'progress') {
       currentStep += 1;
