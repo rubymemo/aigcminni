@@ -3,6 +3,7 @@
   "navigationStyle": "custom",
   "backgroundColor": "#ffffff",
   "usingComponents": {
+    "g-loading": "../../components/g-loading/index",
     "uni-icons": "../../uni_modules/uni-icons/components/uni-icons/uni-icons"
   }
 }

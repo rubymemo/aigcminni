@@ -184,3 +184,15 @@ button.big.data-v-1cf27b2a {
   color: #A3B4CC;
   margin-top: 10px;
 }
+.loading-box.data-v-1cf27b2a {
+  padding-top: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 3;
+}
+.loading-box .text.data-v-1cf27b2a {
+  color: #6B748F;
+  font-size: 30rpx;
+  margin-top: 20rpx;
+}

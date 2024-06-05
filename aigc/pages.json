@@ -9,29 +9,11 @@
 		}
 	},
 	"pages": [
-	
-		{
-			"path": "pages/designCenter/designCenter",
-			"style": {
-				"navigationStyle": "custom",
-				"navigationBarTitleText": "设计",
-				"backgroundColor": "#ffffff",
-				"enablePullDownRefresh": false
-			}
-		},
 		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "登陆",
 				"navigationStyle": "custom",
-				"backgroundColor": "#ffffff"
-			}
-		},
-		{
-			"path": "pages/userAgreement/userAgreement",
-			"style": {
-				"navigationBarTitleText": "用户隐私协议",
-				"enablePullDownRefresh": false,
 				"backgroundColor": "#ffffff"
 			}
 		},
@@ -43,6 +25,24 @@
 				"enablePullDownRefresh": false
 			}
 		},
+		{
+			"path": "pages/designCenter/designCenter",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTitleText": "设计",
+				"backgroundColor": "#ffffff",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/userAgreement/userAgreement",
+			"style": {
+				"navigationBarTitleText": "用户隐私协议",
+				"enablePullDownRefresh": false,
+				"backgroundColor": "#ffffff"
+			}
+		},
+		
 		{
 			"path": "pages/editUserInfo/editUserInfo",
 			"style": {

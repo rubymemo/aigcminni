@@ -1,26 +1,10 @@
 <template>
-  <view class="com__box">
-    <!-- loading -->
-    <view class="loading">
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-      <view></view>
-    </view>
-
-  </view>
+     <view class="loading">
+        <view></view>
+        <view></view>
+        <view></view>
+        <view></view>
+      </view>
 </template>
 
 <style lang="scss" scoped>
@@ -33,8 +17,8 @@
 .loading {
   display: block;
   font-size: 0;
-  color: $main-green;
-  margin: 30px;
+  // color: #000;
+  color: rgb(37, 106, 247);
 }
 
 .loading.la-dark {
@@ -49,174 +33,92 @@
 }
 
 .loading {
-  width: 18px;
-  height: 18px;
+  width: 42px;
+  height: 32px;
 }
 
-.loading > view {
+.loading > view:nth-child(1) {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  bottom: 32%;
+  left: 18%;
+  width: 14px;
+  height: 14px;
+  border-radius: 100%;
+  transform-origin: center bottom;
+  animation: ball-climbing-dot-jump 0.6s ease-in-out infinite;
+}
+
+.loading > view:not(:nth-child(1)) {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 14px;
+  height: 2px;
   border-radius: 0;
-  opacity: 0;
-  transform: translate(100%, 100%);
-  animation: ball-8bits 1s 0s ease infinite;
+  transform: translate(60%, 0);
+  animation: ball-climbing-dot-steps 1.8s linear infinite;
 }
 
-.loading > view:nth-child(1) {
-  animation-delay: -0.9375s;
+.loading > view:not(:nth-child(1)):nth-child(2) {
+  animation-delay: 0ms;
 }
 
-.loading > view:nth-child(2) {
-  animation-delay: -0.875s;
+.loading > view:not(:nth-child(1)):nth-child(3) {
+  animation-delay: -600ms;
 }
 
-.loading > view:nth-child(3) {
-  animation-delay: -0.8125s;
+.loading > view:not(:nth-child(1)):nth-child(4) {
+  animation-delay: -1200ms;
 }
 
-.loading > view:nth-child(4) {
-  animation-delay: -0.75s;
-}
-
-.loading > view:nth-child(5) {
-  animation-delay: -0.6875s;
-}
-
-.loading > view:nth-child(6) {
-  animation-delay: -0.625s;
-}
-
-.loading > view:nth-child(7) {
-  animation-delay: -0.5625s;
-}
-
-.loading > view:nth-child(8) {
-  animation-delay: -0.5s;
-}
-
-.loading > view:nth-child(9) {
-  animation-delay: -0.4375s;
-}
-
-.loading > view:nth-child(10) {
-  animation-delay: -0.375s;
-}
-
-.loading > view:nth-child(11) {
-  animation-delay: -0.3125s;
-}
-
-.loading > view:nth-child(12) {
-  animation-delay: -0.25s;
-}
-
-.loading > view:nth-child(13) {
-  animation-delay: -0.1875s;
-}
-
-.loading > view:nth-child(14) {
-  animation-delay: -0.125s;
-}
-
-.loading > view:nth-child(15) {
-  animation-delay: -0.0625s;
-}
-
-.loading > view:nth-child(16) {
-  animation-delay: 0s;
-}
-
-.loading > view:nth-child(1) {
-  top: -100%;
-  left: 0;
-}
-
-.loading > view:nth-child(2) {
-  top: -100%;
-  left: 33.3333333333%;
-}
-
-.loading > view:nth-child(3) {
-  top: -66.6666666667%;
-  left: 66.6666666667%;
-}
-
-.loading > view:nth-child(4) {
-  top: -33.3333333333%;
-  left: 100%;
-}
-
-.loading > view:nth-child(5) {
-  top: 0;
-  left: 100%;
-}
-
-.loading > view:nth-child(6) {
-  top: 33.3333333333%;
-  left: 100%;
-}
-
-.loading > view:nth-child(7) {
-  top: 66.6666666667%;
-  left: 66.6666666667%;
-}
-
-.loading > view:nth-child(8) {
-  top: 100%;
-  left: 33.3333333333%;
-}
-
-.loading > view:nth-child(9) {
-  top: 100%;
-  left: 0;
-}
-
-.loading > view:nth-child(10) {
-  top: 100%;
-  left: -33.3333333333%;
-}
-
-.loading > view:nth-child(11) {
-  top: 66.6666666667%;
-  left: -66.6666666667%;
-}
-
-.loading > view:nth-child(12) {
-  top: 33.3333333333%;
-  left: -100%;
-}
-
-.loading > view:nth-child(13) {
-  top: 0;
-  left: -100%;
-}
-
-.loading > view:nth-child(14) {
-  top: -33.3333333333%;
-  left: -100%;
-}
-
-.loading > view:nth-child(15) {
-  top: -66.6666666667%;
-  left: -66.6666666667%;
-}
-
-.loading > view:nth-child(16) {
-  top: -100%;
-  left: -33.3333333333%;
-}
-
-@keyframes ball-8bits {
+@keyframes ball-climbing-dot-jump {
   0% {
-    opacity: 1;
+    transform: scale(1, 0.7);
+  }
+
+  20% {
+    transform: scale(0.7, 1.2);
+  }
+
+  40% {
+    transform: scale(1, 1);
+  }
+
+  50% {
+    bottom: 125%;
+  }
+
+  46% {
+    transform: scale(1, 1);
+  }
+
+  80% {
+    transform: scale(0.7, 1.2);
+  }
+
+  90% {
+    transform: scale(0.7, 1.2);
+  }
+
+  100% {
+    transform: scale(1, 0.7);
+  }
+}
+
+@keyframes ball-climbing-dot-steps {
+  0% {
+    top: 0;
+    right: 0;
+    opacity: 0;
   }
 
   50% {
     opacity: 1;
   }
 
-  51% {
+  100% {
+    top: 100%;
+    right: 100%;
     opacity: 0;
   }
 }

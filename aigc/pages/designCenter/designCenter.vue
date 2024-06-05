@@ -32,8 +32,8 @@
 												<view class="imageCover"
 													v-if="imageItem.status === 'loading' || imageItem.status === 'queue_remaining'">
 													<view>
-													{{imageItem.status === 'queue_remaining' ? '任务排队中，请稍等' : ''}}
-													{{imageItem.status === 'loading' ? `图片加载中${imageItem.precent}%` : ''}}
+														{{imageItem.status === 'queue_remaining' ? '任务排队中，请稍等' : ''}}
+														{{imageItem.status === 'loading' ? `图片加载中${imageItem.precent}%` : ''}}
 													</view>
 													<view class="progress-box" v-show="imageItem.status === 'loading'">
 														<g-progress :progress="imageItem.precent"></g-progress>
@@ -45,14 +45,10 @@
 												<view class="radio-box" :style="{
 													marginBottom: item.reload ? '0rpx' : '28rpx'
 												}">
-													<radio 
-														v-if="!item.reload" 
-														class="img-radio" 
-														:value="JSON.stringify(imageItem)" 
-														color="#256AF7"
+													<radio v-if="!item.reload" class="img-radio"
+														:value="JSON.stringify(imageItem)" color="#256AF7"
 														:disabled="index < dataList.length - 1 || imageItem.status !== 'done'"
-														:checked="item.activeImages.includes(imageItem.url)"
-													/>
+														:checked="item.activeImages.includes(imageItem.url)" />
 												</view>
 											</view>
 										</view>
@@ -93,7 +89,8 @@
 				<!-- <g-color-btn :height="56" :width="146" :active="true" @click="goHistoryPage">历史会话</g-color-btn> -->
 			</view>
 			<view class="input-box">
-				<input v-model.trim="inputValue" :disabled="!canSend" confirm-type="send" @confirm="onSendMessage(canSend && inputValue)"
+				<input v-model.trim="inputValue" :disabled="!canSend" confirm-type="send"
+					@confirm="onSendMessage(canSend && inputValue)"
 					:placeholder="canSend ? '输入对话后，可通过回车键发送指令' : '请先选择机器人提供的选项'" placeholder-style="color: #A3B4CC" />
 				<view :class="`send-btn ${(canSend && inputValue) ? '' : 'disabled'} `"
 					@click="onSendMessage(canSend && inputValue)">
@@ -108,7 +105,7 @@
 <script setup lang="ts">
 	import { ref, onBeforeUnmount, nextTick, onMounted, getCurrentInstance, reactive } from 'vue';
 	import { robotReply as defaultRobotReply, manualReply, findNextRobotId } from '@/common/mockData.ts';
-	import { httpsRequest, genImgURl, host  } from '@/common/utils';
+	import { httpsRequest, genImgURl, host } from '@/common/utils';
 	import { onLoad } from '@dcloudio/uni-app';
 
 	const res = uni.getSystemInfoSync();
@@ -127,13 +124,18 @@
 	const isGenLoading = ref(false);
 	const workflowList = ref([]); // 模版
 	const RobotReply = reactive({ ...defaultRobotReply });
-	
+
+	const precentState = reactive({ // 用户计算百分比
+		nodeCount: 22, // 生成时总共有几个节点,
+		numerator: 0, // 分子
+	})
+
 	const userInfo = ref({
 		avatar: '',
 		nickname: '',
 		username: '',
 	})
-	
+
 	// 会话id
 	const workId = ref<string | undefined>(undefined);
 	const dataList = ref([
@@ -155,16 +157,16 @@
 	// 将来可删掉
 	const timer = ref();
 	const instance = getCurrentInstance(); // 获取组件实例
-	
+
 	const getUserInfo = async () => {
 		const res = await httpsRequest('/cx/meByMobile', {}, 'GET');
 		uni.setStorageSync('userInfo', JSON.stringify(res));
 		return res;
 	}
-	
-	const getWorkDataById = async (id: string) => {
+
+	const getWorkDataById = async (id : string) => {
 		const res = await httpsRequest(`/hh/dialog/findItemHistory/${id}`, {}, 'GET');
-		if(res) {
+		if (res) {
 			const dataListTemp = res.items.map(item => {
 				return JSON.parse(item.whoSay);
 			})
@@ -172,15 +174,15 @@
 			// 根据数据做一些初始工作,先写死，后面再改
 			const lastMsg = dataListTemp[dataListTemp.length - 1];
 			console.log(lastMsg)
-			if(lastMsg.type === 'right' && dataListTemp.length === 6) {
+			if (lastMsg.type === 'right' && dataListTemp.length === 6) {
 				// 人说的，且是第一条
 				addMockRobotReply(3);
 				const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
 				getPaintingTask('logo_draw', UserMessages[0].content);
 			}
-			if(lastMsg.type === 'left' && dataListTemp.length >= 9) {
+			if (lastMsg.type === 'left' && dataListTemp.length >= 9) {
 				lastRobotMsg.value = true;
-				if(dataListTemp.length === 9) {
+				if (dataListTemp.length === 9) {
 					// 机器人说的:请输入您的品牌名称
 					canSend.value = true;
 				}
@@ -197,28 +199,28 @@
 			precent: 100
 		}))
 	}
-	
+
 	onLoad(async (params) => {
 		console.log('onLoad')
-		const localUserInfo: { avatar: string; userId : string} = await getUserInfo();
-		if(localUserInfo) {
+		const localUserInfo : { avatar : string; userId : string } = await getUserInfo();
+		if (localUserInfo) {
 			userInfo.value = localUserInfo;
 			clientUNIId.value = localUserInfo.userId;
 		}
-	
+
 		fetchWorkFlowList('logo_compose');
-		
-		if(params.id) {
+
+		if (params.id) {
 			// 详情
 			workId.value = params.id;
 			getWorkDataById(params.id)
 		}
 	})
 	// 上传数据
-	const putWorkData = async () => {		
+	const putWorkData = async () => {
 		let isFindTitle = false;
 		const result = dataList.value.map((item, index) => {
-			if(item.type === 'left') {
+			if (item.type === 'left') {
 				const params = {
 					whoId: 0,
 					whoName: 'robot',
@@ -226,14 +228,14 @@
 					clipType: '',
 					clipContent: ''
 				}
-				if(item.imagesOptions) {
+				if (item.imagesOptions) {
 					// 获取封面图
 					params.clipType = 'info';
 					params.clipContent = JSON.stringify({
 						imgUrl: item.imagesOptions[0].url
 					});
 				}
-				if(index === 0) {
+				if (index === 0) {
 					// 获取图片类型
 					params.clipType = 'info';
 					params.clipContent = JSON.stringify({
@@ -244,26 +246,26 @@
 			} else {
 				const params = {
 					whoId: userInfo.value.userId,
-					whoName: userInfo.value.nickname  || userInfo.value.username,
+					whoName: userInfo.value.nickname || userInfo.value.username,
 					whoSay: JSON.stringify(item),
 					clipType: '',
 					clipContent: ''
 				}
-				if(item.compute && !isFindTitle) {
+				if (item.compute && !isFindTitle) {
 					// 找到标题
-					isFindTitle = true; 
+					isFindTitle = true;
 					params.clipType = 'info',
-					params.clipContent = JSON.stringify({
-						title: item.content,
-						ownerId: userInfo.value.userId,
-					})
+						params.clipContent = JSON.stringify({
+							title: item.content,
+							ownerId: userInfo.value.userId,
+						})
 				}
 				return params
-			}	
+			}
 		})
 
 		const data = workId.value ? await httpsRequest(`/hh/dialog/replaceAllItemBy/${workId.value}`, result, 'POST') : await httpsRequest('/hh/dialog/addItemBy', result);
-		if(data) {
+		if (data) {
 			workId.value = data;
 		}
 	}
@@ -280,7 +282,7 @@
 			})
 			.exec();
 	}
-	onMounted(async() => {
+	onMounted(async () => {
 		// 获取用户信息
 		initScrollHeight()
 		// const sysTempRes = uni.getSystemInfoSync();
@@ -294,8 +296,8 @@
 
 	// 增加假机器人回复, 如果不是假机器人不用看这块代码
 	const addMockRobotReply = (robotId : number) => {
-		clearTimeout(timer.value);
-		timer.value = setTimeout(() => {
+		// clearTimeout(timer.value);
+		// timer.value = setTimeout(() => {
 			const robotReplyData = RobotReply[robotId];
 			dataList.value.push({
 				...robotReplyData.data,
@@ -308,12 +310,12 @@
 				canSend.value = true;
 			}
 			scrollToBottom();
-			
+
 			// 保存
-			if(workId.value && [4, 5].includes(robotId)) {
+			if (workId.value && [4, 5].includes(robotId)) {
 				putWorkData();
 			}
-		}, 500)
+		// }, 200)
 	}
 
 	// 点击机器人的提供的按钮
@@ -323,7 +325,7 @@
 			return;
 		}
 		dataList.value[messageIndex].activeBtns = [btnStr];
-		
+
 		// selectTags.value.push(btnStr);
 		const manualData = manualReply[btnStr];
 		if (manualData.opertionType === 'chooseMedia') {
@@ -363,7 +365,7 @@
 					});
 				}
 			});
-		
+
 		} else {
 			// 假装回复
 			dataList.value.push({
@@ -375,14 +377,9 @@
 	}
 
 	const fetchWebSocket = (promptData) => {
-		isGenLoading.value = true;
-		uni.connectSocket({
-			url: `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${clientUNIId.value}`
-			// url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
-		});
-
-		uni.onSocketOpen(function (res) {
+		uni.onSocketOpen(async function (res) {
 			console.log('WebSocket连接已打开！');
+			
 		});
 		uni.onSocketMessage(async function (res) {
 			console.log('收到服务器内容：');
@@ -391,9 +388,9 @@
 			if (msgData.type === 'executed' && Number(msgData.data.node) == 100) {
 				console.log('最终结果')
 				uni.closeSocket()
-				
+
 				const imagesRes = await httpsRequest(`/hh/comfyui_api_v2/historyByPromptId/${promptData.prompt_id}`, {}, 'GET');
-				if(!imagesRes) return;
+				if (!imagesRes) return;
 				const dataListTemp = JSON.parse(JSON.stringify(dataList.value))
 				dataListTemp[dataListTemp.length - 1].imagesOptions = imagesRes.map(imgItemSrc => {
 					return {
@@ -405,28 +402,40 @@
 				dataList.value = dataListTemp;
 				nextTick(() => {
 					isGenLoading.value = false;
-					
+
 					// 保存
 					putWorkData();
 				})
-			} else if (msgData.type === 'progress') {
-				// "data": {"'value": 8, "max": 8,
-				dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map(imgItem => {
-					return {
-						url: '',
-						status: 'loading',
-						precent: Number(msgData.data.value) / Number(msgData.data.max) === 1 ? 95 : (Number(msgData.data.value) / Number(msgData.data.max)).toFixed(2) * 100
-					}
-				})
+			} else if (msgData.type === 'progress' || msgData.type === 'executing') {
+				let precent = 0;
+				precentState.numerator = precentState.numerator + 1;
+				if (precentState.numerator === precentState.nodeCount) {
+					precent = 95;
+				} else {
+					precent = ((precentState.numerator / precentState.nodeCount).toFixed(2) * 100).toFixed(0) ;
+				}
+				if (dataList.value[dataList.value.length - 1].imagesOptions) {
+					dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions
+						.map(imgItem => {
+							return {
+								url: '',
+								status: 'loading',
+								precent: precent
+							}
+					})
+				}
+
+			} else if (msgData.type === 'execution_cached') {
+				precentState.nodeCount = precentState.nodeCount - (msgData.data.nodes || []).length;
 			}
-		});
+		})
 
 		uni.onSocketClose(function (res) {
 			console.log('WebSocket 已关闭！');
 		})
 	}
 
-	const getPaintingTask = async (code: string, promptWords: string) => {
+	const getPaintingTask = async (code : string, promptWords : string) => {
 		const UserImagesMessages = dataList.value.filter((item, index) => item.type === 'right' && item.refer === true);
 		const params = {
 			code,
@@ -437,12 +446,21 @@
 		if (UserImagesMessages.length) {
 			// 是否有用户参考图
 			const promptImageUrl = UserImagesMessages[UserImagesMessages.length - 1].images[0];
-			 params.fileUrl = promptImageUrl;
+			params.fileUrl = promptImageUrl;
 		}
-		console.log('promt传的参数')
-		console.log(params)
+		// 在这里，先打开ws
+		isGenLoading.value = true;
+		uni.connectSocket({
+			url: `wss://huatu.solart.pro/ws?clientId=${clientUNIId.value}`
+			// url: `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${clientUNIId.value}`
+			// url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
+		});
 		const promptRes = await httpsRequest('/hh/comfyui_api_v2/doPrompt', params);
-		fetchWebSocket(promptRes);
+		if (promptRes) {
+			precentState.numerator = 0;
+			precentState.nodeCount = promptRes.node_count;
+			fetchWebSocket(promptRes);
+		}
 	}
 
 
@@ -488,17 +506,17 @@
 			const res = await getPaintingTask('logo_draw', UserMessages[0].content);
 		}
 	}
-	
-	const genResultImgByTemp = () => {
+
+	const genResultImgByTemp = (imgUrl : string) => {
 		const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === imgUrl);
 		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
 		const promptText = UserMessages.length === 2 ? UserMessages[1].content : ''
 		getPaintingTask(findWorkFlow.code, promptText);
 	}
 
-	const onUserSelectImg = (evt, messageIndex) => {
+	const onUserSelectImg = async (evt, messageIndex) => {
 		const imgValue = JSON.parse(evt.detail.value);
-		if(imgValue.status !== 'done') {
+		if (imgValue.status !== 'done') {
 			return;
 		}
 		console.log('选择')
@@ -507,10 +525,10 @@
 		if (!imgUrl) {
 			return;
 		}
-		if(messageIndex !== dataList.value.length -1) {
+		if (messageIndex !== dataList.value.length - 1) {
 			return;
 		}
-		
+
 		dataList.value[messageIndex].activeImages = [imgUrl];
 
 		if (lastRobotMsg.value) {
@@ -522,8 +540,7 @@
 				// compute: true // 用于标识加入计算
 			})
 			addMockRobotReply(6);
-			
-			genResultImgByTemp();
+			genResultImgByTemp(imgUrl);
 		} else {
 			dataList.value.push({
 				type: 'right',
@@ -539,16 +556,16 @@
 
 	const previewImg = (url : string) => {
 		console.log(url);
-		uni.previewImage({ 
+		uni.previewImage({
 			urls: [url],
 		});
 	}
 
 	onBeforeUnmount(() => {
-		try{
+		try {
 			uni.closeSocket()
 			clearTimeout(timer.value);
-		}catch(e){
+		} catch (e) {
 			//TODO handle the exception
 		}
 	})
@@ -561,11 +578,11 @@
 		// 	url: '/pages/historyDesign/historyDesign'
 		// })
 	}
-	
+
 	// 重新生成
 	const reloadGen = () => {
 		// 后面会改
-		if(isGenLoading.value) {
+		if (isGenLoading.value) {
 			uni.showToast({
 				icon: 'none',
 				title: '任务正在生成，请稍等'
@@ -583,14 +600,14 @@
 		const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === workFlowUrl);
 		// getPaintingTask(findWorkFlow.code);
 	}
-	
+
 	// 新增会话
 	const addNewWork = async () => {
 		await putWorkData();
-		try{
+		try {
 			uni.closeSocket()
 			clearTimeout(timer.value);
-		}catch(e){
+		} catch (e) {
 			//TODO handle the exception
 		}
 		nextTick(() => {
@@ -649,7 +666,7 @@
 		// background-image: url('../../static/png/bg3.png');
 		// background-size: 100%;
 		// padding: 32rpx;
-		padding: 32rpx 32rpx 100rpx;
+		padding: 32rpx 32rpx 160rpx;
 		// overflow-y: scroll;
 	}
 
@@ -660,7 +677,7 @@
 		width: 100%;
 		border-radius: 40rpx 40rpx 0 0;
 		background: white;
-		
+
 		.history-btn {
 			color: $gray-color;
 			font-size: 26rpx;
@@ -711,18 +728,20 @@
 			width: 68rpx;
 			height: 68rpx;
 		}
-		
+
 		.robot-contact-info-root-box {
 			margin-left: 24rpx;
 			margin-bottom: 40rpx;
+
 			.reload {
 				color: $link-color;
 				font-size: 28rpx;
 				padding-top: 16rpx;
-				
+
 				&.loading {
 					color: $gray-color;
 				}
+
 				.iconfont {
 					display: inline-block;
 					font-size: 24rpx;
@@ -730,8 +749,9 @@
 				}
 			}
 		}
+
 		.robot-contact-info-box {
-			
+
 			width: 500rpx;
 			background: white;
 			border-radius: 24rpx;
@@ -785,7 +805,7 @@
 			justify-content: space-between;
 			margin-bottom: -28rpx;
 
-			
+
 			.image-option-box {
 				display: inline-flex;
 				flex-direction: column;
@@ -806,6 +826,7 @@
 					flex-direction: column;
 					justify-content: center;
 					align-items: center;
+
 					.progress-box {
 						width: 186rpx;
 						margin-top: 16rpx;
@@ -828,32 +849,34 @@
 			.img-radio {
 
 				transform: scale(0.6);
-				
+
 				&::v-deep {
 					.wx-radio-input.wx-radio-input-disabled {
-					  // border : none;
-					  border-radius: 100%;
-					  background : white;
-					  color: #fff;
+						// border : none;
+						border-radius: 100%;
+						background: white;
+						color: #fff;
 					}
+
 					.wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked {
 						border: none;
 						border-radius: 100%;
 						color: red;
-						background : #256AF7;
+						background: #256AF7;
 					}
+
 					.wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked::before {
-					  border-radius : 50%;
-					  width : 20px;
-					  height : 20px;
-					  line-height : 20px;
-					  text-align : center;
-					  font-size : 15px;
-					  color : #fff;
-					  background : transparent;
-					  transform : translate(-50%, -50%) scale(1);
-					  -webkit-transform: translate(-50%, -50%) scale(1);
-					  }
+						border-radius: 50%;
+						width: 20px;
+						height: 20px;
+						line-height: 20px;
+						text-align: center;
+						font-size: 15px;
+						color: #fff;
+						background: transparent;
+						transform: translate(-50%, -50%) scale(1);
+						-webkit-transform: translate(-50%, -50%) scale(1);
+					}
 				}
 			}
 		}

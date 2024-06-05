@@ -1,9 +1,9 @@
 "use strict";
-const _imports_0$2 = "/static/png/robot.png";
-const _imports_1$1 = "/static/svg/icon-send.svg";
-const _imports_0$1 = "/static/svg/logo.svg";
-const _imports_1 = "/static/png/bg.png";
-const _imports_0 = "/static/png/bg2.png";
+const _imports_0$2 = "/static/svg/logo.svg";
+const _imports_1$1 = "/static/png/bg.png";
+const _imports_0$1 = "/static/png/bg2.png";
+const _imports_0 = "/static/png/robot.png";
+const _imports_1 = "/static/svg/icon-send.svg";
 exports._imports_0 = _imports_0$2;
 exports._imports_0$1 = _imports_0$1;
 exports._imports_0$2 = _imports_0;

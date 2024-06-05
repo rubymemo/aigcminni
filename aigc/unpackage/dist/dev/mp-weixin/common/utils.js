@@ -1,6 +1,6 @@
 "use strict";
 const common_vendor = require("./vendor.js");
-const host = "http://101.126.93.249/api";
+const host = "https://huatu.solart.pro/api";
 const httpsRequestResult = (httpRes, noshowerr) => {
   if (httpRes.statusCode === 200) {
     const data = httpRes.data;

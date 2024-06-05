@@ -16,7 +16,7 @@
 					v-model="searchValues.time"
 					:height="66" 
 					:width="212" 
-					:options="[{label: '昨天', value: '1'}, {label: '近7天', value: '7'}, { label: '近一个月', value: '30'}]" 
+					:options="[{label: '昨天起', value: '1'}, {label: '近7天', value: '7'}, { label: '近一个月', value: '30'}]" 
 					@change="selectOptions"
 					placeholder="时间">
 				</g-select>

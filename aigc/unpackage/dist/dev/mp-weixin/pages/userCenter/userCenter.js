@@ -113,7 +113,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         p: common_vendor.o(($event) => goPage("/pages/userAgreement/userAgreement")),
         q: common_vendor.o(logout),
         r: common_vendor.s(innerContentStyle.value),
-        s: common_assets._imports_0$2
+        s: common_assets._imports_0$1
       };
     };
   }

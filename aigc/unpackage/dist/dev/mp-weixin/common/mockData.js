@@ -27,7 +27,7 @@ const robotReply = {
       titleStyle: {
         color: "#256AF7"
       },
-      content: "根据您提供的信息，以下是我针对图片的设计；点击图片可查看大图点击下方选择框选定图形，进入最终效果图生成。",
+      content: "根据您提供的信息，以下是我针对图片的设计；点击图片可查看大图，点击下方选择框选定图形，进入最终效果图生成。",
       imagesOptions: [
         // queue_remaining-任务排队中 loading - 生成中
         { url: "", status: "queue_remaining", precent: 0 },

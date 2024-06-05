@@ -92,7 +92,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           height: 66,
           width: 212,
           options: [{
-            label: "昨天",
+            label: "昨天起",
             value: "1"
           }, {
             label: "近7天",

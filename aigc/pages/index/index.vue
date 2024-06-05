@@ -1,6 +1,10 @@
 <template>
 	<view class="container">
-		<view class="inner-content" :style="innerContentStyle">
+		<view v-if="firstLoading" class="loading-box">
+			<g-loading></g-loading>
+			<text class="text">载入中，请稍等...</text>
+		</view>
+		<view v-else-if="!firstLoading && !hasUser" class="inner-content" :style="innerContentStyle">
 			<view class="tit">登录</view>
 			<view class="login-form-box">
 
@@ -48,17 +52,19 @@
 				</view> -->
 
 				<view class="button-box">
-					<button class="primary big" @click="handleClick">一键登录</button>
+					<button v-if="!isRead" class="primary big" @click="handleClick">一键登录</button>
+					<button v-else class="primary big" open-type="getPhoneNumber"
+						@getphonenumber="decryptPhoneNumber">一键登录</button>
 				</view>
 
-				<view class="rule" @click="switchIsRead">
+				<view class="rule">
 					<view class="circle" @click="handleSwitchRead" :style="{
 							border: isRead ? 'none' : 'solid 1px $border-gray-color'
 						}">
 						<uni-icons v-show="isRead" class="rule-checked" type="checkbox-filled" color="#256AF7"
 							:size="18"></uni-icons>
 					</view>
-					已阅读并同意 <text class="link" @click="goUserAgreement">用户协议、隐私政策</text> 并授权使用账号信息
+					<text @click="handleSwitchRead" >已阅读并同意</text> <text class="link" @click="goUserAgreement">用户协议、隐私政策</text> <text @click="handleSwitchRead" >并授权使用账号信息</text>
 				</view>
 
 
@@ -83,6 +89,7 @@
 <script lang="ts" setup>
 	import { ref, onMounted } from 'vue';
 	import { onReady } from '@dcloudio/uni-app';
+	import { httpsRequest } from '@/common/utils';
 	// import { useIntervalFn } from '@vueuse/core';
 
 	const res = uni.getSystemInfoSync();
@@ -97,8 +104,44 @@
 
 	const timer = ref(0); // 倒计时
 	const isRead = ref(false);
+	const openId = ref('');
+	const phoneNumber = ref('');
+	const hasUser = ref(false);
+	const firstLoading = ref(true);
 
-	onReady(() => {
+	const getUserInfo = async () => {
+		const res = await httpsRequest('/cx/meByMobile', {}, 'GET');
+		uni.setStorageSync('userInfo', JSON.stringify(res));
+		return res;
+	}
+
+	const judgeHasCurUser = async (phone?: string) => {
+		const loginRes = await uni.login({});
+		const code = loginRes.code;
+		console.log(code)
+		const data = await httpsRequest('/cx/doLoginByWx', {
+			wxCode: code,
+			phone
+		}, 'POST', true, true);
+		if (data) {
+			hasUser.value = true;
+			// 用户存在或者注册，再获取一遍token。
+			uni.setStorageSync('token', data);
+			await getUserInfo();
+			uni.redirectTo({
+				url: '/pages/designCenter/designCenter',
+			})
+		} else {
+			console.log('用户不存在')
+			// 用户不存在
+			hasUser.value = false;
+			firstLoading.value = false;
+		}
+
+	}
+
+	onReady(async () => {
+		judgeHasCurUser();
 	})
 
 	const validateMobile = () => {
@@ -123,8 +166,14 @@
 		}
 	}
 
-	const switchIsRead = () => {
-		isRead.value = !isRead.value;
+	const decryptPhoneNumber = async (e) => {
+		const code = e.detail.code;
+
+		const data = await httpsRequest(`/wx/userPhone/${code}`, {}, 'GET', true);
+		if (data) {
+			phoneNumber.value = data.phoneNumber;
+			judgeHasCurUser(data.phoneNumber);
+		}
 	}
 
 	const handleClick = () => {
@@ -143,7 +192,6 @@
 				title: '请先勾选已阅读用户协议'
 			})
 		}
-
 	}
 
 	const handleSwitchRead = () => {
@@ -370,5 +418,19 @@
 		justify-content: flex-end;
 		color: $border-gray-color;
 		margin-top: 10px;
+	}
+
+	.loading-box {
+		padding-top: 50vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		z-index: 3;
+
+		.text {
+			color: #6B748F;
+			font-size: 30rpx;
+			margin-top: 20rpx;
+		}
 	}
 </style>
