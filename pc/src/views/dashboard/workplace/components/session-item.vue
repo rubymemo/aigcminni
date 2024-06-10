@@ -28,15 +28,14 @@
           />
         </div>
       </div>
-
-      <!-- <div
-        v-if="props.author === 'robot' && props.isLastStep"
+      <div
+        v-if="data.couldReload && !props.disabled"
         class="reload-button"
         @click="handleReload"
       >
         <img :src="Reload" alt="" />
         重新生成
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -294,6 +293,9 @@ const handleReload = () => {
 
     display: flex;
     align-items: center;
+
+    cursor: pointer;
+
     img {
       width: 14px;
       height: 12px;

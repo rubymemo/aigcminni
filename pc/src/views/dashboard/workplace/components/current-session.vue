@@ -5,7 +5,6 @@
       v-bind="item"
       :key="item.id"
       :disabled="actionDisabled(index)"
-      :isLastStep="lastStep && index === commitList.length - 1"
       @reload="handleReload"
     >
       <template #sessionStart="{ data }">
@@ -173,28 +172,19 @@ import {
   createNewSession,
   getSessionCommit,
   updateSession,
-  uploadImage,
   uploadImageV2,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
 import { onMounted, ref, watch } from 'vue';
 import { v4 } from 'uuid';
-import { robotReply } from '../mock';
-import { onBeforeRouteUpdate, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
 import GProgress from './g-progress.vue';
 import { cloneDeep } from 'lodash';
+import { LogoRobotReply, PosterRobotReply, firstRobotReply } from '../mock';
 
 interface CommitItem extends SessionItemProps {
   id: string;
-  loading?: boolean;
-  // 兼容小程序的逻辑，保存会话内容时用到
-  compute?: boolean;
-  // 添加这条消息的时候先不提交，防止提交过于频繁
-  disabledSubmit?: boolean;
-}
-
-interface AddCommitType extends Partial<SessionItemProps> {
   loading?: boolean;
   // 兼容小程序的逻辑，保存会话内容时用到
   compute?: boolean;
@@ -232,6 +222,9 @@ const sessionId = ref<number | string>(route.query.sessionId as string);
 const userInfo = useUserStore();
 const robotCommitStep = ref(0);
 const couldCreateAndUpdate = ref(false);
+
+const robotReplyRef = ref(LogoRobotReply);
+
 watch(
   () => commitList.value.length,
   () => {
@@ -256,7 +249,7 @@ const handleChoseImg = (data: any, index: any) => {
   handleChooseTemplate(url);
 };
 
-const handleChoseTemplateImg = (data: any, code: string) => {
+const handleChoseTemplateImg = (data: any, code: any) => {
   console.log(data, code);
   chosenTemplateItem.value = code;
   const { url } = data.imagesOptions.find((item: any) => item.code === code);
@@ -339,7 +332,7 @@ const saveSession = async () => {
 };
 
 const getRobotCommit = () => {
-  const c = robotReply[robotCommitStep.value];
+  const c = robotReplyRef.value[robotCommitStep.value];
   robotCommitStep.value += 1;
   return cloneDeep(c);
 };
@@ -352,6 +345,9 @@ const addCommit = (params: Partial<CommitItem>) => {
     author,
     id: v4(),
   });
+  if (params.data?.enableInput) {
+    emit('enabledInput');
+  }
   const lastCommit = commitList.value[commitList.value.length - 1];
   //
   if (lastCommit.disabledSubmit || commitList.value.length === 1) {
@@ -360,7 +356,7 @@ const addCommit = (params: Partial<CommitItem>) => {
   saveSession();
 };
 
-addCommit(getRobotCommit());
+addCommit(firstRobotReply);
 
 const actionDisabled = (index: number) => {
   return index < commitList.value.length - 1;
@@ -372,6 +368,8 @@ const handleReload = () => {
 
 const handleCreateLogo = (type: string, data: any) => {
   data.activeBtns = [type];
+  robotReplyRef.value =
+    type === firstRobotReply.data!.btns[0] ? LogoRobotReply : PosterRobotReply;
   addCommit({
     author: 'user',
     data: {
@@ -473,12 +471,12 @@ const refreshSession = async (id: any) => {
   const res = await getSessionCommit(id);
   if (res) {
     let robotIndex = 0;
-    const dataListTemp = res.data.items.map((item) => {
+    const dataListTemp = res.data.items.map((item: any) => {
       const data = JSON.parse(item.whoSay);
       const result: any = { data };
       if (data.type === 'left') {
         result.author = 'robot';
-        result.slotName = robotReply[robotIndex].slotName;
+        result.slotName = robotReplyRef.value[robotIndex].slotName;
         robotIndex += 1;
       } else {
         result.author = 'user';
@@ -532,7 +530,7 @@ const refreshSession = async (id: any) => {
     if (userWords === '没有品牌') {
       userWords = '';
     }
-console.log('dataListTemp[9]', dataListTemp[9]);
+    console.log('dataListTemp[9]', dataListTemp[9]);
 
     robotCommitStep.value = robotIndex;
     // 保存用户选好的logo和用户最后输入的内容
