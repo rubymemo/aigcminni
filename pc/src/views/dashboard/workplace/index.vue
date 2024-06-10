@@ -30,22 +30,7 @@
       <div class="left-bar-bg"></div>
     </div>
     <div class="right-container">
-      <div class="top-bar">
-        <div></div>
-        <div class="user-info">
-          <CommonAvatar role="user" :size="36" />
-          <a-dropdown trigger="hover">
-            <div class="user-name"
-              >{{ userInfo.nickname }}
-              <!-- <icon-caret-down /> -->
-              <span class="iconfont icon-down"></span>
-            </div>
-            <template #content>
-              <a-doption @click="logoutAction">退出登录</a-doption>
-            </template>
-          </a-dropdown>
-        </div>
-      </div>
+      <TopBar />
       <div class="detail-container">
         <div ref="sessionBox" class="session-container">
           <div class="session-inner-container">
@@ -106,13 +91,12 @@ import {
   getWorkFlow,
   sendMessageV2,
 } from '@/api/dashboard';
-import { v4 } from 'uuid';
 import { useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
-import CommonAvatar from '@/components/common-avatar.vue';
 import { getUserInfo, logout } from '@/api/user';
 import { reactive } from 'vue';
+import TopBar from './components/top-bar.vue';
 
 const inputText = ref('');
 const inputDisabled = ref(true);
@@ -606,42 +590,6 @@ onMounted(async () => {
     display: flex;
     overflow: hidden;
     flex-direction: column;
-
-    .top-bar {
-      height: 64px;
-      width: 100%;
-      border-radius: 12px;
-      background: rgb(255, 255, 255);
-      opacity: 0.7;
-
-      display: flex;
-      align-items: center;
-      justify-content: end;
-      padding-right: 24px;
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        .user-name {
-          margin-left: 8px;
-          color: rgb(52, 65, 86);
-          font-family: PingFang SC;
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 22px;
-          letter-spacing: 0px;
-          text-align: left;
-          display: flex;
-          align-items: center;
-          .iconfont.icon-down {
-            font-size: 5px;
-            color: #666666;
-            margin-left: 8px;
-          }
-        }
-      }
-    }
 
     .detail-container {
       flex: 1;
