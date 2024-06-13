@@ -94,10 +94,6 @@ body {
   }
 }
 
-.arco-modal-header {
-  display: none !important;
-}
-
 .arco-btn.arco-btn-primary {
   border: none !important;
   height: 40px;
@@ -121,6 +117,17 @@ body {
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
+}
+
+.arco-trigger-popup {
+  border-radius: 4px;
+  
+  .arco-tooltip-content {
+    border-radius: 4px;
+    padding: 8px 16px;
+    backdrop-filter: blur(18px);
+    background: rgba(4, 8, 13, 0.8);
+  }
 }
 
 // /* 定义滚动条样式 */

@@ -3,7 +3,7 @@
     <div class="avatar-area">
       <CommonAvatar :role="props.author" />
     </div>
-    <div :class="props.author === 'robot' ? 'robot-commit' : 'user-commit'">
+    <div v-if="props.author === 'robot'" class="robot-commit">
       <div class="commit-content">
         <h5 v-if="data.title" :style="data.titleStyle" class="commit-title">{{
           data.title
@@ -37,13 +37,56 @@
         重新生成
       </div>
     </div>
+    <div v-if="props.author === 'user'" class="user-commit">
+      <div class="commit-content">
+        <h5 v-if="data.title" :style="data.titleStyle" class="commit-title">{{
+          data.title
+        }}</h5>
+        <div v-if="data.content" class="commit-content-text">
+          {{ data.content }}
+        </div>
+        <div v-if="data.images && data.images.length" class="image-box">
+          <!-- <img :src="data.image" alt="" /> -->
+          <a-image
+            :width="200"
+            :height="200"
+            fit="scale-down"
+            :src="data.images[0]"
+          />
+        </div>
+        <div v-if="props.slotName" class="custom-slot-box">
+          <slot
+            :name="props.slotName"
+            :data="props.data"
+            :disabled="props.disabled"
+          />
+        </div>
+      </div>
+      <div class="user-action">
+        <a-tooltip
+          v-for="(item, index) in userActionList"
+          :key="index"
+          :content="item.tooltip"
+        >
+          <div class="user-action-icon-item" @click.stop="item.action">
+            <component :is="item.icon" />
+          </div>
+        </a-tooltip>
+      </div>
+      <ChooseFontModal
+        v-model:visible="userMessageState.chooseFontModalVisible"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import CommonAvatar from '@/components/common-avatar.vue';
-import { ref, toRefs } from 'vue';
+import { reactive, ref, toRefs } from 'vue';
 import Reload from '@/assets/images/reload.png';
+import { IconCopy } from '@arco-design/web-vue/es/icon';
+import { Message } from '@arco-design/web-vue';
+import ChooseFontModal from './choose-font-modal.vue';
 
 interface DataItem {
   title?: string;
@@ -71,6 +114,39 @@ const props = defineProps<SessionItemProps>();
 const { data } = toRefs(props);
 
 const emit = defineEmits(['reload']);
+
+const userMessageState = reactive({
+  chooseFontModalVisible: false,
+  editContentModalVisible: false,
+});
+
+const copyText = () => {
+  navigator.clipboard.writeText(props.data.content || '').then(() => {
+    Message.success('复制成功');
+  });
+};
+
+const userActionList = [
+  {
+    tooltip: '复制全文',
+    icon: IconCopy,
+    action: copyText,
+  },
+  {
+    tooltip: '编辑文字',
+    icon: IconCopy,
+    action: () => {
+      userMessageState.editContentModalVisible = true;
+    },
+  },
+  {
+    tooltip: '字体选择',
+    icon: IconCopy,
+    action: () => {
+      userMessageState.chooseFontModalVisible = true;
+    },
+  },
+];
 
 const handleReload = () => {
   if (data.value.loading) {
@@ -149,9 +225,10 @@ const handleReload = () => {
   .user-commit {
     flex: 1;
     margin-left: 16px;
+    display: flex;
+    padding-top: 9px;
 
     .commit-content {
-      padding-top: 9px;
       color: rgb(52, 65, 86);
       font-family: PingFang SC;
       font-size: 14px;
@@ -159,6 +236,30 @@ const handleReload = () => {
       line-height: 22px;
       letter-spacing: 0px;
       text-align: left;
+
+      flex: 1;
+    }
+
+    .user-action {
+      height: 22px;
+      display: flex;
+      align-items: center;
+
+      .user-action-icon-item {
+        padding: 3px;
+        font-size: 16.5px;
+        cursor: pointer;
+        margin-right: 11px;
+        border-radius: 4px;
+        overflow: hidden;
+        &:hover {
+          background: rgba(163, 180, 204, 0.2);
+        }
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
     }
   }
 

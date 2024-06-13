@@ -9,13 +9,18 @@
       borderRadius: '12px',
     }"
   >
-  <template #title></template>
+    <template #title></template>
     <span class="close-icon" @click="switchVisible">
       <icon-close />
     </span>
     <div class="login-form-wrapper">
       <div class="robot-image-box">
-        <img width="66px" height="66px" class="carousel-image" :src="robotImage" />
+        <img
+          width="66px"
+          height="66px"
+          class="carousel-image"
+          :src="robotImage"
+        />
       </div>
       <a-form
         ref="loginForm"
@@ -83,7 +88,9 @@
                   :hoverable="false"
                   >获取验证码</a-link
                 >
-                <span v-show="timer > 0" style="color: #A3B4CC">重新发送{{ timer }}s</span>
+                <span v-show="timer > 0" style="color: #a3b4cc"
+                  >重新发送{{ timer }}s</span
+                >
               </div>
             </template>
           </GInput>
@@ -115,257 +122,260 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, onMounted, defineExpose, defineEmits } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
-  import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
-  import { useStorage } from '@vueuse/core';
-  import { useUserStore } from '@/store';
-  import useLoading from '@/hooks/loading';
-  import type { LoginData } from '@/api/user';
-  import robotImage from '@/assets/images/robot.png';
-  import { isLogin } from '@/utils/auth';
-  import GInput from '@/components/Input/index.vue';
-  import { useIntervalFn } from '@vueuse/core';
-  import { getSendVerifyCode } from '@/api/user';
+import { ref, reactive, onMounted, defineExpose, defineEmits } from 'vue';
+import { useRouter } from 'vue-router';
+import { Message } from '@arco-design/web-vue';
+import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
+import { useStorage } from '@vueuse/core';
+import { useUserStore } from '@/store';
+import useLoading from '@/hooks/loading';
+import type { LoginData } from '@/api/user';
+import robotImage from '@/assets/images/robot.png';
+import { isLogin } from '@/utils/auth';
+import GInput from '@/components/Input/index.vue';
+import { useIntervalFn } from '@vueuse/core';
+import { getSendVerifyCode } from '@/api/user';
 
-  const emit = defineEmits(['ok']);
-  const router = useRouter();
-  const errorMessage = ref('');
-  const { loading, setLoading } = useLoading();
-  const userStore = useUserStore();
-  const modalVisible = ref(false);
-  const isChecked = ref(false);
-  const isRead = ref(false);
-  const loginForm = ref();
-  const timer = ref(0); // 倒计时
+const emit = defineEmits(['ok']);
+const router = useRouter();
+const errorMessage = ref('');
+const { loading, setLoading } = useLoading();
+const userStore = useUserStore();
+const modalVisible = ref(false);
+const isChecked = ref(false);
+const isRead = ref(false);
+const loginForm = ref();
+const timer = ref(0); // 倒计时
 
-  const loginConfig = useStorage('login-config', {
-    mobile: '', // 演示默认值
-    // code: '', // demo default value
-  });
-  const userInfo = reactive({
-    mobile: '',
-    code: '',
-  });
+const loginConfig = useStorage('login-config', {
+  mobile: '', // 演示默认值
+  // code: '', // demo default value
+});
+const userInfo = reactive({
+  mobile: '',
+  code: '',
+});
 
-  onMounted(() => {
-    if (!isLogin()) {
-      console.log('未登录');
-      modalVisible.value = true;
+onMounted(() => {
+  if (!isLogin()) {
+    console.log('未登录');
+    modalVisible.value = true;
+  }
+});
+
+const { pause, resume } = useIntervalFn(
+  () => {
+    if (timer.value <= 0) {
+      // 停止定时任务
+      pause();
+    } else {
+      // 单次定时任务执行的回调
+      timer.value -= 1;
     }
-  });
+  },
+  1000,
+  {
+    // 默认不开启定时任务
+    immediate: false,
+  },
+);
 
-  const { pause, resume } = useIntervalFn(
-    () => {
-      if (timer.value <= 0) {
-        // 停止定时任务
-        pause();
-      } else {
-        // 单次定时任务执行的回调
-        timer.value -= 1;
-      }
-    },
-    1000,
-    {
-      // 默认不开启定时任务
-      immediate: false,
+const queryCode = async () => {
+  const err = await loginForm.value.validateField(['mobile']);
+  if (!err) {
+    if (timer.value === 0) {
+      timer.value = 60;
+      resume();
+      // 这里写向后台发送请求的代码
+      getSendVerifyCode(userInfo.mobile);
     }
-  );
+  }
+};
+const switchVisible = () => {
+  modalVisible.value = !modalVisible.value;
+  loginForm.value.clearValidate();
+};
 
-  const queryCode = async () => {
-    const err = await loginForm.value.validateField(['mobile']);
-    if (!err) {
-      if (timer.value === 0) {
-        timer.value = 60;
-        resume();
-        // 这里写向后台发送请求的代码
-        getSendVerifyCode(userInfo.mobile)
-      }
+const handleSubmit = async ({
+  errors,
+  values,
+}: {
+  errors: Record<string, ValidatedError> | undefined;
+  values: Record<string, any>;
+}) => {
+  console.log('提交');
+  if (loading.value) return;
+  if (!errors && isRead.value === false) {
+    Message.normal({
+      content: '请选勾选下方协议',
+    });
+    return;
+  }
+  if (!errors) {
+    setLoading(true);
+    try {
+      await userStore.login(values as LoginData);
+      await userStore.info();
+      // const { redirect, ...othersQuery } = router.currentRoute.value.query;
+      // router.push({
+      //   name: (redirect as string) || 'Workplace',
+      //   query: {
+      //     ...othersQuery,
+      //   },
+      // });
+      emit('ok');
+      Message.normal('欢迎使用');
+      switchVisible();
+      // const { mobile, password } = values;
+      // 实际生产环境需要进行加密存储。
+      // The actual production environment requires encrypted storage.
+      loginConfig.value.mobile = values.mobile;
+      // loginConfig.value.password = password;
+    } catch (err) {
+      errorMessage.value = (err as Error).message;
+    } finally {
+      setLoading(false);
     }
-  };
-  const switchVisible = () => {
-    modalVisible.value = !modalVisible.value;
-    loginForm.value.clearValidate();
-  };
+  }
+};
 
-  const handleSubmit = async ({
-    errors,
-    values,
-  }: {
-    errors: Record<string, ValidatedError> | undefined;
-    values: Record<string, any>;
-  }) => {
-    console.log('提交');
-    if (loading.value) return;
-    if(!errors &&isRead.value === false) {
-        Message.normal({
-          content: '请选勾选下方协议',
-        })
-        return;
-    }
-    if (!errors) {
-      setLoading(true);
-      try {
-        await userStore.login(values as LoginData);
-        await userStore.info();
-        // const { redirect, ...othersQuery } = router.currentRoute.value.query;
-        // router.push({
-        //   name: (redirect as string) || 'Workplace',
-        //   query: {
-        //     ...othersQuery,
-        //   },
-        // });
-        emit('ok');
-        Message.normal('欢迎使用');
-        switchVisible();
-        // const { mobile, password } = values;
-        // 实际生产环境需要进行加密存储。
-        // The actual production environment requires encrypted storage.
-        loginConfig.value.mobile = values.mobile;
-        // loginConfig.value.password = password;
+// 阅读
+const handleRead = () => {
+  isRead.value = !isRead.value;
+};
 
-      } catch (err) {
-        errorMessage.value = (err as Error).message;
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  // 阅读
-  const handleRead = () => {
-    isRead.value = !isRead.value;
-  };
-
-  defineExpose({
-    switchVisible,
-  });
+defineExpose({
+  switchVisible,
+});
 </script>
 
-<style lang="less" scoped>
-  :deep(.arco-modal-header) {
-    display: none !important;
-  }
+<style lang="less">
 .login-form-modal {
-
+  .arco-modal-header {
+    display: none;
+  }
 }
-  .close-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    text-align: center;
-    line-height: 20px;
-    cursor: pointer;
-    position: absolute;
-    right: 23px;
-    top: 23px;
-    font-weight: bold;
-    color: #a3b4cc;
-    &:hover {
-      background-color: #a3b4cc66;
-    }
+</style>
+
+<style lang="less" scoped>
+.login-form-modal {
+}
+.close-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  text-align: center;
+  line-height: 20px;
+  cursor: pointer;
+  position: absolute;
+  right: 23px;
+  top: 23px;
+  font-weight: bold;
+  color: #a3b4cc;
+  &:hover {
+    background-color: #a3b4cc66;
   }
-  .robot-image-box {
+}
+.robot-image-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgb(23, 242, 95) 0%,
+    rgb(37, 106, 247) 100%
+  );
+  margin-bottom: 44px;
+}
+.login-form {
+  &-wrapper {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: linear-gradient(
-      135deg,
-      rgb(23, 242, 95) 0%,
-      rgb(37, 106, 247) 100%
-    );
-    margin-bottom: 44px;
+    padding: 20px 44px;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 12px;
   }
-  .login-form {
-    &-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 44px;
-      width: 100%;
-      background-color: #fff;
-      border-radius: 12px;
-    }
 
-    &-password-actions {
-      display: flex;
-      justify-content: space-between;
-    }
+  &-password-actions {
+    display: flex;
+    justify-content: space-between;
+  }
 
-    &-register-btn {
-      color: var(--color-text-3) !important;
-    }
-    .prepend {
-      width: 44px;
+  &-register-btn {
+    color: var(--color-text-3) !important;
+  }
+  .prepend {
+    width: 44px;
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 16px;
+    .down-icon {
       display: inline-flex;
-      justify-content: space-between;
       align-items: center;
-      margin-right: 16px;
-      .down-icon {
-        display: inline-flex;
-        align-items: center;
-      }
     }
-    .append {
-      &::v-deep {
-        .arco-link {
-          color: #256af7;
-        }
-      }
-    }
-
+  }
+  .append {
     &::v-deep {
-      .arco-form-item-message {
-        position: absolute;
-        top: 44px;
-        color: #ff6966;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 22px;
-        letter-spacing: 0px;
-        margin-left: 16px;
-      }
-      .arco-form-item {
-        position: relative;
-        padding-bottom: 34px;
-        margin-bottom: 0px;
-      }
-    }
-  }
-  .submit-button {
-    font-weight: 500;
-  }
-  .read-allow {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-
-    .circle {
-      position: relative;
-      display: inline-block;
-      border: 1px solid rgb(163, 180, 204);
-      border-radius: 50%;
-      width: 12px;
-      height: 12px;
-      margin-right: 8px;
-      .icon-fill {
-        position: absolute;
-        top: -2px;
-        left: -2px;
+      .arco-link {
         color: #256af7;
       }
     }
-    margin-top: 28px;
-    color: #6b748f;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 20px;
-    .blue {
+  }
+
+  &::v-deep {
+    .arco-form-item-message {
+      position: absolute;
+      top: 44px;
+      color: #ff6966;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 22px;
+      letter-spacing: 0px;
+      margin-left: 16px;
+    }
+    .arco-form-item {
+      position: relative;
+      padding-bottom: 34px;
+      margin-bottom: 0px;
+    }
+  }
+}
+.submit-button {
+  font-weight: 500;
+}
+.read-allow {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  .circle {
+    position: relative;
+    display: inline-block;
+    border: 1px solid rgb(163, 180, 204);
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+    .icon-fill {
+      position: absolute;
+      top: -2px;
+      left: -2px;
       color: #256af7;
     }
   }
+  margin-top: 28px;
+  color: #6b748f;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  .blue {
+    color: #256af7;
+  }
+}
 </style>
