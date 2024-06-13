@@ -5,12 +5,15 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 import svgLoader from 'vite-svg-loader';
 import configArcoStyleImportPlugin from './plugin/arcoStyleImport';
 
+import unplugin from 'unplugin-vue-components/vite';
+
 export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
     svgLoader({ svgoConfig: {} }),
     configArcoStyleImportPlugin(),
+    unplugin(),
   ],
   resolve: {
     alias: [
@@ -41,7 +44,7 @@ export default defineConfig({
       less: {
         modifyVars: {
           hack: `true; @import (reference) "${resolve(
-            'src/assets/style/breakpoint.less'
+            'src/assets/style/breakpoint.less',
           )}";`,
         },
         javascriptEnabled: true,
