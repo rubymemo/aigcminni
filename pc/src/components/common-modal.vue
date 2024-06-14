@@ -2,7 +2,10 @@
   <a-modal class="common-modal" :class="modalClass" :title-align="'start'">
     <template #title> {{ $attrs.title }} </template>
     <slot />
-    <div class="common-modal-footer"> </div>
+    <div class="common-modal-footer">
+      <a-button class="cancel-btn" @click="handleCancel">取消</a-button>
+      <a-button class="ok-btn" @click="handleConfirm">确认</a-button>
+    </div>
   </a-modal>
 </template>
 
@@ -18,6 +21,16 @@ interface Props extends /* @vue-ignore */ Omit<ModalConfig, 'content'> {
 const props = withDefaults(defineProps<Props>(), {
   hiddenFooter: true,
 });
+
+const emit = defineEmits(['ok', 'cancel']);
+
+const handleConfirm = () => {
+  emit('ok');
+};
+
+const handleCancel = () => {
+  emit('cancel');
+};
 
 const modalClass = computed(() => ({
   'common-modal-hidden-title': props.hiddenHeader,
@@ -41,9 +54,20 @@ const modalClass = computed(() => ({
       text-align: left;
     }
   }
+
+  .arco-modal-body {
+    padding: 24px;
+  }
   .arco-modal {
     border-radius: 8px;
   }
+}
+
+.common-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 24px;
+  margin-top: 8px;
 }
 
 .common-modal-hidden-title {
@@ -56,5 +80,34 @@ const modalClass = computed(() => ({
   .arco-modal-footer {
     display: none;
   }
+}
+
+.cancel-btn,
+.ok-btn {
+  border-radius: 100px;
+  width: 76px;
+  height: 40px;
+  font-family: PingFang SC;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0px;
+  text-align: center;
+}
+
+.cancel-btn {
+  margin-right: 16px;
+  border: 1px solid rgb(207, 218, 235) !important;
+  background: rgb(255, 255, 255) !important;
+}
+
+.ok-btn {
+  border: none !important;
+  background: linear-gradient(
+    135deg,
+    rgb(23, 242, 95) 0%,
+    rgb(37, 106, 247) 100%
+  );
+  color: rgb(255, 255, 255) !important;
 }
 </style>

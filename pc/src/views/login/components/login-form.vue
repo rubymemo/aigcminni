@@ -15,7 +15,7 @@
     </span>
     <div class="login-form-wrapper">
       <div class="robot-image-box">
-        <img
+         <img
           width="66px"
           height="66px"
           class="carousel-image"
