@@ -116,10 +116,41 @@ button.normal {
   font-size: 32rpx;
   font-weight: 400;
 }
+button.normal-1 {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #344156;
+  font-size: 32rpx;
+  font-weight: 400;
+  border: 1px solid #CFDAEB;
+}
 button.big {
   width: 100%;
   height: 100rpx;
   line-height: 100rpx;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled {
+  border-radius: 100%;
+  background: #fff;
+  color: #fff;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked {
+  border: none;
+  border-radius: 100%;
+  color: #fff;
+  background: #256AF7;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked::before {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 15px;
+  color: #fff;
+  background: transparent;
+  transform: translate(-50%, -50%) scale(1);
+  -webkit-transform: translate(-50%, -50%) scale(1);
 }
 /*每个页面公共css */
 /* 水平间距 */
