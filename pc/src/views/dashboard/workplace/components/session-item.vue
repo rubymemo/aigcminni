@@ -69,12 +69,13 @@
           :content="item.tooltip"
         >
           <div class="user-action-icon-item" @click.stop="item.action">
-            <component :is="item.icon" />
+            <span class="iconfont user-icon" :class="item.icon" />
           </div>
         </a-tooltip>
       </div>
       <ChooseFontModal
         v-model:visible="userMessageState.chooseFontModalVisible"
+        :font="data.font"
       />
     </div>
   </div>
@@ -82,7 +83,7 @@
 
 <script lang="ts">
 import CommonAvatar from '@/components/common-avatar.vue';
-import { reactive, ref, toRefs } from 'vue';
+import { h, reactive, ref, toRefs } from 'vue';
 import Reload from '@/assets/images/reload.png';
 import { IconCopy } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
@@ -129,19 +130,19 @@ const copyText = () => {
 const userActionList = [
   {
     tooltip: '复制全文',
-    icon: IconCopy,
+    icon: 'icon-copy',
     action: copyText,
   },
   {
     tooltip: '编辑文字',
-    icon: IconCopy,
+    icon: 'icon-edit',
     action: () => {
       userMessageState.editContentModalVisible = true;
     },
   },
   {
     tooltip: '字体选择',
-    icon: IconCopy,
+    icon: 'icon-ziti1',
     action: () => {
       userMessageState.chooseFontModalVisible = true;
     },
@@ -252,8 +253,29 @@ const handleReload = () => {
         margin-right: 11px;
         border-radius: 4px;
         overflow: hidden;
+
+        .user-icon {
+          color: rgb(176, 191, 213);
+        }
+
         &:hover {
-          background: rgba(163, 180, 204, 0.2);
+          background: linear-gradient(
+            135deg,
+            rgba(23, 242, 95, 0.2) 0%,
+            rgba(37, 106, 247, 0.2) 100%
+          );
+          // opacity: 0.2;
+
+          .user-icon {
+            color: rgb(37, 106, 247);
+            background: linear-gradient(
+              135deg,
+              rgba(23, 242, 95, 0.8) 0%,
+              rgba(37, 106, 247, 0.8) 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
         }
 
         &:last-child {
