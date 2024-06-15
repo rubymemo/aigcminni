@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "font-family-modal": "./fontFamilyModal",
+    "edit-content-modal": "./editContentModal"
+  }
+}

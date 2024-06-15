@@ -52,6 +52,45 @@ function getDay(day) {
   }
   return year + "-" + month + "-" + today;
 }
+function uploadImg(params) {
+  const token = common_vendor.index.getStorageSync("token");
+  const header = {
+    Authorization: token
+  };
+  common_vendor.index.chooseMedia({
+    count: 1,
+    mediaType: ["image"],
+    sourceType: ["album", "camera"],
+    camera: "back",
+    success: (chooseImageRes) => {
+      const tempFilePaths = chooseImageRes.tempFiles;
+      common_vendor.index.uploadFile({
+        header,
+        url: `${host}/hh/comfyui_api_v2/uploadImage`,
+        filePath: tempFilePaths[0].tempFilePath,
+        name: "image",
+        success: (uploadFileRes) => {
+          const uploadData = JSON.parse(uploadFileRes.data);
+          if (Number(uploadData.code) === 2e3) {
+            params.success(uploadData.data);
+          } else {
+            common_vendor.index.showToast({
+              icon: "none",
+              title: "上传失败，请联系客户或稍后重试"
+            });
+          }
+        },
+        fail: () => {
+          common_vendor.index.showToast({
+            icon: "none",
+            title: "上传失败，请联系客户或稍后重试"
+          });
+        }
+      });
+    }
+  });
+}
 exports.getDay = getDay;
 exports.host = host;
 exports.httpsRequest = httpsRequest;
+exports.uploadImg = uploadImg;

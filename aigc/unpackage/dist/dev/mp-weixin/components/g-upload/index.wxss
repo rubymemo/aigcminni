@@ -1,0 +1,92 @@
+/* 水平间距 */
+/* 水平间距 */
+page.data-v-a44f6124 {
+  color: #131526;
+}
+button.data-v-a44f6124::after {
+  border: none;
+}
+button.primary.data-v-a44f6124 {
+  border-radius: 200rpx;
+  background: linear-gradient(135deg, #17f25f 0%, #256af7 100%);
+  color: #FFFFFF;
+  border: none !important;
+  font-size: 32rpx;
+  font-weight: 400;
+}
+button.normal.data-v-a44f6124 {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #A3B4CC;
+  font-size: 32rpx;
+  font-weight: 400;
+}
+button.normal-1.data-v-a44f6124 {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #344156;
+  font-size: 32rpx;
+  font-weight: 400;
+  border: 1px solid #CFDAEB;
+}
+button.big.data-v-a44f6124 {
+  width: 100%;
+  height: 100rpx;
+  line-height: 100rpx;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.data-v-a44f6124 {
+  border-radius: 100%;
+  background: #fff;
+  color: #fff;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked.data-v-a44f6124 {
+  border: none;
+  border-radius: 100%;
+  color: #fff;
+  background: #256AF7;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked.data-v-a44f6124::before {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 15px;
+  color: #fff;
+  background: transparent;
+  transform: translate(-50%, -50%) scale(1);
+  -webkit-transform: translate(-50%, -50%) scale(1);
+}
+.up-box.data-v-a44f6124 {
+  box-sizing: border-box;
+  position: relative;
+  width: 268rpx;
+  height: 268rpx;
+  border: solid 2rpx #E8E9EB;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.up-box image.up-img.data-v-a44f6124 {
+  width: 268rpx;
+  height: 268rpx;
+}
+.up-box .icon-tianjia.data-v-a44f6124 {
+  font-size: 40rpx;
+  color: #CFDAEB;
+}
+.up-box .tools.data-v-a44f6124 {
+  padding: 0 8rpx;
+  position: absolute;
+  bottom: -1rpx;
+  right: -1rpx;
+  border-radius: 8rpx 8rpx 20rpx 8rpx;
+  background: #EDF0F5;
+  display: flex;
+}
+.up-box .tools .iconfont.data-v-a44f6124 {
+  font-size: 32rpx;
+  color: #C4C4C4;
+  padding: 8rpx;
+}

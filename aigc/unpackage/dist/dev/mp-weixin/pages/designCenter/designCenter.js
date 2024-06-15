@@ -3,16 +3,11 @@ const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const common_mockData = require("../../common/mockData.js");
 const common_utils = require("../../common/utils.js");
-if (!Array) {
-  const _easycom_g_progress2 = common_vendor.resolveComponent("g-progress");
-  const _easycom_g_color_btn2 = common_vendor.resolveComponent("g-color-btn");
-  (_easycom_g_progress2 + _easycom_g_color_btn2)();
-}
-const _easycom_g_progress = () => "../../components/g-progress/index.js";
-const _easycom_g_color_btn = () => "../../components/g-color-btn/index.js";
 if (!Math) {
-  (_easycom_g_progress + _easycom_g_color_btn)();
+  (robotMessageVue + userMessageVue)();
 }
+const userMessageVue = () => "./components/userMessage.js";
+const robotMessageVue = () => "./components/robotMessage.js";
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "designCenter",
   setup(__props) {
@@ -23,38 +18,20 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const scrollTop = common_vendor.ref(0);
     const canSend = common_vendor.ref(false);
     const inputValue = common_vendor.ref("");
-    const clientUNIId = common_vendor.ref("");
     const lastRobotMsg = common_vendor.ref(false);
     const isGenLoading = common_vendor.ref(false);
-    const workflowList = common_vendor.ref([]);
     const RobotReply = common_vendor.reactive({ ...common_mockData.robotReply });
-    const precentState = common_vendor.reactive({
-      // 用户计算百分比
-      nodeCount: 22,
-      // 生成时总共有几个节点,
-      numerator: 0
-      // 分子
-    });
     const userInfo = common_vendor.ref({
       avatar: "",
       nickname: "",
-      username: ""
+      username: "",
+      userId: ""
     });
     const workId = common_vendor.ref(void 0);
     const dataList = common_vendor.ref([
       {
-        ...RobotReply[0].data,
-        type: "left"
-        // imagesOptions: [{
-        // 	url: '/static/png/mock1.png',
-        // 	status: 'loading',
-        // 	precent: 80
-        // },{
-        // 	url: '/static/png/mock2.png',
-        // 	status: 'queue_remaining',
-        // 	precent: 80
-        // }],
-        // activeImages: [],
+        type: "left",
+        ...RobotReply[0].data
       }
     ]);
     const timer = common_vendor.ref();
@@ -75,8 +52,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         console.log(lastMsg);
         if (lastMsg.type === "right" && dataListTemp.length === 6) {
           addMockRobotReply(3);
-          const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
-          getPaintingTask("logo_draw", UserMessages[0].content);
+          dataList.value.filter((item, index) => item.type === "right" && item.userInputSend === true);
         }
         if (lastMsg.type === "left" && dataListTemp.length >= 9) {
           lastRobotMsg.value = true;
@@ -86,75 +62,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         }
       }
     };
-    const fetchWorkFlowList = async (type) => {
-      const workflowListTemp = await common_utils.httpsRequest(`/hh/prompt_workflow/listByType/${type}`, {}, "GET");
-      workflowList.value = workflowListTemp;
-      RobotReply[5].data.imagesOptions = workflowListTemp.map((item) => ({
-        url: item.imgUrl,
-        status: "done",
-        precent: 100
-      }));
-    };
     common_vendor.onLoad(async (params) => {
-      console.log("onLoad");
+      console.log("onLoad： 获取用户信息");
       const localUserInfo = await getUserInfo();
       if (localUserInfo) {
         userInfo.value = localUserInfo;
-        clientUNIId.value = localUserInfo.userId;
       }
-      fetchWorkFlowList("logo_compose");
       if (params.id) {
         workId.value = params.id;
         getWorkDataById(params.id);
       }
     });
-    const putWorkData = async () => {
-      let isFindTitle = false;
-      const result = dataList.value.map((item, index) => {
-        if (item.type === "left") {
-          const params = {
-            whoId: 0,
-            whoName: "robot",
-            whoSay: JSON.stringify(item),
-            clipType: "",
-            clipContent: ""
-          };
-          if (item.imagesOptions) {
-            params.clipType = "info";
-            params.clipContent = JSON.stringify({
-              imgUrl: item.imagesOptions[0].url
-            });
-          }
-          if (index === 0) {
-            params.clipType = "info";
-            params.clipContent = JSON.stringify({
-              type: item.activeBtns.includes("logo") ? 1 : 2
-            });
-          }
-          return params;
-        } else {
-          const params = {
-            whoId: userInfo.value.userId,
-            whoName: userInfo.value.nickname || userInfo.value.username,
-            whoSay: JSON.stringify(item),
-            clipType: "",
-            clipContent: ""
-          };
-          if (item.compute && !isFindTitle) {
-            isFindTitle = true;
-            params.clipType = "info", params.clipContent = JSON.stringify({
-              title: item.content,
-              ownerId: userInfo.value.userId
-            });
-          }
-          return params;
-        }
-      });
-      const data = workId.value ? await common_utils.httpsRequest(`/hh/dialog/replaceAllItemBy/${workId.value}`, result, "POST") : await common_utils.httpsRequest("/hh/dialog/addItemBy", result);
-      if (data) {
-        workId.value = data;
-      }
-    };
     const initScrollHeight = () => {
       common_vendor.index.createSelectorQuery().in(instance).select(".scroll-view-content").boundingClientRect((data) => {
         if (data) {
@@ -171,28 +89,29 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     const addMockRobotReply = (robotId) => {
-      const robotReplyData = RobotReply[robotId];
+      const robotReplyData = RobotReply[robotId].data;
       dataList.value.push({
-        ...robotReplyData.data,
-        startCreate: robotReplyData.startCreate,
-        type: "left",
-        reload: robotId === 6 ? true : false
+        ...robotReplyData,
+        type: "left"
       });
-      console.log(dataList.value);
-      if (robotReplyData.startCreate) {
+      if (robotReplyData.canUserSend) {
         canSend.value = true;
       }
       scrollToBottom();
-      if (workId.value && [4, 5].includes(robotId)) {
-        putWorkData();
+      console.log(dataList.value);
+    };
+    const addUserReply = (data) => {
+      dataList.value.push(data);
+      if (data.nextRobotId) {
+        addMockRobotReply(data.nextRobotId);
       }
     };
-    const onRobotBtnClick = (btnStr, messageIndex) => {
+    const onRobotBtnClick = (btnItem, messageIndex) => {
       if (messageIndex < dataList.value.length - 1) {
         return;
       }
-      dataList.value[messageIndex].activeBtns = [btnStr];
-      const manualData = common_mockData.manualReply[btnStr];
+      dataList.value[messageIndex].activeBtns = [btnItem.value];
+      const manualData = common_mockData.manualReply[btnItem.nextUserId];
       if (manualData.opertionType === "chooseMedia") {
         common_vendor.index.chooseMedia({
           count: 1,
@@ -232,88 +151,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           }
         });
       } else {
-        dataList.value.push({
-          content: manualData.content,
-          type: "right"
-        });
-        addMockRobotReply(manualData.nextRobotId);
-      }
-    };
-    const fetchWebSocket = (promptData) => {
-      common_vendor.index.onSocketOpen(async function(res2) {
-        console.log("WebSocket连接已打开！");
-      });
-      common_vendor.index.onSocketMessage(async function(res2) {
-        console.log("收到服务器内容：");
-        const msgData = JSON.parse(res2.data);
-        console.log(msgData);
-        if (msgData.type === "executed" && Number(msgData.data.node) == 100) {
-          console.log("最终结果");
-          common_vendor.index.closeSocket();
-          const imagesRes = await common_utils.httpsRequest(`/hh/comfyui_api_v2/historyByPromptId/${promptData.prompt_id}`, {}, "GET");
-          if (!imagesRes)
-            return;
-          const dataListTemp = JSON.parse(JSON.stringify(dataList.value));
-          dataListTemp[dataListTemp.length - 1].imagesOptions = imagesRes.map((imgItemSrc) => {
-            return {
-              url: imgItemSrc,
-              status: "done",
-              precent: 100
-            };
-          });
-          dataList.value = dataListTemp;
-          common_vendor.nextTick$1(() => {
-            isGenLoading.value = false;
-            putWorkData();
-          });
-        } else if (msgData.type === "progress" || msgData.type === "executing") {
-          let precent = 0;
-          precentState.numerator = precentState.numerator + 1;
-          if (precentState.numerator === precentState.nodeCount) {
-            precent = 95;
-          } else {
-            precent = ((precentState.numerator / precentState.nodeCount).toFixed(2) * 100).toFixed(0);
-          }
-          if (dataList.value[dataList.value.length - 1].imagesOptions) {
-            dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map((imgItem) => {
-              return {
-                url: "",
-                status: "loading",
-                precent
-              };
-            });
-          }
-        } else if (msgData.type === "execution_cached") {
-          precentState.nodeCount = precentState.nodeCount - (msgData.data.nodes || []).length;
+        const userRelyStr = manualData.content.replaceAll("{replace}", btnItem.label);
+        const interfaceParams = { ...manualData.interfaceParams };
+        if (btnItem.value !== 0) {
+          interfaceParams[Object.keys(interfaceParams)[0]] = btnItem.value;
         }
-      });
-      common_vendor.index.onSocketClose(function(res2) {
-        console.log("WebSocket 已关闭！");
-      });
-    };
-    const getPaintingTask = async (code, promptWords) => {
-      const UserImagesMessages = dataList.value.filter((item, index) => item.type === "right" && item.refer === true);
-      const params = {
-        code,
-        promptWords: promptWords || " ",
-        fileUrl: "",
-        clientId: clientUNIId.value
-      };
-      if (UserImagesMessages.length) {
-        const promptImageUrl = UserImagesMessages[UserImagesMessages.length - 1].images[0];
-        params.fileUrl = promptImageUrl;
-      }
-      isGenLoading.value = true;
-      common_vendor.index.connectSocket({
-        url: `wss://huatu.solart.pro/ws?clientId=${clientUNIId.value}`
-        // url: `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${clientUNIId.value}`
-        // url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
-      });
-      const promptRes = await common_utils.httpsRequest("/hh/comfyui_api_v2/doPrompt", params);
-      if (promptRes) {
-        precentState.numerator = 0;
-        precentState.nodeCount = promptRes.node_count;
-        fetchWebSocket(promptRes);
+        dataList.value.push({
+          type: "right",
+          content: userRelyStr,
+          interfaceParams
+        });
+        canSend.value = false;
+        inputValue.value = "";
+        addMockRobotReply(manualData.nextRobotId);
       }
     };
     const initContentHeight = () => {
@@ -336,36 +186,27 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       if (!canClick) {
         return;
       }
+      const prevRobotMsg = dataList.value[dataList.value.length - 1];
+      const nextUserRely = prevRobotMsg.nextUserReply || {};
+      const interfaceParams = { ...nextUserRely.interfaceParams };
+      interfaceParams[Object.keys(interfaceParams)[0]] = { text: inputValue.value, fontfamily: "" };
       dataList.value.push({
-        content: inputValue.value,
         type: "right",
-        compute: true
-        // 用于标识加入计算
+        content: inputValue.value,
+        interfaceParams,
+        tooltipsBtns: prevRobotMsg.nextUserReply.tooltipsBtns || void 0
       });
-      putWorkData();
       canSend.value = false;
       inputValue.value = "";
-      if (lastRobotMsg.value) {
-        addMockRobotReply(5);
-      } else {
-        addMockRobotReply(3);
-        const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
-        await getPaintingTask("logo_draw", UserMessages[0].content);
+      console.log(prevRobotMsg);
+      if (prevRobotMsg.afterUserSendNextRobotId) {
+        addMockRobotReply(prevRobotMsg.afterUserSendNextRobotId);
       }
     };
-    const genResultImgByTemp = (imgUrl) => {
-      const findWorkFlow = workflowList.value.find((workflow) => workflow.imgUrl === imgUrl);
-      const UserMessages = dataList.value.filter((item, index) => item.type === "right" && item.compute === true);
-      const promptText = UserMessages.length === 2 ? UserMessages[1].content : "";
-      getPaintingTask(findWorkFlow.code, promptText);
-    };
-    const onUserSelectImg = async (evt, messageIndex) => {
-      const imgValue = JSON.parse(evt.detail.value);
+    const onUserSelectImg = async (imgValue, messageIndex) => {
       if (imgValue.status !== "done") {
         return;
       }
-      console.log("选择");
-      console.log(imgValue);
       const imgUrl = imgValue.url;
       if (!imgUrl) {
         return;
@@ -374,33 +215,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         return;
       }
       dataList.value[messageIndex].activeImages = [imgUrl];
-      if (lastRobotMsg.value) {
-        dataList.value.push({
-          type: "right",
-          content: "我已经选定了",
-          images: [imgUrl]
-          // compute: true // 用于标识加入计算
-        });
-        addMockRobotReply(6);
-        genResultImgByTemp(imgUrl);
-      } else {
-        dataList.value.push({
-          type: "right",
-          content: "我已经选定了",
-          images: [imgUrl],
-          refer: true
-          // 用于标识下发任务时的图片
-        });
-        addMockRobotReply(4);
-        lastRobotMsg.value = true;
-        canSend.value = true;
-      }
-    };
-    const previewImg = (url) => {
-      console.log(url);
-      common_vendor.index.previewImage({
-        urls: [url]
+      const manualData = common_mockData.manualReply[dataList.value[messageIndex].nextUserId];
+      const interfaceParams = manualData.interfaceParams;
+      interfaceParams[Object.keys(interfaceParams)[0]] = imgUrl;
+      dataList.value.push({
+        type: "right",
+        content: manualData.content,
+        interfaceParams
       });
+      addMockRobotReply(manualData.nextRobotId);
     };
     common_vendor.onBeforeUnmount(() => {
       try {
@@ -415,7 +238,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     const addNewWork = async () => {
-      await putWorkData();
       try {
         common_vendor.index.closeSocket();
         clearTimeout(timer.value);
@@ -435,106 +257,59 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         isGenLoading.value = false;
       });
     };
+    const onDataChange = (newData, index) => {
+      dataList.value[index] = newData;
+    };
     return (_ctx, _cache) => {
-      return common_vendor.e({
+      return {
         a: common_vendor.o(goUserCenter),
         b: common_vendor.s(innerContentStyle.value),
-        c: common_vendor.f(dataList.value, (item, index, i0) => {
+        c: common_vendor.o(addNewWork),
+        d: common_vendor.f(dataList.value, (item, index, i0) => {
           return common_vendor.e({
             a: item.type === "left"
-          }, item.type === "left" ? common_vendor.e({
-            b: common_assets._imports_0$2,
-            c: item.title
-          }, item.title ? {
-            d: common_vendor.t(item.title),
-            e: common_vendor.s(item.titleStyle || void 0)
-          } : {}, {
-            f: item.content
-          }, item.content ? {
-            g: common_vendor.t(item.content)
-          } : {}, {
-            h: item.btns
-          }, item.btns ? {
-            i: common_vendor.f(item.btns, (btnItem, btnIndex, i1) => {
-              return {
-                a: common_vendor.t(btnItem),
-                b: btnIndex,
-                c: common_vendor.n(`robot-btn ${item.activeBtns.includes(btnItem) ? "active" : ""}`),
-                d: common_vendor.o(($event) => onRobotBtnClick(btnItem, index), btnIndex)
-              };
+          }, item.type === "left" ? {
+            b: common_vendor.o(({
+              btnItem
+            }) => onRobotBtnClick(btnItem, index), index),
+            c: common_vendor.o(({
+              imgValue
+            }) => onUserSelectImg(imgValue, index), index),
+            d: common_vendor.o((newData) => onDataChange(newData, index), index),
+            e: common_vendor.o(addUserReply, index),
+            f: "492712a1-0-" + i0,
+            g: common_vendor.p({
+              msgInfo: item,
+              msgIndex: index,
+              msgList: dataList.value,
+              userInfo: userInfo.value
             })
           } : {}, {
-            j: item.imagesOptions
-          }, item.imagesOptions ? {
-            k: common_vendor.f(item.imagesOptions, (imageItem, imgIndex, i1) => {
-              return common_vendor.e({
-                a: imageItem.status === "loading" || imageItem.status === "queue_remaining"
-              }, imageItem.status === "loading" || imageItem.status === "queue_remaining" ? {
-                b: common_vendor.t(imageItem.status === "queue_remaining" ? "任务排队中，请稍等" : ""),
-                c: common_vendor.t(imageItem.status === "loading" ? `图片加载中${imageItem.precent}%` : ""),
-                d: "492712a1-0-" + i0 + "-" + i1,
-                e: common_vendor.p({
-                  progress: imageItem.precent
-                }),
-                f: imageItem.status === "loading"
-              } : {}, {
-                g: imageItem.status === "done" ? imageItem.url : "",
-                h: common_vendor.o(($event) => previewImg(imageItem.url), imgIndex)
-              }, !item.reload ? {
-                i: JSON.stringify(imageItem),
-                j: index < dataList.value.length - 1 || imageItem.status !== "done",
-                k: item.activeImages.includes(imageItem.url)
-              } : {}, {
-                l: imgIndex
-              });
-            }),
-            l: !item.reload,
-            m: item.reload ? "0rpx" : "28rpx",
-            n: common_vendor.o((e) => onUserSelectImg(e, index), index)
-          } : {}) : {}, {
-            o: item.type === "right"
-          }, item.type === "right" ? common_vendor.e({
-            p: item.content
-          }, item.content ? {
-            q: common_vendor.t(item.content)
-          } : {}, {
-            r: item.images
-          }, item.images ? {
-            s: common_vendor.f(item.images, (imageItemSrc, imgIndex, i1) => {
-              return {
-                a: imageItemSrc,
-                b: common_vendor.o(($event) => previewImg(imageItemSrc), imgIndex),
-                c: imgIndex
-              };
+            h: item.type === "right"
+          }, item.type === "right" ? {
+            i: common_vendor.o((newData) => onDataChange(newData, index), index),
+            j: "492712a1-1-" + i0,
+            k: common_vendor.p({
+              msgInfo: item,
+              userInfo: userInfo.value
             })
           } : {}, {
-            t: userInfo.value.avatar
-          }) : {}, {
-            v: index
+            l: index
           });
         }),
-        d: scrollTop.value,
-        e: workId.value
-      }, workId.value ? {
-        f: common_vendor.o(addNewWork),
-        g: common_vendor.p({
-          height: 56,
-          width: 146,
-          active: true
-        }),
-        h: common_vendor.o(goHistoryPage)
-      } : {}, {
-        i: !canSend.value,
-        j: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value)),
-        k: canSend.value ? "输入对话后，可通过回车键发送指令" : "请先选择机器人提供的选项",
-        l: inputValue.value,
-        m: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {
+        e: scrollTop.value,
+        f: common_vendor.o(goHistoryPage),
+        g: !canSend.value,
+        h: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value)),
+        i: canSend.value ? "输入对话后，可通过回车键发送指令" : "请先选择机器人提供的选项",
+        j: inputValue.value,
+        k: common_vendor.o(common_vendor.m(($event) => inputValue.value = $event.detail.value, {
           trim: true
         })),
-        n: common_assets._imports_1$1,
-        o: common_vendor.n(`send-btn ${canSend.value && inputValue.value ? "" : "disabled"} `),
-        p: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value))
-      });
+        l: common_assets._imports_0$2,
+        m: common_vendor.n(`send-btn ${canSend.value && inputValue.value ? "" : "disabled"} `),
+        n: common_vendor.o(($event) => onSendMessage(canSend.value && inputValue.value))
+      };
     };
   }
 });

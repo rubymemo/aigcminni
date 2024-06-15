@@ -5,86 +5,36 @@
 			<view class="header-tit">设计</view>
 		</view>
 
+		<view class="add-new-contract-btn" @click="addNewWork"><text class="iconfont icon-new-contract"></text>新建</view>
 		<scroll-view id="scroll-view-content" class="scroll-view-content" :scroll-with-animation="true" scroll-y="true"
 			:scroll-top="scrollTop">
 			<view class="contact-container">
 				<view v-for="(item, index) in dataList" :key="index" class="message">
-					<view v-if="item.type === 'left'" class="robot-contact-item">
-						<image class="avatar" src="@/static/png/robot.png"></image>
-						<view class="robot-contact-info-root-box">
-							<view class="robot-contact-info-box">
-								<view v-if="item.title" class="title" :style="item.titleStyle || undefined">
-									{{item.title}}
-								</view>
-								<view v-if="item.content" class="content">{{item.content}}</view>
-								<view v-if="item.btns" class="btns">
-									<button v-for="(btnItem, btnIndex) in item.btns" :key="btnIndex"
-										:class="`robot-btn ${item.activeBtns.includes(btnItem) ? 'active' : ''}`"
-										@click="onRobotBtnClick(btnItem, index)">
-										{{ btnItem }}
-									</button>
-								</view>
-								<view v-if="item.imagesOptions" style="margin-top: 24rpx;">
-									<radio-group @change="e => onUserSelectImg(e, index)">
-										<view class="images-box">
-											<view class="image-option-box"
-												v-for="(imageItem, imgIndex) in item.imagesOptions" :key="imgIndex">
-												<view class="imageCover"
-													v-if="imageItem.status === 'loading' || imageItem.status === 'queue_remaining'">
-													<view>
-														{{imageItem.status === 'queue_remaining' ? '任务排队中，请稍等' : ''}}
-														{{imageItem.status === 'loading' ? `图片加载中${imageItem.precent}%` : ''}}
-													</view>
-													<view class="progress-box" v-show="imageItem.status === 'loading'">
-														<g-progress :progress="imageItem.precent"></g-progress>
-													</view>
-												</view>
-												<image :src="imageItem.status === 'done' ? imageItem.url : ''"
-													@click="previewImg(imageItem.url)">
-												</image>
-												<view class="radio-box" :style="{
-													marginBottom: item.reload ? '0rpx' : '28rpx'
-												}">
-													<radio v-if="!item.reload" class="img-radio"
-														:value="JSON.stringify(imageItem)" color="#256AF7"
-														:disabled="index < dataList.length - 1 || imageItem.status !== 'done'"
-														:checked="item.activeImages.includes(imageItem.url)" />
-												</view>
-											</view>
-										</view>
-									</radio-group>
-								</view>
-							</view>
-							<!-- <view v-if="item.reload && !isGenLoading" :class="`reload ${isGenLoading ? 'loading' : ''}`" @click="reloadGen"><view class="iconfont icon-loading"></view>重新生成</view> -->
-						</view>
-					</view>
-
-					<view v-if="item.type === 'right'" class="human-contact-item">
-						<view class="human-contact-info-box">
-							<view v-if="item.content" class="content">{{ item.content }}</view>
-							<view v-if="item.images" class="images">
-								<view v-for="(imageItemSrc, imgIndex) in item.images" :key="imgIndex" class="image-box">
-									<image :src="imageItemSrc" class="image" @click="previewImg(imageItemSrc)"></image>
-								</view>
-							</view>
-						</view>
-						<image class="avatar" :src="userInfo.avatar"></image>
-					</view>
-
-
+					<robotMessageVue 
+						v-if="item.type === 'left'"
+						:msgInfo="item"
+						:msgIndex="index" 
+						:msgList="dataList"
+						:userInfo="userInfo" 
+						@btnClick="({ btnItem }) =>onRobotBtnClick(btnItem, index)"
+						@imgSelect="({ imgValue }) => onUserSelectImg(imgValue, index)"
+						@change="newData => onDataChange(newData, index)"
+						@addUserReply="addUserReply"
+					/>
+					<userMessageVue 
+						v-if="item.type === 'right'" 
+						:msgInfo="item" 
+						:userInfo="userInfo" 
+						@change="newData => onDataChange(newData, index)"/>
 				</view>
-
 			</view>
 		</scroll-view>
 
 		<view class="footer">
-			<view class="footer-header" v-if="workId">
-				<g-color-btn :height="56" :width="146" :active="true" @click="addNewWork">
-					<text class="iconfont icon-tianjia" style="font-size: 26rpx;"></text>
-					新建对话
-				</g-color-btn>
+			<!-- v-if="workId" -->
+			<view class="footer-header">
 				<view @click="goHistoryPage" class="history-btn">
-					历史会话
+					<text class="iconfont icon-history"></text>历史会话
 				</view>
 				<!-- <g-color-btn :height="56" :width="146" :active="true" @click="goHistoryPage">历史会话</g-color-btn> -->
 			</view>
@@ -104,7 +54,10 @@
 
 <script setup lang="ts">
 	import { ref, onBeforeUnmount, nextTick, onMounted, getCurrentInstance, reactive } from 'vue';
-	import { robotReply as defaultRobotReply, manualReply, findNextRobotId } from '@/common/mockData.ts';
+	import userMessageVue from './components/userMessage.vue';
+	import robotMessageVue from './components/robotMessage.vue';
+
+	import { robotReply as defaultRobotReply, manualReply, ImgOption, BtnItem, MsgItem, UserMessage } from '@/common/mockData.ts';
 	import { httpsRequest, genImgURl, host } from '@/common/utils';
 	import { onLoad } from '@dcloudio/uni-app';
 
@@ -119,39 +72,23 @@
 	const canSend = ref(false);
 	const inputValue = ref('');
 
-	const clientUNIId = ref('');
 	const lastRobotMsg = ref(false);
 	const isGenLoading = ref(false);
-	const workflowList = ref([]); // 模版
 	const RobotReply = reactive({ ...defaultRobotReply });
-
-	const precentState = reactive({ // 用户计算百分比
-		nodeCount: 22, // 生成时总共有几个节点,
-		numerator: 0, // 分子
-	})
 
 	const userInfo = ref({
 		avatar: '',
 		nickname: '',
 		username: '',
+		userId: ""
 	})
 
 	// 会话id
 	const workId = ref<string | undefined>(undefined);
 	const dataList = ref([
 		{
-			...RobotReply[0].data,
 			type: 'left',
-			// imagesOptions: [{
-			// 	url: '/static/png/mock1.png',
-			// 	status: 'loading',
-			// 	precent: 80
-			// },{
-			// 	url: '/static/png/mock2.png',
-			// 	status: 'queue_remaining',
-			// 	precent: 80
-			// }],
-			// activeImages: [],
+			...RobotReply[0].data,
 		}
 	]);
 	// 将来可删掉
@@ -177,8 +114,8 @@
 			if (lastMsg.type === 'right' && dataListTemp.length === 6) {
 				// 人说的，且是第一条
 				addMockRobotReply(3);
-				const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
-				getPaintingTask('logo_draw', UserMessages[0].content);
+				const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.userInputSend === true);
+				// getPaintingTask('logo_draw', UserMessages[0].content);
 			}
 			if (lastMsg.type === 'left' && dataListTemp.length >= 9) {
 				lastRobotMsg.value = true;
@@ -189,32 +126,35 @@
 			}
 		}
 	}
-	// 获取模版
-	const fetchWorkFlowList = async (type) => {
-		const workflowListTemp = await httpsRequest(`/hh/prompt_workflow/listByType/${type}`, {}, 'GET');
-		workflowList.value = workflowListTemp;
-		RobotReply[5].data.imagesOptions = workflowListTemp.map(item => ({
-			url: item.imgUrl,
-			status: 'done',
-			precent: 100
-		}))
-	}
 
 	onLoad(async (params) => {
-		console.log('onLoad')
+		console.log('onLoad： 获取用户信息')
 		const localUserInfo : { avatar : string; userId : string } = await getUserInfo();
 		if (localUserInfo) {
 			userInfo.value = localUserInfo;
-			clientUNIId.value = localUserInfo.userId;
 		}
-
-		fetchWorkFlowList('logo_compose');
 
 		if (params.id) {
 			// 详情
 			workId.value = params.id;
 			getWorkDataById(params.id)
 		}
+	})
+	const initScrollHeight = () => {
+		uni.createSelectorQuery()
+			.in(instance)
+			.select('.scroll-view-content')
+			.boundingClientRect(data => {
+				if (data) {
+					scrollTop.value = data.height
+				}
+			})
+			.exec();
+	}
+	onMounted(async () => {
+		// 获取用户信息
+		initScrollHeight()
+		// const sysTempRes = uni.getSystemInfoSync();
 	})
 	// 上传数据
 	const putWorkData = async () => {
@@ -251,7 +191,7 @@
 					clipType: '',
 					clipContent: ''
 				}
-				if (item.compute && !isFindTitle) {
+				if (item.userInputSend && !isFindTitle) {
 					// 找到标题
 					isFindTitle = true;
 					params.clipType = 'info',
@@ -270,24 +210,6 @@
 		}
 	}
 
-
-	const initScrollHeight = () => {
-		uni.createSelectorQuery()
-			.in(instance)
-			.select('.scroll-view-content')
-			.boundingClientRect(data => {
-				if (data) {
-					scrollTop.value = data.height
-				}
-			})
-			.exec();
-	}
-	onMounted(async () => {
-		// 获取用户信息
-		initScrollHeight()
-		// const sysTempRes = uni.getSystemInfoSync();
-	})
-
 	const goUserCenter = () => {
 		uni.navigateTo({
 			url: '/pages/userCenter/userCenter'
@@ -298,36 +220,39 @@
 	const addMockRobotReply = (robotId : number) => {
 		// clearTimeout(timer.value);
 		// timer.value = setTimeout(() => {
-			const robotReplyData = RobotReply[robotId];
-			dataList.value.push({
-				...robotReplyData.data,
-				startCreate: robotReplyData.startCreate,
-				type: 'left',
-				reload: robotId === 6 ? true : false
-			})
-			console.log(dataList.value);
-			if (robotReplyData.startCreate) {
-				canSend.value = true;
-			}
-			scrollToBottom();
+		const robotReplyData = RobotReply[robotId].data;
+		dataList.value.push({
+			...robotReplyData,
+			type: 'left',
+		})
+		if (robotReplyData.canUserSend) {
+			canSend.value = true;
+		}
+		scrollToBottom();
+		console.log(dataList.value);
+		
 
-			// 保存
-			if (workId.value && [4, 5].includes(robotId)) {
-				putWorkData();
-			}
+		// 保存
+		// putWorkData();
 		// }, 200)
+	}
+	
+	const addUserReply = (data: UserMessage) => {
+		dataList.value.push(data);
+		if(data.nextRobotId) {
+			addMockRobotReply(data.nextRobotId);
+		}
 	}
 
 	// 点击机器人的提供的按钮
-	const onRobotBtnClick = (btnStr : string, messageIndex : number) => {
+	const onRobotBtnClick = (btnItem : BtnItem, messageIndex : number) => {
 		// 如果已经选择过了，就不能再选择了
 		if (messageIndex < dataList.value.length - 1) {
 			return;
 		}
-		dataList.value[messageIndex].activeBtns = [btnStr];
+		dataList.value[messageIndex].activeBtns = [btnItem.value];
 
-		// selectTags.value.push(btnStr);
-		const manualData = manualReply[btnStr];
+		const manualData = manualReply[btnItem.nextUserId];
 		if (manualData.opertionType === 'chooseMedia') {
 			// 上传图片
 			uni.chooseMedia({
@@ -368,102 +293,24 @@
 
 		} else {
 			// 假装回复
+			const userRelyStr = manualData.content.replaceAll('{replace}', btnItem.label); // 替换选择的按钮文案
+			
+			const interfaceParams = { ...manualData.interfaceParams };
+			if(btnItem.value !== 0) {
+				// 当选择0【没有】时，值还是默认值，只有不为0时才会有数据
+				interfaceParams[Object.keys(interfaceParams)[0]] = btnItem.value;
+			}
+			
 			dataList.value.push({
-				content: manualData.content,
 				type: 'right',
+				content: userRelyStr,
+				interfaceParams,
 			})
+			canSend.value = false;
+			inputValue.value = '';
 			addMockRobotReply(manualData.nextRobotId);
 		}
 	}
-
-	const fetchWebSocket = (promptData) => {
-		uni.onSocketOpen(async function (res) {
-			console.log('WebSocket连接已打开！');
-			
-		});
-		uni.onSocketMessage(async function (res) {
-			console.log('收到服务器内容：');
-			const msgData = JSON.parse(res.data);
-			console.log(msgData)
-			if (msgData.type === 'executed' && Number(msgData.data.node) == 100) {
-				console.log('最终结果')
-				uni.closeSocket()
-
-				const imagesRes = await httpsRequest(`/hh/comfyui_api_v2/historyByPromptId/${promptData.prompt_id}`, {}, 'GET');
-				if (!imagesRes) return;
-				const dataListTemp = JSON.parse(JSON.stringify(dataList.value))
-				dataListTemp[dataListTemp.length - 1].imagesOptions = imagesRes.map(imgItemSrc => {
-					return {
-						url: imgItemSrc,
-						status: 'done',
-						precent: 100
-					}
-				})
-				dataList.value = dataListTemp;
-				nextTick(() => {
-					isGenLoading.value = false;
-
-					// 保存
-					putWorkData();
-				})
-			} else if (msgData.type === 'progress' || msgData.type === 'executing') {
-				let precent = 0;
-				precentState.numerator = precentState.numerator + 1;
-				if (precentState.numerator === precentState.nodeCount) {
-					precent = 95;
-				} else {
-					precent = ((precentState.numerator / precentState.nodeCount).toFixed(2) * 100).toFixed(0) ;
-				}
-				if (dataList.value[dataList.value.length - 1].imagesOptions) {
-					dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions
-						.map(imgItem => {
-							return {
-								url: '',
-								status: 'loading',
-								precent: precent
-							}
-					})
-				}
-
-			} else if (msgData.type === 'execution_cached') {
-				precentState.nodeCount = precentState.nodeCount - (msgData.data.nodes || []).length;
-			}
-		})
-
-		uni.onSocketClose(function (res) {
-			console.log('WebSocket 已关闭！');
-		})
-	}
-
-	const getPaintingTask = async (code : string, promptWords : string) => {
-		const UserImagesMessages = dataList.value.filter((item, index) => item.type === 'right' && item.refer === true);
-		const params = {
-			code,
-			promptWords: promptWords || ' ',
-			fileUrl: '',
-			clientId: clientUNIId.value
-		};
-		if (UserImagesMessages.length) {
-			// 是否有用户参考图
-			const promptImageUrl = UserImagesMessages[UserImagesMessages.length - 1].images[0];
-			params.fileUrl = promptImageUrl;
-		}
-		// 在这里，先打开ws
-		isGenLoading.value = true;
-		uni.connectSocket({
-			url: `wss://huatu.solart.pro/ws?clientId=${clientUNIId.value}`
-			// url: `wss://u262838-87ee-75614327.westx.seetacloud.com:8443/ws?clientId=${clientUNIId.value}`
-			// url: 'wss://101.126.93.249/ws/?clientId=' + clientUNIId.value
-		});
-		const promptRes = await httpsRequest('/hh/comfyui_api_v2/doPrompt', params);
-		if (promptRes) {
-			precentState.numerator = 0;
-			precentState.nodeCount = promptRes.node_count;
-			fetchWebSocket(promptRes);
-		}
-	}
-
-
 	const initContentHeight = () => {
 		uni.createSelectorQuery().in(instance).select('.contact-container')
 			.boundingClientRect((data) => {
@@ -482,45 +329,59 @@
 			initContentHeight()
 		})
 	}
-	const onSendMessage = async (canClick) => {
+	const onSendMessage = async (canClick: boolean) => {
 		if (!canClick) {
 			return;
 		}
+		
+		// 在用户发送消息之前，机器人说了什么
+		const prevRobotMsg = dataList.value[dataList.value.length - 1];
+		
+		/*** 构建用户消息结构
+		interfaceParams: {
+			promptWords: { text: '', fontfamily: '' }, 
+		},
+		---> 
+		interfaceParams: {
+			promptWords: { text: '用户输入', fontfamily: '' }, 
+		},
+		***/
+		const nextUserRely = prevRobotMsg.nextUserReply || {};
+		const interfaceParams = { ...nextUserRely.interfaceParams };
+		interfaceParams[Object.keys(interfaceParams)[0]] = { text: inputValue.value, fontfamily: '' };
+	
+		// 给dataList添加用户数据
 		dataList.value.push({
-			content: inputValue.value,
 			type: 'right',
-			compute: true // 用于标识加入计算
+			content: inputValue.value,
+			interfaceParams,
+			tooltipsBtns: prevRobotMsg.nextUserReply.tooltipsBtns || undefined
 		})
-		putWorkData();
-
+		
+		// 保存用户说了什么
+		// putWorkData();
+		// 输入完成后，输入框不允许再输入
 		canSend.value = false;
 		inputValue.value = '';
 
-		if (lastRobotMsg.value) {
-			// 这里写死是选择模版。
-			addMockRobotReply(5);
-		} else {
-			// 这里写死下一步生成了logo
-			addMockRobotReply(3);
-			const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
-			const res = await getPaintingTask('logo_draw', UserMessages[0].content);
+		// 输入完后，机器人做出回应
+		console.log(prevRobotMsg);
+		if (prevRobotMsg.afterUserSendNextRobotId) {
+			addMockRobotReply(prevRobotMsg.afterUserSendNextRobotId);
 		}
 	}
 
-	const genResultImgByTemp = (imgUrl : string) => {
-		const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === imgUrl);
-		const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.compute === true);
-		const promptText = UserMessages.length === 2 ? UserMessages[1].content : ''
-		getPaintingTask(findWorkFlow.code, promptText);
-	}
+	// const genResultImgByTemp = (imgUrl : string) => {
+	// 	const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === imgUrl);
+	// 	const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.userInputSend === true);
+	// 	const promptText = UserMessages.length === 2 ? UserMessages[1].content : ''
+	// 	// getPaintingTask(findWorkFlow.code, promptText);
+	// }
 
-	const onUserSelectImg = async (evt, messageIndex) => {
-		const imgValue = JSON.parse(evt.detail.value);
+	const onUserSelectImg = async (imgValue : ImgOption, messageIndex : number) => {
 		if (imgValue.status !== 'done') {
 			return;
 		}
-		console.log('选择')
-		console.log(imgValue);
 		const imgUrl = imgValue.url;
 		if (!imgUrl) {
 			return;
@@ -528,37 +389,28 @@
 		if (messageIndex !== dataList.value.length - 1) {
 			return;
 		}
-
 		dataList.value[messageIndex].activeImages = [imgUrl];
-
-		if (lastRobotMsg.value) {
-			// 最后选模版
-			dataList.value.push({
-				type: 'right',
-				content: '我已经选定了',
-				images: [imgUrl],
-				// compute: true // 用于标识加入计算
-			})
-			addMockRobotReply(6);
-			genResultImgByTemp(imgUrl);
-		} else {
-			dataList.value.push({
-				type: 'right',
-				content: '我已经选定了',
-				images: [imgUrl],
-				refer: true // 用于标识下发任务时的图片
-			})
-			addMockRobotReply(4);
-			lastRobotMsg.value = true;
-			canSend.value = true;
-		}
-	}
-
-	const previewImg = (url : string) => {
-		console.log(url);
-		uni.previewImage({
-			urls: [url],
-		});
+		
+		/*** 构建用户消息结构 eg: 
+		interfaceParams: {
+			bgImgUrl: '', 
+		},
+		---> 
+		interfaceParams: {
+			bgImgUrl: 'https:***', 
+		},
+		***/
+		const manualData = manualReply[dataList.value[messageIndex].nextUserId];
+		const interfaceParams = manualData.interfaceParams;
+		interfaceParams[Object.keys(interfaceParams)[0]] = imgUrl;
+		
+		dataList.value.push({
+			type: 'right',
+			content: manualData.content,
+			interfaceParams
+		})
+	
+		addMockRobotReply(manualData.nextRobotId);
 	}
 
 	onBeforeUnmount(() => {
@@ -574,36 +426,11 @@
 		uni.navigateTo({
 			url: '/pages/historyDesign/historyDesign'
 		})
-		// uni.redirectTo({
-		// 	url: '/pages/historyDesign/historyDesign'
-		// })
-	}
-
-	// 重新生成
-	const reloadGen = () => {
-		// 后面会改
-		if (isGenLoading.value) {
-			uni.showToast({
-				icon: 'none',
-				title: '任务正在生成，请稍等'
-			})
-			return;
-		}
-		dataList.value[dataList.value.length - 1].imagesOptions = dataList.value[dataList.value.length - 1].imagesOptions.map(imgItem => {
-			return {
-				url: '',
-				status: 'queue_remaining',
-				precent: 0
-			}
-		})
-		const workFlowUrl = dataList.value[dataList.value.length - 2].images[0]; // 用户选了哪个模版
-		const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === workFlowUrl);
-		// getPaintingTask(findWorkFlow.code);
 	}
 
 	// 新增会话
 	const addNewWork = async () => {
-		await putWorkData();
+		// await putWorkData();
 		try {
 			uni.closeSocket()
 			clearTimeout(timer.value);
@@ -624,7 +451,14 @@
 			isGenLoading.value = false;
 		})
 	}
+	
+	const onDataChange = (newData, index: number) => {
+		dataList.value[index]= newData;
+	}
 </script>
+
+
+
 
 <style scoped lang="scss">
 	.container {
@@ -679,8 +513,23 @@
 		background: white;
 
 		.history-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			height: 100%;
+			box-sizing: border-box;
+			border: 1px solid rgb(237, 241, 246);
+			width: 188rpx;
 			color: $gray-color;
 			font-size: 26rpx;
+			background: #EDF1F6;
+			border-radius: 24px;
+			.iconfont {
+				display: inline-block;
+				margin-right: 8rpx;
+				margin-top: 4rpx;
+				font-size: 26rpx;
+			}
 		}
 
 		.input-box {
@@ -721,166 +570,6 @@
 
 	}
 
-	.robot-contact-item {
-		display: flex;
-
-		.avatar {
-			width: 68rpx;
-			height: 68rpx;
-		}
-
-		.robot-contact-info-root-box {
-			margin-left: 24rpx;
-			margin-bottom: 40rpx;
-
-			.reload {
-				color: $link-color;
-				font-size: 28rpx;
-				padding-top: 16rpx;
-
-				&.loading {
-					color: $gray-color;
-				}
-
-				.iconfont {
-					display: inline-block;
-					font-size: 24rpx;
-					margin-right: 20rpx;
-				}
-			}
-		}
-
-		.robot-contact-info-box {
-
-			width: 500rpx;
-			background: white;
-			border-radius: 24rpx;
-			padding: 32rpx;
-
-			.title {
-
-				font-size: 28rpx;
-				line-height: 48rpx;
-				font-weight: 500;
-				margin-bottom: 8rpx;
-				color: $font-primary-color2;
-			}
-
-			.content {
-				font-size: 28rpx;
-				line-height: 44rpx;
-				font-weight: 400;
-				color: $font-primary-color2;
-				white-space: pre-wrap;
-			}
-		}
-
-		.btns {
-			margin-top: 24rpx;
-			display: flex;
-
-			.robot-btn {
-				background: linear-gradient(135.00deg, rgb(23, 242, 95, 0.2) 0%, rgb(37, 106, 247, 0.2) 100%);
-				border-radius: 200rpx;
-				height: 56rpx;
-				line-height: 56rpx;
-				color: $font-primary-color2;
-				font-size: 26rpx;
-				font-weight: 400;
-				margin-left: 0 !important;
-
-				&:not(:last-child) {
-					margin-right: 36rpx !important;
-				}
-
-				&.active {
-					background: linear-gradient(135.00deg, rgb(23, 242, 95), rgb(37, 106, 247) 100%);
-				}
-			}
-		}
-
-		.images-box {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: space-between;
-			margin-bottom: -28rpx;
-
-
-			.image-option-box {
-				display: inline-flex;
-				flex-direction: column;
-				align-items: center;
-
-				.imageCover {
-					position: absolute;
-					// line-height: 240rpx;
-					text-align: center;
-					width: 240rpx;
-					height: 240rpx;
-					border-radius: 24rpx;
-					background: linear-gradient(135.00deg, rgb(23, 242, 95, 0.1) 0%, rgb(37, 106, 247, 0.1) 100%);
-					color: rgb(107, 116, 143);
-					font-size: 24rpx;
-					font-weight: 400;
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-					align-items: center;
-
-					.progress-box {
-						width: 186rpx;
-						margin-top: 16rpx;
-					}
-				}
-
-				image {
-					width: 240rpx;
-					height: 240rpx;
-					border-radius: 24rpx;
-					// background: $border-grey-color;
-				}
-			}
-
-			.radio-box {
-				padding-top: 16rpx;
-				margin-bottom: 28rpx;
-			}
-
-			.img-radio {
-
-				transform: scale(0.6);
-
-				&::v-deep {
-					.wx-radio-input.wx-radio-input-disabled {
-						// border : none;
-						border-radius: 100%;
-						background: white;
-						color: #fff;
-					}
-
-					.wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked {
-						border: none;
-						border-radius: 100%;
-						color: red;
-						background: #256AF7;
-					}
-
-					.wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked::before {
-						border-radius: 50%;
-						width: 20px;
-						height: 20px;
-						line-height: 20px;
-						text-align: center;
-						font-size: 15px;
-						color: #fff;
-						background: transparent;
-						transform: translate(-50%, -50%) scale(1);
-						-webkit-transform: translate(-50%, -50%) scale(1);
-					}
-				}
-			}
-		}
-	}
 
 	.human-contact-item {
 		display: flex;
@@ -932,5 +621,28 @@
 		justify-content: space-between;
 		padding: 24rpx 40rpx;
 		border-bottom: solid 1px #F2F3F4;
+	}
+
+	.add-new-contract-btn {
+		display: flex;
+		align-items: center;
+		position: fixed;
+		right: 0;
+		bottom: 340rpx;
+		z-index: 99;
+		width: 154rpx;
+		height: 68rpx;
+		line-height: 68rpx;
+		background: linear-gradient(135.00deg, rgb(23, 242, 95) 0%, rgb(37, 106, 247) 100%);
+		box-shadow: 0px 0px 10px 0px rgba(2, 32, 77, 0.15);
+		border-radius: 34rpx 0 0 34rpx;
+		font-size: 28rpx;
+		font-weight: 400;
+		color: white;
+
+		.iconfont {
+			margin: 0 10rpx 0 26rpx;
+			font-size: 36rpx;
+		}
 	}
 </style>

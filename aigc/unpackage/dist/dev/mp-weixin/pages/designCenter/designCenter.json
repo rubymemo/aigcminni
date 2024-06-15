@@ -4,7 +4,7 @@
   "backgroundColor": "#ffffff",
   "enablePullDownRefresh": false,
   "usingComponents": {
-    "g-progress": "../../components/g-progress/index",
-    "g-color-btn": "../../components/g-color-btn/index"
+    "user-message-vue": "./components/userMessage",
+    "robot-message-vue": "./components/robotMessage"
   }
 }

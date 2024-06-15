@@ -65,3 +65,42 @@ export function getDay(day) {
 	return year + "-" + month + "-" + today;
 
 }
+
+export function uploadImg(params: {
+	success: (urlPrams: string) => void
+}) {
+	const token = uni.getStorageSync('token');
+	const header = {
+		Authorization: token
+	}
+	uni.chooseMedia({
+		count: 1,
+		mediaType: ['image'],
+		sourceType: ['album', 'camera'],
+		camera: 'back',
+		success: (chooseImageRes) => {
+			const tempFilePaths = chooseImageRes.tempFiles;
+			uni.uploadFile({
+				header,
+				url: `${host}/hh/comfyui_api_v2/uploadImage`,
+				filePath: tempFilePaths[0].tempFilePath,
+				name: 'image',
+				success: (uploadFileRes) => {
+					const uploadData = JSON.parse(uploadFileRes.data);
+					if (Number(uploadData.code) === 2000) {
+						params.success(uploadData.data);
+					} else {
+						uni.showToast({
+							icon: 'none', title: '上传失败，请联系客户或稍后重试'
+						})
+					}
+				},
+				fail: () => {
+					uni.showToast({
+						icon: 'none', title: '上传失败，请联系客户或稍后重试'
+					})
+				}
+			});
+		}
+	});
+}

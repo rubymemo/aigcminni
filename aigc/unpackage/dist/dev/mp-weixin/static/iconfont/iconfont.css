@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4558340 */
-  src: url('iconfont.woff2?t=1716710726846') format('woff2'),
-       url('iconfont.woff?t=1716710726846') format('woff'),
-       url('iconfont.ttf?t=1716710726846') format('truetype');
+  src: url('iconfont.woff2?t=1718270954082') format('woff2'),
+       url('iconfont.woff?t=1718270954082') format('woff'),
+       url('iconfont.ttf?t=1718270954082') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,38 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-delete:before {
+  content: "\e609";
+}
+
+.icon-check:before {
+  content: "\e607";
+}
+
+.icon-close:before {
+  content: "\e608";
+}
+
+.icon-font-family:before {
+  content: "\e606";
+}
+
+.icon-copy:before {
+  content: "\e605";
+}
+
+.icon-edit:before {
+  content: "\e604";
+}
+
+.icon-history:before {
+  content: "\e602";
+}
+
+.icon-new-contract:before {
+  content: "\e603";
 }
 
 .icon-loading:before {
@@ -93,7 +125,7 @@
   content: "\e630";
 }
 
-.icon-a-bianzu18:before {
+.icon-arrow:before {
   content: "\e62f";
 }
 
