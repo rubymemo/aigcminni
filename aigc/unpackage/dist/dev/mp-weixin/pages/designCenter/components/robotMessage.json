@@ -1,0 +1,9 @@
+{
+  "component": true,
+  "usingComponents": {
+    "g-progress": "../../../components/g-progress/index",
+    "download-img-modal": "./downloadImgModal",
+    "upload-img-modal": "./uploadImgModal",
+    "preview-img-modal": "./previewImgModal"
+  }
+}

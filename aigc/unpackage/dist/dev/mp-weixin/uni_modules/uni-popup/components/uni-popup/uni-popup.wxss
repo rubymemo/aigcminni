@@ -1,0 +1,81 @@
+/* 水平间距 */
+/* 水平间距 */
+page {
+  color: #131526;
+}
+button::after {
+  border: none;
+}
+button.primary {
+  border-radius: 200rpx;
+  background: linear-gradient(135deg, #17f25f 0%, #256af7 100%);
+  color: #FFFFFF;
+  border: none !important;
+  font-size: 32rpx;
+  font-weight: 400;
+}
+button.normal {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #A3B4CC;
+  font-size: 32rpx;
+  font-weight: 400;
+}
+button.normal-1 {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #344156;
+  font-size: 32rpx;
+  font-weight: 400;
+  border: 1px solid #CFDAEB;
+}
+button.big {
+  width: 100%;
+  height: 100rpx;
+  line-height: 100rpx;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled {
+  border-radius: 100%;
+  background: #fff;
+  color: #fff;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked {
+  border: none;
+  border-radius: 100%;
+  color: #fff;
+  background: #256AF7;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked::before {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 15px;
+  color: #fff;
+  background: transparent;
+  transform: translate(-50%, -50%) scale(1);
+  -webkit-transform: translate(-50%, -50%) scale(1);
+}
+.uni-popup {
+  position: fixed;
+  z-index: 99;
+}
+.uni-popup.top, .uni-popup.left, .uni-popup.right {
+  top: 0;
+}
+.uni-popup .uni-popup__wrapper {
+  display: block;
+  position: relative;
+  /* iphonex 等安全区设置，底部安全区适配 */
+}
+.uni-popup .uni-popup__wrapper.left, .uni-popup .uni-popup__wrapper.right {
+  padding-top: 0;
+  flex: 1;
+}
+.fixforpc-z-index {
+  z-index: 999;
+}
+.fixforpc-top {
+  top: 0;
+}
