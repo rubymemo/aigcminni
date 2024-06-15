@@ -7,16 +7,8 @@
       :disabled="actionDisabled(index)"
       @reload="handleReload"
     >
-      <template #sessionStart="{ data }">
-        <a-button
-          v-for="btn in data.btns"
-          :key="btn"
-          :disabled="actionDisabled(index)"
-          class="action-button"
-          :class="data.activeBtns.includes(btn) && 'active-button'"
-          @click="handleCreateLogo(btn, data)"
-          >{{ btn }}</a-button
-        >
+      <template #sessionStart="{ data, disabled }">
+        <RobotBtns :data="data" :disabled="disabled" />
       </template>
       <template #refrenceImage="{ data, disabled }">
         <a-button
@@ -182,6 +174,7 @@ import { useUserStore } from '@/store';
 import GProgress from './g-progress.vue';
 import { cloneDeep } from 'lodash';
 import { LogoRobotReply, PosterRobotReply, firstRobotReply } from '../mock';
+import RobotBtns from './robot-btns.vue';
 
 interface CommitItem extends SessionItemProps {
   id: string;
