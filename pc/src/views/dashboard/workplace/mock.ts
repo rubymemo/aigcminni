@@ -6,8 +6,8 @@ export enum ReplyTypeEnum {
 }
 
 // 海报的回复
-export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
-  {
+export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
+  201: {
     data: {
       content:
         '请您简要描述您想要设计的海报的想法，例如：“帮我生成一张端午节的宣传问候营销图“\n请在下方输入框内进行描述并发送给我',
@@ -22,7 +22,7 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  202: {
     data: {
       content: '请选择一个适合您需求的图片比例',
       imgRatioOptions: [
@@ -31,9 +31,8 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       ],
       activeBtns: [],
     },
-    slotName: 'sizeChoose',
   },
-  {
+  203: {
     data: {
       content:
         '下面可以开始选择一种您喜欢的风格啦\n也可选择默认，完成后马上为您开始设计',
@@ -48,10 +47,11 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
         { label: '复古', value: 'vintage style ', nextUserId: 203 },
         { label: '单色', value: 'monochrome', nextUserId: 203 },
       ],
+      activeBtns: [],
     },
-    slotName: 'styleChoose',
+    slotName: 'btns',
   },
-  {
+  204: {
     data: {
       title: 'Hi~ 背景效果图已完成',
       titleStyle: {
@@ -95,7 +95,7 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  205: {
     data: {
       content: '请输入一个图片的主标题\n请在下方输入框内输入并发送给我',
       btns: [{ label: '没有', value: 0, nextUserId: 205 }],
@@ -111,7 +111,7 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  206: {
     data: {
       content: '请输入一个图片的副标题\n请在下方输入框内输入并发送给我',
       btns: [{ label: '没有', value: 0, nextUserId: 206 }],
@@ -127,7 +127,24 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  207: {
+    data: {
+      content:
+        '请您输入关于图片想要描述的内容，如果您想输入的内容有很多段，不要着急\n当您输入完成第一段后，我会提示您继续进行输入\n请在下方输入框内输入并发送给我',
+      btns: [{ label: '没有', value: 0, nextUserId: 207 }],
+      activeBtns: [],
+      canUserSend: true,
+      afterUserSendNextRobotId: 208,
+      nextUserReply: {
+        // 下次用户回复时，会参考哪些参数
+        interfaceParams: {
+          content: { text: '', fontfamily: '' },
+        },
+        tooltipsBtns: ['copy', 'edit', 'family'],
+      },
+    },
+  },
+  208: {
     data: {
       content:
         '请您输入关于图片想要描述的内容，如果您想输入的内容有很多段，不要着急\n当您输入完成第一段后，我会提示您继续进行输入\n请在下方输入框内输入并发送给我',
@@ -144,7 +161,7 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  209: {
     data: {
       content:
         '请您输入关于图片想要描述的内容，如果您想输入的内容有很多段，不要着急\n当您输入完成第一段后，我会提示您继续进行输入\n请在下方输入框内输入并发送给我',
@@ -161,7 +178,7 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  210: {
     data: {
       content:
         '您是否需要上传一些图形让我添加在最终的海报中，如果不需要请点不需要，\n如果需要请点击对应的上传按钮进行上传并在上传后点击完成',
@@ -185,7 +202,7 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       afterUserSendNextRobotId: 211,
     },
   },
-  {
+  211: {
     data: {
       title: 'Hi~ 您的创意意想法模板已生成',
       titleStyle: {
@@ -224,7 +241,7 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  212: {
     data: {
       title: 'Hi~ 最终效果图已完成',
       titleStyle: {
@@ -248,18 +265,10 @@ export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-];
+};
 
-export const LogoRobotReply: Array<Partial<SessionItemProps>> = [
-  // {
-  //   data: {
-  //     content: '您是否有参考图给我参考呢？',
-  //     btns: ['没有参考图', '上传参考图'],
-  //     activeBtns: [],
-  //   },
-  //   slotName: 'refrenceImage',
-  // },
-  {
+export const LogoRobotReply: Record<number, Partial<SessionItemProps>> = {
+  1: {
     data: {
       content:
         '请您简要描述您想要设计的logo的想法，\n例如：“一间开在海边的咖啡厅”\n请在下方输入框内进行描述并发送给我',
@@ -274,7 +283,7 @@ export const LogoRobotReply: Array<Partial<SessionItemProps>> = [
       },
     },
   },
-  {
+  2: {
     data: {
       content:
         '下面可以开始选择一种您喜欢的风格啦\n也可选择默认，完成后马上为您开始设计',
@@ -291,9 +300,9 @@ export const LogoRobotReply: Array<Partial<SessionItemProps>> = [
       ],
       activeBtns: [],
     },
-    slotName: 'styleChoose',
+    slotName: 'btns',
   },
-  {
+  3: {
     data: {
       content:
         '为了达到更好的效果，请把你的品牌名称告诉我；如果选择没有，可能会导致最终的logo没有品牌名称，请谨慎选择没有哦\n请直接在下方输入，或选择暂时还没有',
@@ -311,57 +320,9 @@ export const LogoRobotReply: Array<Partial<SessionItemProps>> = [
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
-  // {
-  //   data: {
-  //     title: 'Hi~ 正在为您生成创意想法...',
-  //     titleStyle: {
-  //       color: '#256AF7',
-  //     },
-  //     content:4444444
-  //       '根据您提供的信息，以下是我针对图片的设计；点击图片可查看大图点击下方选择框选定图形，进入最终效果图生成。',
-  //     imagesOptions: [
-  //       // queue_remaining-任务排队中 loading - 生成中
-  //       { url: '', status: 'queue_remaining', precent: 0 },
-  //       { url: '', status: 'queue_remaining', precent: 0 },
-  //       { url: '', status: 'queue_remaining', precent: 0 },
-  //       { url: '', status: 'queue_remaining', precent: 0 },
-  //     ],
-  //     activeImages: [],
-  //     compute: true, // 用于最后计算是不是保存的字段
-  //     couldReload: true,
-  //   },
-  //   slotName: 'logoSelect',
-  // },
-  // {
-  //   data: {
-  //     content: '请输入品牌名称',
-  //     btns: ['没有'],
-  //     activeBtns: [],
-  //   },
-  //   slotName: 'supplyText',
-  // },
-  // {
-  //   data: {
-  //     content: '请选择一款您喜欢的模版开始生成效果图',
-  //     imagesOptions: [
-  //       {
-  //         url: '/static/png/mock1.png',
-  //         status: 'done',
-  //         precent: 100,
-  //       },
-  //       {
-  //         url: '/static/png/mock2.png',
-  //         status: 'done',
-  //         precent: 100,
-  //       },
-  //     ],
-  //     activeImages: [],
-  //     compute: true, // 用于最后计算是不是保存的字段
-  //   },
-  //   slotName: 'templateImg',
-  // },
-  {
+  4: {
     data: {
       title: 'Hi~ 正在为您生成创意想法...',
       titleStyle: {
@@ -382,9 +343,9 @@ export const LogoRobotReply: Array<Partial<SessionItemProps>> = [
         type: 'doPrompt',
       },
     },
-    slotName: 'lastStep',
+    slotName: 'productSelect',
   },
-];
+};
 
 export const firstRobotReply: Partial<SessionItemProps> = {
   data: {
@@ -396,42 +357,100 @@ export const firstRobotReply: Partial<SessionItemProps> = {
     ],
     activeBtns: [],
   },
-  slotName: 'sessionStart',
+  slotName: 'btns',
 };
 
-export const userReply: Record<ReplyTypeEnum, Partial<SessionItemProps>[]> = {
-  [ReplyTypeEnum.LOGO_DRAW]: [
-    {
-      data: {
-        content: 'AI Logo生成',
-        nextRobotId: 1,
-        interfaceParams: {
-          code: '',
-        },
-        hiddenChangeText: true,
-        hiddenChangeFont: true,
+export const userReply: Record<
+  ReplyTypeEnum,
+  Record<string, Partial<SessionItemProps>>
+> = {
+  [ReplyTypeEnum.LOGO_DRAW]: {
+    1: {
+      content: 'AI Logo生成',
+      nextRobotId: 1,
+      interfaceParams: {
+        code: '',
       },
     },
-    {
-      data: {
-        content: '{replace}', // {replace} 表示替换文案
-        nextRobotId: 3,
-        interfaceParams: {
-          styleTag: '',
-        },
+    2: {
+      content: '{replace}', // {replace} 表示替换文案
+      nextRobotId: 3,
+      interfaceParams: {
+        styleTag: '',
       },
     },
-    {
-      data: {
-        content: '{replace}', // {replace} 表示替换文案
-        nextRobotId: 4,
-        interfaceParams: {
-          brandName: { text: '', fontfamily: '' },
-        },
+    3: {
+      content: '{replace}', // {replace} 表示替换文案
+      nextRobotId: 4,
+      interfaceParams: {
+        brandName: { text: '', fontfamily: '' },
       },
     },
-  ],
-  [ReplyTypeEnum.POSTER_DRAW]: [],
+    201: {
+      content: 'AI 海报',
+      nextRobotId: 201,
+      interfaceParams: {
+        code: '',
+      },
+    },
+    202: {
+      content: '{replace}',
+      nextRobotId: 203,
+      interfaceParams: {
+        imgRatio: '',
+      },
+    },
+    203: {
+      content: '{replace}',
+      nextRobotId: 204,
+      interfaceParams: {
+        styleTag: '',
+      },
+    },
+    204: {
+      content: '已选择完毕',
+      nextRobotId: 205,
+      interfaceParams: {
+        bgImgUrl: '', // 选择的背景图
+      },
+    },
+    205: {
+      content: '{replace}',
+      nextRobotId: 206,
+      interfaceParams: {
+        title: { text: '', fontfamily: '' },
+      },
+    },
+    206: {
+      content: '{replace}',
+      nextRobotId: 207,
+      interfaceParams: {
+        title: { text: '', fontfamily: '' },
+      },
+    },
+    207: {
+      content: '没有啦～',
+      nextRobotId: 210,
+      interfaceParams: {
+        content: null, // 在请求接口的时候，如果是null则不会参与计算
+      },
+    },
+    208: {
+      content: '{replace}',
+      nextRobotId: 211,
+      interfaceParams: {
+        additionalReferImgs: { logo: '', QRCode: '', topicMap: '' },
+      },
+    },
+    209: {
+      content: '已选择完毕',
+      nextRobotId: 212,
+      interfaceParams: {
+        templateId: '',
+      },
+    },
+  },
+  [ReplyTypeEnum.POSTER_DRAW]: {},
 };
 
 export const robotReply = {

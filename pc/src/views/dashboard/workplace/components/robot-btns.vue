@@ -36,7 +36,7 @@ const acticveBtns = computed(() => data.value.activeBtns || []);
 const handleBtnClick = (item: BtnItem) => {
   data.value.activeBtns = [item.value];
   if (props.commitIndex === 0) {
-    emit('updateSessionType', item.value);
+    emit('updateSessionType', item);
   }
   emit('change', item);
 };

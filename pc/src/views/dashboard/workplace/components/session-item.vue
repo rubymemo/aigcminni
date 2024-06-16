@@ -64,22 +64,23 @@
       </div>
       <div class="user-action">
         <a-tooltip
-          v-for="(item, index) in userActionList"
+          v-for="(item, index) in userActionListComputed"
           :key="index"
           :content="item.tooltip"
         >
-          <div
-            v-show="!item.hidden()"
-            class="user-action-icon-item"
-            @click.stop="item.action"
-          >
+          <div class="user-action-icon-item" @click.stop="item.action">
             <span class="iconfont user-icon" :class="item.icon" />
           </div>
         </a-tooltip>
       </div>
+
       <ChooseFontModal
         v-model:visible="userMessageState.chooseFontModalVisible"
-        :font="data.font"
+        :data="data"
+      />
+      <EditmMessageModal
+        v-model:visible="userMessageState.editContentModalVisible"
+        :data="data"
       />
     </div>
   </div>
@@ -89,9 +90,9 @@
 import CommonAvatar from '@/components/common-avatar.vue';
 import { computed, h, reactive, ref, toRefs } from 'vue';
 import Reload from '@/assets/images/reload.png';
-import { IconCopy } from '@arco-design/web-vue/es/icon';
 import { Message } from '@arco-design/web-vue';
 import ChooseFontModal from './choose-font-modal.vue';
+import EditmMessageModal from './edit-message-modal.vue';
 
 interface DataItem {
   title?: string;
@@ -104,7 +105,7 @@ export interface SessionItemProps {
   title?: string;
   content?: string;
   image?: string;
-  data: DataItem;
+  data: any;
   author: 'user' | 'robot';
   slotName?: string;
   preset?: 'template' | 'result' | 'style';
@@ -136,15 +137,13 @@ const userActionList = [
   {
     tooltip: '复制全文',
     icon: 'icon-copy',
-    hidden: () => false,
+    key: 'copy',
     action: copyText,
   },
   {
     tooltip: '编辑文字',
     icon: 'icon-edit',
-    hidden: () => {
-      return props.data.hiddenChangeText;
-    },
+    key: 'edit',
     action: () => {
       userMessageState.editContentModalVisible = true;
     },
@@ -152,14 +151,16 @@ const userActionList = [
   {
     tooltip: '字体选择',
     icon: 'icon-ziti1',
-    hidden: () => {
-      return props.data.hiddenChangeText;
-    },
+    key: 'family',
     action: () => {
       userMessageState.chooseFontModalVisible = true;
     },
   },
 ];
+
+const userActionListComputed = computed(() =>
+  userActionList.filter((item) => data.value.tooltipsBtns.includes(item.key)),
+);
 
 const handleReload = () => {
   if (data.value.loading) {

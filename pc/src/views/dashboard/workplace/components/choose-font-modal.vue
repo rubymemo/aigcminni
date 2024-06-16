@@ -1,5 +1,10 @@
 <template>
-  <CommonModal title="字体选择" :width="400">
+  <CommonModal
+    v-model:visible="visible"
+    title="字体选择"
+    :width="400"
+    @ok="handleOk"
+  >
     <div class="container">
       <div v-for="item in fontList" :key="item.name" class="font-item">
         <div
@@ -20,11 +25,17 @@
 <script setup lang="ts">
 import alipuhuiImg from '@/assets/images/ali-puhui.png';
 import youshebiaotiImg from '@/assets/images/youshebiaotihei.png';
-import { ref } from 'vue';
+import { Message } from '@arco-design/web-vue';
+import { computed, ref, toRefs, watch } from 'vue';
 
 const props = defineProps<{
-  font: string;
+  data: any;
+  visible: boolean;
 }>();
+
+const emit = defineEmits(['update:visible']);
+
+const { data } = toRefs(props);
 
 const activeFont = ref('');
 
@@ -42,6 +53,33 @@ const fontList = [
     img: youshebiaotiImg,
   },
 ];
+
+const visible = computed({
+  get: () => props.visible,
+  set: (val) => emit('update:visible', val),
+});
+
+watch(
+  () => props.visible,
+  (vis) => {
+    if (vis) {
+      const key = Object.keys(data.value.interfaceParams)[0];
+      activeFont.value = data.value.interfaceParams[key].fontfamily;
+      // text.value = props.data.content;
+    }
+  },
+);
+
+const handleOk = () => {
+  if (!activeFont.value) {
+    Message.warning('请选择字体');
+    return;
+  }
+  const key = Object.keys(data.value.interfaceParams)[0];
+  data.value.interfaceParams[key].fontfamily = activeFont.value;
+  // data.value.content = text.value;
+  visible.value = false;
+};
 </script>
 
 <style scoped lang="less">
