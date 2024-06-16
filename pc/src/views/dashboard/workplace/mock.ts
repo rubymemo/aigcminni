@@ -1,5 +1,10 @@
 import { SessionItemProps } from './components/session-item.vue';
 
+export enum ReplyTypeEnum {
+  LOGO_DRAW = 'logo_draw',
+  POSTER_DRAW = 'poster_draw',
+}
+
 // 海报的回复
 export const PosterRobotReply: Array<Partial<SessionItemProps>> = [
   {
@@ -392,6 +397,46 @@ export const firstRobotReply: Partial<SessionItemProps> = {
     activeBtns: [],
   },
   slotName: 'sessionStart',
+};
+
+export const userReply: Record<ReplyTypeEnum, Partial<SessionItemProps>[]> = {
+  [ReplyTypeEnum.LOGO_DRAW]: [
+    {
+      data: {
+        content: 'AI Logo生成',
+        nextRobotId: 1,
+        interfaceParams: {
+          code: '',
+        },
+        hiddenChangeText: true,
+        hiddenChangeFont: true,
+      },
+    },
+    {
+      data: {
+        content: '{replace}', // {replace} 表示替换文案
+        nextRobotId: 3,
+        interfaceParams: {
+          styleTag: '',
+        },
+      },
+    },
+    {
+      data: {
+        content: '{replace}', // {replace} 表示替换文案
+        nextRobotId: 4,
+        interfaceParams: {
+          brandName: { text: '', fontfamily: '' },
+        },
+      },
+    },
+  ],
+  [ReplyTypeEnum.POSTER_DRAW]: [],
+};
+
+export const robotReply = {
+  [ReplyTypeEnum.LOGO_DRAW]: LogoRobotReply,
+  [ReplyTypeEnum.POSTER_DRAW]: PosterRobotReply,
 };
 
 export default {};

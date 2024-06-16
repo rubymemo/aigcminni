@@ -8,7 +8,13 @@
       @reload="handleReload"
     >
       <template #sessionStart="{ data, disabled }">
-        <RobotBtns :data="data" :disabled="disabled" />
+        <RobotBtns
+          :data="data"
+          :disabled="disabled"
+          :commit-index="index"
+          @change="robotReplyChange"
+          @update-session-type="updateSessionType"
+        />
       </template>
       <template #refrenceImage="{ data, disabled }">
         <a-button
@@ -167,14 +173,22 @@ import {
   uploadImageV2,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { v4 } from 'uuid';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
 import GProgress from './g-progress.vue';
 import { cloneDeep } from 'lodash';
-import { LogoRobotReply, PosterRobotReply, firstRobotReply } from '../mock';
+import {
+  LogoRobotReply,
+  PosterRobotReply,
+  ReplyTypeEnum,
+  firstRobotReply,
+  robotReply,
+  userReply,
+} from '../mock';
 import RobotBtns from './robot-btns.vue';
+import { BtnItem } from '@/interface';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -217,6 +231,12 @@ const robotCommitStep = ref(0);
 const couldCreateAndUpdate = ref(false);
 
 const robotReplyRef = ref(LogoRobotReply);
+
+const replyState = reactive({
+  robotReplyIndex: 0,
+  userReplyIndex: 0,
+  replyType: ReplyTypeEnum.LOGO_DRAW,
+});
 
 watch(
   () => commitList.value.length,
@@ -324,10 +344,26 @@ const saveSession = async () => {
   sessionId.value = data.data;
 };
 
+const updateSessionType = (type: string) => {
+  replyState.replyType = type as ReplyTypeEnum;
+};
+
 const getRobotCommit = () => {
-  const c = robotReplyRef.value[robotCommitStep.value];
-  robotCommitStep.value += 1;
+  const c = robotReply[replyState.replyType][replyState.robotReplyIndex];
+  replyState.robotReplyIndex += 1;
   return cloneDeep(c);
+};
+
+const getUserReply = () => {
+  const c = userReply[replyState.replyType][replyState.userReplyIndex];
+  c.author = 'user';
+  replyState.userReplyIndex += 1;
+  return cloneDeep(c);
+};
+
+const robotReplyChange = (item: BtnItem) => {
+  addCommit(getUserReply());
+  addCommit(getRobotCommit());
 };
 
 const addCommit = (params: Partial<CommitItem>) => {
@@ -338,7 +374,7 @@ const addCommit = (params: Partial<CommitItem>) => {
     author,
     id: v4(),
   });
-  if (params.data?.enableInput) {
+  if (params.data?.canUserSend) {
     emit('enabledInput');
   }
   const lastCommit = commitList.value[commitList.value.length - 1];
@@ -359,23 +395,23 @@ const handleReload = () => {
   emit('reload', uploadImageName.value);
 };
 
-const handleCreateLogo = (type: string, data: any) => {
-  data.activeBtns = [type];
-  robotReplyRef.value =
-    type === firstRobotReply.data!.btns[0] ? LogoRobotReply : PosterRobotReply;
-  addCommit({
-    author: 'user',
-    data: {
-      content: `帮我设计一个${type}`,
-    },
-    disabledSubmit: true,
-  });
-  // addCommit({
-  //   content: '您是否有参考图给我参考呢？',
-  //   slotName: 'refrenceImage',
-  // });
-  addCommit(getRobotCommit());
-};
+// const handleCreateLogo = (type: string, data: any) => {
+//   data.activeBtns = [type];
+//   robotReplyRef.value =
+//     type === firstRobotReply.data!.btns[0] ? LogoRobotReply : PosterRobotReply;
+//   addCommit({
+//     author: 'user',
+//     data: {
+//       content: `帮我设计一个${type}`,
+//     },
+//     disabledSubmit: true,
+//   });
+//   // addCommit({
+//   //   content: '您是否有参考图给我参考呢？',
+//   //   slotName: 'refrenceImage',
+//   // });
+//   addCommit(getRobotCommit());
+// };
 
 const noImageUpload = (type: string, data: any) => {
   data.activeBtns = [type];

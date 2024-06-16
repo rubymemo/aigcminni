@@ -1,30 +1,45 @@
 <template>
-  <div>
-    <a-button
-      v-for="btn in data.btns"
-      :key="btn.label"
-      :disabled="disabled"
-      class="action-button"
-      :class="acticveBtns.includes(btn.label) && 'active-button'"
-      >{{ btn.label }}</a-button
-    >
+  <div
+    v-for="btn in data.btns"
+    :key="btn.label"
+    :class="acticveBtns.includes(btn.value) && 'active-button'"
+  >
+    <template v-if="btn.opertionType !== 'chooseMedia'">
+      <a-button
+        :disabled="disabled"
+        class="action-button"
+        @click="handleBtnClick(btn)"
+        >{{ btn.label }}</a-button
+      >
+    </template>
+    <template v-else> </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RobotMessage } from '@/interface';
+import { BtnItem, RobotMessage } from '@/interface';
 import { computed, toRefs } from 'vue';
 
 interface Props {
   data: RobotMessage;
   disabled?: boolean;
+  commitIndex: number;
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits(['change', 'updateSessionType']);
 
 const { data } = toRefs(props);
 
 const acticveBtns = computed(() => data.value.activeBtns || []);
+
+const handleBtnClick = (item: BtnItem) => {
+  data.value.activeBtns = [item.value];
+  if (props.commitIndex === 0) {
+    emit('updateSessionType', item.value);
+  }
+  emit('change', item);
+};
 </script>
 
 <style scoped lang="less">
@@ -57,14 +72,6 @@ const acticveBtns = computed(() => data.value.activeBtns || []);
       color: white !important;
     }
   }
-  &.active-button {
-    color: rgb(255, 255, 255);
-    background: linear-gradient(
-      135deg,
-      rgb(23, 242, 95) 0%,
-      rgb(37, 106, 247) 100%
-    );
-  }
 
   img {
     width: 12px;
@@ -77,5 +84,14 @@ const acticveBtns = computed(() => data.value.activeBtns || []);
       margin-right: 6px !important;
     }
   }
+}
+
+.active-button .action-button {
+  color: rgb(255, 255, 255);
+  background: linear-gradient(
+    135deg,
+    rgb(23, 242, 95) 0%,
+    rgb(37, 106, 247) 100%
+  );
 }
 </style>

@@ -23,7 +23,7 @@ export type RobotMessage = {
   content?: string;
   btns?: Array<BtnItem>; // 有哪些按钮
   imgRatioOptions?: Array<ImgRatioItem>; // 选择生成图片比例，3:4 ｜ 4:3，这个比较特殊，单独用一个字段
-  activeBtns?: string[]; // 选择了哪些按钮
+  activeBtns?: Array<string | number>; // 选择了哪些按钮
   // 表示这几个图片是用来干嘛的， result - 结果。 radio - 单选
   imagesType?: 'result' | 'radio';
   imagesOptions?: Array<ImgOption>; // 生成的图片
