@@ -450,7 +450,92 @@ export const userReply: Record<
       },
     },
   },
-  [ReplyTypeEnum.POSTER_DRAW]: {},
+  [ReplyTypeEnum.POSTER_DRAW]: {
+    1: {
+      content: 'AI Logo生成',
+      nextRobotId: 1,
+      interfaceParams: {
+        code: '',
+      },
+    },
+    2: {
+      content: '{replace}', // {replace} 表示替换文案
+      nextRobotId: 3,
+      interfaceParams: {
+        styleTag: '',
+      },
+    },
+    3: {
+      content: '{replace}', // {replace} 表示替换文案
+      nextRobotId: 4,
+      interfaceParams: {
+        brandName: { text: '', fontfamily: '' },
+      },
+    },
+    201: {
+      content: 'AI 海报',
+      nextRobotId: 201,
+      interfaceParams: {
+        code: '',
+      },
+    },
+    202: {
+      content: '{replace}',
+      nextRobotId: 203,
+      interfaceParams: {
+        imgRatio: '',
+      },
+    },
+    203: {
+      content: '{replace}',
+      nextRobotId: 204,
+      interfaceParams: {
+        styleTag: '',
+      },
+    },
+    204: {
+      content: '已选择完毕',
+      nextRobotId: 205,
+      interfaceParams: {
+        bgImgUrl: '', // 选择的背景图
+      },
+    },
+    205: {
+      content: '{replace}',
+      nextRobotId: 206,
+      interfaceParams: {
+        title: { text: '', fontfamily: '' },
+      },
+    },
+    206: {
+      content: '{replace}',
+      nextRobotId: 207,
+      interfaceParams: {
+        title: { text: '', fontfamily: '' },
+      },
+    },
+    207: {
+      content: '没有啦～',
+      nextRobotId: 210,
+      interfaceParams: {
+        content: null, // 在请求接口的时候，如果是null则不会参与计算
+      },
+    },
+    208: {
+      content: '{replace}',
+      nextRobotId: 211,
+      interfaceParams: {
+        additionalReferImgs: { logo: '', QRCode: '', topicMap: '' },
+      },
+    },
+    209: {
+      content: '已选择完毕',
+      nextRobotId: 212,
+      interfaceParams: {
+        templateId: '',
+      },
+    },
+  },
 };
 
 export const robotReply = {
