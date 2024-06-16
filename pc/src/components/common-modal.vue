@@ -3,8 +3,12 @@
     <template #title> {{ $attrs.title }} </template>
     <slot />
     <div class="common-modal-footer">
-      <a-button class="cancel-btn" @click="handleCancel">取消</a-button>
-      <a-button class="ok-btn" @click="handleConfirm">确认</a-button>
+      <a-button class="cancel-btn" @click="handleCancel">{{
+        props.cancelBtnText
+      }}</a-button>
+      <a-button class="ok-btn" @click="handleConfirm">{{
+        props.okBtnText
+      }}</a-button>
     </div>
   </a-modal>
 </template>
@@ -16,10 +20,14 @@ import { computed } from 'vue';
 interface Props extends /* @vue-ignore */ Omit<ModalConfig, 'content'> {
   hiddenHeader?: boolean;
   hiddenFooter?: boolean;
+  okBtnText?: string;
+  cancelBtnText?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   hiddenFooter: true,
+  okBtnText: '确认',
+  cancelBtnText: '取消',
 });
 
 const emit = defineEmits(['ok', 'cancel']);
