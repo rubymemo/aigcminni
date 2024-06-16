@@ -6,6 +6,125 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "40518149",
+      "name": "plus",
+      "font_class": "plus",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "40518216",
+      "name": "check",
+      "font_class": "check1",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "40518215",
+      "name": "close",
+      "font_class": "close1",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "40518295",
+      "name": "success",
+      "font_class": "success",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "40518280",
+      "name": "write",
+      "font_class": "write",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "40524043",
+      "name": "write",
+      "font_class": "write1",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "40526201",
+      "name": "组合 7173",
+      "font_class": "a-delete",
+      "unicode": "e646",
+      "unicode_decimal": 58950
+    },
+    {
+      "icon_id": "40540272",
+      "name": "down",
+      "font_class": "down",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "40734331",
+      "name": "组合 7974",
+      "font_class": "a-zuhe7974",
+      "unicode": "e63f",
+      "unicode_decimal": 58943
+    },
+    {
+      "icon_id": "40734330",
+      "name": "组合 7960",
+      "font_class": "a-zuhe7960",
+      "unicode": "e644",
+      "unicode_decimal": 58948
+    },
+    {
+      "icon_id": "40734325",
+      "name": "组合 7883",
+      "font_class": "a-zuhe7883",
+      "unicode": "e645",
+      "unicode_decimal": 58949
+    },
+    {
+      "icon_id": "40734323",
+      "name": "相机",
+      "font_class": "xiangji",
+      "unicode": "e647",
+      "unicode_decimal": 58951
+    },
+    {
+      "icon_id": "40734322",
+      "name": "历史 (1)",
+      "font_class": "a-lishi11",
+      "unicode": "e648",
+      "unicode_decimal": 58952
+    },
+    {
+      "icon_id": "40734321",
+      "name": "组合 7980",
+      "font_class": "a-zuhe7980",
+      "unicode": "e649",
+      "unicode_decimal": 58953
+    },
+    {
+      "icon_id": "40734320",
+      "name": "组合 7903",
+      "font_class": "a-zuhe7903",
+      "unicode": "e64a",
+      "unicode_decimal": 58954
+    },
+    {
+      "icon_id": "40734319",
+      "name": "关闭",
+      "font_class": "guanbi",
+      "unicode": "e64b",
+      "unicode_decimal": 58955
+    },
+    {
+      "icon_id": "40734315",
+      "name": "字体1",
+      "font_class": "ziti1",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
       "icon_id": "40715457",
       "name": "delete",
       "font_class": "delete",
@@ -25,13 +144,6 @@
       "font_class": "close",
       "unicode": "e608",
       "unicode_decimal": 58888
-    },
-    {
-      "icon_id": "40695872",
-      "name": "font-family",
-      "font_class": "font-family",
-      "unicode": "e606",
-      "unicode_decimal": 58886
     },
     {
       "icon_id": "40695883",

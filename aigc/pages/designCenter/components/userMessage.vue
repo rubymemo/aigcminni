@@ -3,6 +3,7 @@
 		<view class="human-contact-info-box">
 			<view v-if="showTooltips" class="tooltips">
 				<view v-for="(item, index) in toolList" :key="item.index" class="tooltips-btn" @click="item.click">
+					<!-- <view class="iconfont icon-copy"></view> -->
 					<view :class="`iconfont ${item.icon}`"></view>
 					<view class="text">{{ item.text }}</view>
 				</view>

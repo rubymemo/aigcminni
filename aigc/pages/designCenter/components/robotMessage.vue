@@ -330,6 +330,7 @@
 		}
 		
 		const queryData = createParams();
+		
 		// 在这里，先打开ws， 开始请求生成图片
 		isGenLoading.value = true;
 		uni.connectSocket({

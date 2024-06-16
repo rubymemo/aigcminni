@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4558340 */
-  src: url('iconfont.woff2?t=1718270954082') format('woff2'),
-       url('iconfont.woff?t=1718270954082') format('woff'),
-       url('iconfont.ttf?t=1718270954082') format('truetype');
+  src: url('iconfont.woff2?t=1718528210993') format('woff2'),
+       url('iconfont.woff?t=1718528210993') format('woff'),
+       url('iconfont.ttf?t=1718528210993') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,74 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-plus:before {
+  content: "\e606";
+}
+
+.icon-check1:before {
+  content: "\e60a";
+}
+
+.icon-close1:before {
+  content: "\e60b";
+}
+
+.icon-success:before {
+  content: "\e60c";
+}
+
+.icon-write:before {
+  content: "\e60d";
+}
+
+.icon-write1:before {
+  content: "\e60e";
+}
+
+.icon-a-delete:before {
+  content: "\e646";
+}
+
+.icon-down:before {
+  content: "\e60f";
+}
+
+.icon-a-zuhe7974:before {
+  content: "\e63f";
+}
+
+.icon-a-zuhe7960:before {
+  content: "\e644";
+}
+
+.icon-a-zuhe7883:before {
+  content: "\e645";
+}
+
+.icon-xiangji:before {
+  content: "\e647";
+}
+
+.icon-a-lishi11:before {
+  content: "\e648";
+}
+
+.icon-a-zuhe7980:before {
+  content: "\e649";
+}
+
+.icon-a-zuhe7903:before {
+  content: "\e64a";
+}
+
+.icon-guanbi:before {
+  content: "\e64b";
+}
+
+.icon-ziti1:before {
+  content: "\e64c";
 }
 
 .icon-delete:before {
@@ -23,10 +91,6 @@
 
 .icon-close:before {
   content: "\e608";
-}
-
-.icon-font-family:before {
-  content: "\e606";
 }
 
 .icon-copy:before {
