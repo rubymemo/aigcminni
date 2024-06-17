@@ -92,7 +92,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           size: "14",
           color: "#6b748fab"
         }),
-        j: common_vendor.o(waitTodo),
+        j: common_vendor.o(($event) => goPage("/pages/historyDownloadImg/historyDownloadImg")),
         k: common_vendor.p({
           type: "right",
           size: "14",

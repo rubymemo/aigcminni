@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "历史下载",
+  "usingComponents": {
+    "g-color-btn": "../../components/g-color-btn/index",
+    "g-select": "../../components/g-select/index",
+    "z-paging": "../../uni_modules/z-paging/components/z-paging/z-paging"
+  }
+}

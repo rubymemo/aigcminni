@@ -57,6 +57,13 @@
 				"navigationBarTitleText" : "历史创作",
 				"enablePullDownRefresh" : false
 			}
+		},
+		{
+			"path" : "pages/historyDownloadImg/historyDownloadImg",
+			"style" : 
+			{
+				"navigationBarTitleText" : "历史下载"
+			}
 		}
 	],
 	"globalStyle": {

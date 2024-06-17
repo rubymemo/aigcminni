@@ -179,14 +179,14 @@ export const robotReply_2 = {
 			content: '根据您提供的信息我们先帮您生成一张符合您要求的背景图，如果您对生成的背景图不满意，您可以选择重新生成直到您满意后选择理想背景图，我们再为您完成接下来的设计任务',
 			imagesType: 'radio',
 			imagesOptions: [
-				// { url: '', status: 'queue_remaining', precent: 0 },
-				// { url: '', status: 'queue_remaining', precent: 0 },
-				// { url: '', status: 'queue_remaining', precent: 0 },
-				// { url: '', status: 'queue_remaining', precent: 0 }
-				{ url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
-				{ url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
-				{ url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
-				{ url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 }
+				{ url: '', status: 'queue_remaining', precent: 0 },
+				{ url: '', status: 'queue_remaining', precent: 0 },
+				{ url: '', status: 'queue_remaining', precent: 0 },
+				{ url: '', status: 'queue_remaining', precent: 0 }
+				// { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
+				// { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
+				// { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
+				// { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 }
 			],
 			nextUserId: 204,
 			activeImages: [],
@@ -361,7 +361,7 @@ export const manualReply = {
 		content: 'AI Logo生成',
 		nextRobotId: 1,
 		interfaceParams: {
-			code: '',
+			wfCode: '',
 		}
 	},
 	2: {

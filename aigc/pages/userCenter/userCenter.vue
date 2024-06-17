@@ -29,7 +29,7 @@
 					</view>
 				</view>
 				<view class="diliver"></view>
-				<view class="card-item" @click="waitTodo">
+				<view class="card-item" @click="goPage('/pages/historyDownloadImg/historyDownloadImg')">
 					<view class="left">
 						<view class="iconfont icon-a-zuhe7276"> </view>
 						<text class="label">历史下载</text>

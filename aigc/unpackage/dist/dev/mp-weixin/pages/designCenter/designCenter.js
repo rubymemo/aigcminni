@@ -83,6 +83,53 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     common_vendor.onMounted(async () => {
       initScrollHeight();
     });
+    const putWorkData = async () => {
+      let isFindTitle = false;
+      const result = dataList.value.map((item, index) => {
+        if (item.type === "left") {
+          const params = {
+            whoId: 0,
+            whoName: "robot",
+            whoSay: JSON.stringify(item),
+            clipType: "",
+            clipContent: ""
+          };
+          if (item.imagesOptions) {
+            params.clipType = "info";
+            params.clipContent = JSON.stringify({
+              imgUrl: item.imagesOptions[0].url
+            });
+          }
+          if (index === 0) {
+            params.clipType = "info";
+            params.clipContent = JSON.stringify({
+              type: item.activeBtns.includes("logo") ? 1 : 2
+            });
+          }
+          return params;
+        } else {
+          const params = {
+            whoId: userInfo.value.userId,
+            whoName: userInfo.value.nickname || userInfo.value.username,
+            whoSay: JSON.stringify(item),
+            clipType: "",
+            clipContent: ""
+          };
+          if (item.interfaceParams && item.interfaceParams.promptWords && !isFindTitle) {
+            isFindTitle = true;
+            params.clipType = "info", params.clipContent = JSON.stringify({
+              title: item.interfaceParams.promptWords.text,
+              ownerId: userInfo.value.userId
+            });
+          }
+          return params;
+        }
+      });
+      const data = workId.value ? await common_utils.httpsRequest(`/hh/dialog/replaceAllItemBy/${workId.value}`, result, "POST") : await common_utils.httpsRequest("/hh/dialog/addItemBy", result);
+      if (data) {
+        workId.value = data;
+      }
+    };
     const goUserCenter = () => {
       common_vendor.index.navigateTo({
         url: "/pages/userCenter/userCenter"
@@ -99,6 +146,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       scrollToBottom();
       console.log(dataList.value);
+      putWorkData();
     };
     const addUserReply = (data) => {
       dataList.value.push(data);
@@ -112,59 +160,19 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       dataList.value[messageIndex].activeBtns = [btnItem.value];
       const manualData = common_mockData.manualReply[btnItem.nextUserId];
-      if (manualData.opertionType === "chooseMedia") {
-        common_vendor.index.chooseMedia({
-          count: 1,
-          mediaType: ["image"],
-          sourceType: ["album", "camera"],
-          camera: "back",
-          success: (chooseImageRes) => {
-            const tempFilePaths = chooseImageRes.tempFiles;
-            common_vendor.index.uploadFile({
-              url: `${common_utils.host}/hh/comfyui_api_v2/uploadImage`,
-              filePath: tempFilePaths[0].tempFilePath,
-              name: "image",
-              success: (uploadFileRes) => {
-                const uploadData = JSON.parse(uploadFileRes.data);
-                if (Number(uploadData.code) === 2e3) {
-                  dataList.value.push({
-                    type: "right",
-                    content: "",
-                    images: [uploadData.data],
-                    refer: true
-                  });
-                  addMockRobotReply(manualData.nextRobotId);
-                } else {
-                  common_vendor.index.showToast({
-                    icon: "none",
-                    title: "上传失败，请联系客户或稍后重试"
-                  });
-                }
-              },
-              fail: () => {
-                common_vendor.index.showToast({
-                  icon: "none",
-                  title: "上传失败，请联系客户或稍后重试"
-                });
-              }
-            });
-          }
-        });
-      } else {
-        const userRelyStr = manualData.content.replaceAll("{replace}", btnItem.label);
-        const interfaceParams = { ...manualData.interfaceParams };
-        if (btnItem.value !== 0) {
-          interfaceParams[Object.keys(interfaceParams)[0]] = btnItem.value;
-        }
-        dataList.value.push({
-          type: "right",
-          content: userRelyStr,
-          interfaceParams
-        });
-        canSend.value = false;
-        inputValue.value = "";
-        addMockRobotReply(manualData.nextRobotId);
+      const userRelyStr = manualData.content.replaceAll("{replace}", btnItem.label);
+      const interfaceParams = { ...manualData.interfaceParams };
+      if (btnItem.value !== 0) {
+        interfaceParams[Object.keys(interfaceParams)[0]] = btnItem.value;
       }
+      dataList.value.push({
+        type: "right",
+        content: userRelyStr,
+        interfaceParams
+      });
+      canSend.value = false;
+      inputValue.value = "";
+      addMockRobotReply(manualData.nextRobotId);
     };
     const initContentHeight = () => {
       common_vendor.index.createSelectorQuery().in(instance).select(".contact-container").boundingClientRect((data) => {
@@ -238,6 +246,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       });
     };
     const addNewWork = async () => {
+      await putWorkData();
       try {
         common_vendor.index.closeSocket();
         clearTimeout(timer.value);
@@ -257,8 +266,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         isGenLoading.value = false;
       });
     };
-    const onDataChange = (newData, index) => {
+    const onDataChange = (newData, index, type) => {
       dataList.value[index] = newData;
+      if (type === "done") {
+        putWorkData();
+      }
     };
     return (_ctx, _cache) => {
       return {
@@ -282,7 +294,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               msgInfo: item,
               msgIndex: index,
               msgList: dataList.value,
-              userInfo: userInfo.value
+              userInfo: userInfo.value,
+              dialogId: workId.value
             })
           } : {}, {
             h: item.type === "right"

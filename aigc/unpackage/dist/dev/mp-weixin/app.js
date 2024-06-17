@@ -8,6 +8,7 @@ if (!Math) {
   "./pages/userAgreement/userAgreement.js";
   "./pages/editUserInfo/editUserInfo.js";
   "./pages/historyDesign/historyDesign.js";
+  "./pages/historyDownloadImg/historyDownloadImg.js";
 }
 const _sfc_main = {
   onLaunch: function() {

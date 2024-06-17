@@ -19,7 +19,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     msgInfo: {},
     msgIndex: {},
     msgList: {},
-    userInfo: {}
+    userInfo: {},
+    dialogId: {}
   },
   emits: ["btnClick", "imgSelect", "change", "addUserMsg"],
   setup(__props, { emit: __emit }) {
@@ -138,7 +139,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               precent: 100
             };
           });
-          emits("change", msgInfoTemp);
+          emits("change", msgInfoTemp, "done");
           common_vendor.nextTick$1(() => {
             isGenLoading.value = false;
           });
@@ -160,7 +161,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
               };
             });
           }
-          emits("change", msgInfoTemp);
+          emits("change", msgInfoTemp, "loading");
         } else if (msgData.type === "execution_cached") {
           precentState.nodeCount = precentState.nodeCount - (msgData.data.nodes || []).length;
         }
@@ -188,6 +189,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             params[interfaceParamsKey] = newValue;
           }
         });
+        console.log(params.wfCode);
+        if (params.wfCode === "logo_draw" && params.brandName && params.brandName.length && params.brandName[0].text) {
+          params.wfCode = "logo_a4";
+        }
         return params;
       };
       const queryData = createParams();
@@ -317,14 +322,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         t: common_vendor.sr(DownloadImgModalRef, "a106ba0d-2", {
           "k": "DownloadImgModalRef"
         }),
-        v: common_vendor.sr(UploadImgModalRef, "a106ba0d-3", {
+        v: common_vendor.p({
+          dialogId: props.dialogId
+        }),
+        w: common_vendor.sr(UploadImgModalRef, "a106ba0d-3", {
           "k": "UploadImgModalRef"
         }),
-        w: common_vendor.o(uploadImgModalOk),
-        x: common_vendor.sr(PreviewImgModalRef, "a106ba0d-4", {
+        x: common_vendor.o(uploadImgModalOk),
+        y: common_vendor.sr(PreviewImgModalRef, "a106ba0d-4", {
           "k": "PreviewImgModalRef"
         }),
-        y: common_vendor.o(previewImgModalOnOk)
+        z: common_vendor.o(previewImgModalOnOk)
       });
     };
   }

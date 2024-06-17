@@ -5,7 +5,8 @@
     "pages/designCenter/designCenter",
     "pages/userAgreement/userAgreement",
     "pages/editUserInfo/editUserInfo",
-    "pages/historyDesign/historyDesign"
+    "pages/historyDesign/historyDesign",
+    "pages/historyDownloadImg/historyDownloadImg"
   ],
   "window": {
     "navigationBarTextStyle": "black",

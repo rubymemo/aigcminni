@@ -25,7 +25,7 @@
 					</view>
 				</radio-group>
 			</view>
-			<button class="primary confirm-btn" @click="clickDownLoad">确认下载</button>
+			<button class="primary confirm-btn"  @click="clickDownLoad">确认下载</button>
 		</view>
 	</uni-popup>
 	<downloadImgResultModal ref="DownloadImgResultModalRef"></downloadImgResultModal>
@@ -33,9 +33,14 @@
 </template>
 
 <script lang="ts" setup>
-	import { ref, defineExpose, onMounted } from 'vue';
+	import { ref, defineExpose, defineProps } from 'vue';
 	import { ImgOption } from '@/common/mockData.ts';
 	import downloadImgResultModal from './downloadImgResultModal.vue';
+	import { httpsRequest } from '@/common/utils';
+	
+	const props = defineProps<{
+		dialogId: string;
+	}>();
 
 	const popup = ref(false);
 	const DownloadImgResultModalRef = ref();
@@ -47,9 +52,22 @@
 	]
 	const radioValue = ref('');
 	const imageUrl = ref('');
-
+	const imageObj= ref({
+		jpeg: '',
+		png: ''
+	})
+	const btnLoading = ref(false);
 	const sysInfo = uni.getSystemInfoSync();
 	const screenHeight = sysInfo.screenHeight;
+	
+	const fetchImageUrl = async (url: string) => {
+		const res = await httpsRequest('/hh/dialog_dl/listUrls', {
+			url,
+		}, 'GET');
+		if(res) {
+			imageObj.value = res;
+		}
+	}
 
 	const closeModal = () => {
 		popup.value.close();
@@ -58,7 +76,15 @@
 		imageOptions: ImgOption[],
 		imgIndex: number
 	}) => {
-		imageUrl.value = data.imageOptions[data.imgIndex].url;
+		radioValue.value = '';
+		imageObj.value = {
+			jpeg: '',
+			png: ''
+		};
+		const url = data.imageOptions[data.imgIndex].url;
+		imageUrl.value = url;
+		
+		fetchImageUrl(url);
 		popup.value.open()
 	}
 
@@ -68,30 +94,60 @@
 	const onRadioSelect = (evt) => {
 		radioValue.value = evt.detail.value;
 	}
+	
+	const fetchAddHistory = async ({
+		imgUrl,
+		imgType
+	}) => {
+		const params = {
+			dialogId: props.dialogId,
+			imgUrl,
+			imgType
+		}
+		await httpsRequest('/hh/dialog_dl/addHistory', params);
+	}
 
 	const clickDownLoad = () => {
+		if(!radioValue.value) {
+			uni.showToast({
+				title: "请先选择要下载的格式",
+				icon: "none"
+			})
+			return;
+		}
 		console.log('下载')
-		DownloadImgResultModalRef.value && DownloadImgResultModalRef.value.openModal({ type: "png" });
-		// uni.downloadFile({
-		// 	url: 'https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg',
-		// 	success: (res) => {
-		// 		if (res.statusCode === 200) {
-		// 			uni.saveImageToPhotosAlbum({
-		// 				filePath: res.tempFilePath,
-		// 				success: function () {
-		// 					closeModal();
-		// 					DownloadImgResultModalRef.value && DownloadImgResultModalRef.value.openModal({ type: "svg" });
-		// 				},
-		// 				fail: function () {
-		// 					uni.showToast({
-		// 						title: "保存失败，请稍后重试",
-		// 						icon: "none"
-		// 					});
-		// 				}
-		// 			});
-		// 		}
-		// 	}
-		// })
+		btnLoading.value = true;
+		if(radioValue.value === 'svg') {
+			
+		} else {
+			// png | jpeg
+			uni.downloadFile({
+				url: imageObj.value[radioValue.value],
+				success: (res) => {
+					if (res.statusCode === 200) {
+						uni.saveImageToPhotosAlbum({
+							filePath: res.tempFilePath,
+							success: function (successRes) {
+								console.log(successRes);
+								btnLoading.value = false;
+								fetchAddHistory({
+									imgType: radioValue.value,
+									imgUrl: imageObj.value[radioValue.value]
+								})
+								closeModal();
+								DownloadImgResultModalRef.value && DownloadImgResultModalRef.value.openModal({ type: radioValue.value });
+							},
+							fail: function () {
+								uni.showToast({
+									title: "保存失败，请稍后重试",
+									icon: "none"
+								});
+							}
+						});
+					}
+				}
+			})
+		}		
 	}
 
 	defineExpose({
@@ -144,6 +200,9 @@
 	.confirm-btn {
 		height: 88rpx;
 		line-height: 88rpx;
+		&:hover,&:active {
+			opacity: 0.8;
+		}
 	}
 
 	.radio-title {

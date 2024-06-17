@@ -108,7 +108,7 @@
 			</view>
 		</view>
 
-		<DownloadImgModal ref="DownloadImgModalRef"></DownloadImgModal>
+		<DownloadImgModal ref="DownloadImgModalRef" :dialogId="props.dialogId"></DownloadImgModal>
 		<UploadImgModal ref="UploadImgModalRef" @ok="uploadImgModalOk"></UploadImgModal>
 		<PreviewImgModal ref="PreviewImgModalRef" @ok="previewImgModalOnOk"></PreviewImgModal>
 	</view>
@@ -129,7 +129,8 @@
 		msgList : MsgList;
 		userInfo: {
 			userId: string;
-		}
+		},
+		dialogId: string;
 	}>();
 	
 	const msgInfo = computed(() => props.msgInfo);
@@ -266,7 +267,7 @@
 						precent: 100
 					}
 				})
-				emits('change', msgInfoTemp);
+				emits('change', msgInfoTemp, 'done');
 				nextTick(() => {
 					isGenLoading.value = false;
 				})
@@ -289,7 +290,7 @@
 							}
 						})
 				}
-				emits('change', msgInfoTemp);
+				emits('change', msgInfoTemp, 'loading');
 			} else if (msgData.type === 'execution_cached') {
 				precentState.nodeCount = precentState.nodeCount - (msgData.data.nodes || []).length;
 			}
@@ -326,6 +327,14 @@
 					params[interfaceParamsKey] = newValue;
 				}
 			})
+			console.log(params.wfCode)
+			// 一些特殊处理，后端不好处理的放前端处理
+			if(params.wfCode === 'logo_draw' && params.brandName && params.brandName.length && params.brandName[0].text) {
+				// 如果是logo绘画，并且品牌名存在，wfCode 变成另外的code
+				params.wfCode = 'logo_a4'
+			}
+			
+			
 			return params;
 		}
 		

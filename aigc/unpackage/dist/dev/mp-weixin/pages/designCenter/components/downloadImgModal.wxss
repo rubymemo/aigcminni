@@ -95,6 +95,9 @@ radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked.d
   height: 88rpx;
   line-height: 88rpx;
 }
+.confirm-btn.data-v-0679aa64:hover, .confirm-btn.data-v-0679aa64:active {
+  opacity: 0.8;
+}
 .radio-title.data-v-0679aa64 {
   color: #344156;
   font-size: 32rpx;

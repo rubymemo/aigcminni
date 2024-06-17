@@ -11,21 +11,15 @@
 			<view class="contact-container">
 				<view v-for="(item, index) in dataList" :key="index" class="message">
 					<robotMessageVue 
-						v-if="item.type === 'left'"
-						:msgInfo="item"
-						:msgIndex="index" 
-						:msgList="dataList"
-						:userInfo="userInfo" 
-						@btnClick="({ btnItem }) =>onRobotBtnClick(btnItem, index)"
+						v-if="item.type === 'left'" 
+						:msgInfo="item" :msgIndex="index" :msgList="dataList"
+						:userInfo="userInfo" @btnClick="({ btnItem }) =>onRobotBtnClick(btnItem, index)"
 						@imgSelect="({ imgValue }) => onUserSelectImg(imgValue, index)"
-						@change="newData => onDataChange(newData, index)"
-						@addUserReply="addUserReply"
+						@change="newData => onDataChange(newData, index)" @addUserReply="addUserReply" 
+						:dialogId="workId"
 					/>
-					<userMessageVue 
-						v-if="item.type === 'right'" 
-						:msgInfo="item" 
-						:userInfo="userInfo" 
-						@change="newData => onDataChange(newData, index)"/>
+					<userMessageVue v-if="item.type === 'right'" :msgInfo="item" :userInfo="userInfo"
+						@change="newData => onDataChange(newData, index)" />
 				</view>
 			</view>
 		</scroll-view>
@@ -57,7 +51,7 @@
 	import userMessageVue from './components/userMessage.vue';
 	import robotMessageVue from './components/robotMessage.vue';
 
-	import { robotReply as defaultRobotReply, manualReply, ImgOption, BtnItem, MsgItem, UserMessage } from '@/common/mockData.ts';
+	import { robotReply as defaultRobotReply, manualReply, ImgOption, BtnItem, MsgItem, UserMessage, MsgList } from '@/common/mockData.ts';
 	import { httpsRequest, genImgURl, host } from '@/common/utils';
 	import { onLoad } from '@dcloudio/uni-app';
 
@@ -85,7 +79,7 @@
 
 	// 会话id
 	const workId = ref<string | undefined>(undefined);
-	const dataList = ref([
+	const dataList = ref<MsgList>([
 		{
 			type: 'left',
 			...RobotReply[0].data,
@@ -191,12 +185,12 @@
 					clipType: '',
 					clipContent: ''
 				}
-				if (item.userInputSend && !isFindTitle) {
-					// 找到标题
+				if (item.interfaceParams && item.interfaceParams.promptWords && !isFindTitle) {
+					// 将 promptWords 变成标题
 					isFindTitle = true;
 					params.clipType = 'info',
 						params.clipContent = JSON.stringify({
-							title: item.content,
+							title: item.interfaceParams.promptWords.text,
 							ownerId: userInfo.value.userId,
 						})
 				}
@@ -230,16 +224,16 @@
 		}
 		scrollToBottom();
 		console.log(dataList.value);
-		
+
 
 		// 保存
-		// putWorkData();
+		putWorkData();
 		// }, 200)
 	}
-	
-	const addUserReply = (data: UserMessage) => {
+
+	const addUserReply = (data : UserMessage) => {
 		dataList.value.push(data);
-		if(data.nextRobotId) {
+		if (data.nextRobotId) {
 			addMockRobotReply(data.nextRobotId);
 		}
 	}
@@ -253,63 +247,23 @@
 		dataList.value[messageIndex].activeBtns = [btnItem.value];
 
 		const manualData = manualReply[btnItem.nextUserId];
-		if (manualData.opertionType === 'chooseMedia') {
-			// 上传图片
-			uni.chooseMedia({
-				count: 1,
-				mediaType: ['image'],
-				sourceType: ['album', 'camera'],
-				camera: 'back',
-				success: (chooseImageRes) => {
-					const tempFilePaths = chooseImageRes.tempFiles;
-					uni.uploadFile({
-						url: `${host}/hh/comfyui_api_v2/uploadImage`,
-						filePath: tempFilePaths[0].tempFilePath,
-						name: 'image',
-						success: (uploadFileRes) => {
-							const uploadData = JSON.parse(uploadFileRes.data);
-							if (Number(uploadData.code) === 2000) {
-								dataList.value.push({
-									type: 'right',
-									content: '',
-									images: [uploadData.data],
-									refer: true,
-								})
-								addMockRobotReply(manualData.nextRobotId);
-							} else {
-								uni.showToast({
-									icon: 'none', title: '上传失败，请联系客户或稍后重试'
-								})
-							}
-						},
-						fail: () => {
-							uni.showToast({
-								icon: 'none', title: '上传失败，请联系客户或稍后重试'
-							})
-						}
-					});
-				}
-			});
+		// 假装回复
+		const userRelyStr = manualData.content.replaceAll('{replace}', btnItem.label); // 替换选择的按钮文案
 
-		} else {
-			// 假装回复
-			const userRelyStr = manualData.content.replaceAll('{replace}', btnItem.label); // 替换选择的按钮文案
-			
-			const interfaceParams = { ...manualData.interfaceParams };
-			if(btnItem.value !== 0) {
-				// 当选择0【没有】时，值还是默认值，只有不为0时才会有数据
-				interfaceParams[Object.keys(interfaceParams)[0]] = btnItem.value;
-			}
-			
-			dataList.value.push({
-				type: 'right',
-				content: userRelyStr,
-				interfaceParams,
-			})
-			canSend.value = false;
-			inputValue.value = '';
-			addMockRobotReply(manualData.nextRobotId);
+		const interfaceParams = { ...manualData.interfaceParams };
+		if (btnItem.value !== 0) {
+			// 当选择0【没有】时，值还是默认值，只有不为0时才会有数据
+			interfaceParams[Object.keys(interfaceParams)[0]] = btnItem.value;
 		}
+
+		dataList.value.push({
+			type: 'right',
+			content: userRelyStr,
+			interfaceParams,
+		})
+		canSend.value = false;
+		inputValue.value = '';
+		addMockRobotReply(manualData.nextRobotId);
 	}
 	const initContentHeight = () => {
 		uni.createSelectorQuery().in(instance).select('.contact-container')
@@ -329,14 +283,14 @@
 			initContentHeight()
 		})
 	}
-	const onSendMessage = async (canClick: boolean) => {
+	const onSendMessage = async (canClick : boolean) => {
 		if (!canClick) {
 			return;
 		}
-		
+
 		// 在用户发送消息之前，机器人说了什么
 		const prevRobotMsg = dataList.value[dataList.value.length - 1];
-		
+
 		/*** 构建用户消息结构
 		interfaceParams: {
 			promptWords: { text: '', fontfamily: '' }, 
@@ -349,7 +303,7 @@
 		const nextUserRely = prevRobotMsg.nextUserReply || {};
 		const interfaceParams = { ...nextUserRely.interfaceParams };
 		interfaceParams[Object.keys(interfaceParams)[0]] = { text: inputValue.value, fontfamily: '' };
-	
+
 		// 给dataList添加用户数据
 		dataList.value.push({
 			type: 'right',
@@ -357,7 +311,7 @@
 			interfaceParams,
 			tooltipsBtns: prevRobotMsg.nextUserReply.tooltipsBtns || undefined
 		})
-		
+
 		// 保存用户说了什么
 		// putWorkData();
 		// 输入完成后，输入框不允许再输入
@@ -390,7 +344,7 @@
 			return;
 		}
 		dataList.value[messageIndex].activeImages = [imgUrl];
-		
+
 		/*** 构建用户消息结构 eg: 
 		interfaceParams: {
 			bgImgUrl: '', 
@@ -403,13 +357,13 @@
 		const manualData = manualReply[dataList.value[messageIndex].nextUserId];
 		const interfaceParams = manualData.interfaceParams;
 		interfaceParams[Object.keys(interfaceParams)[0]] = imgUrl;
-		
+
 		dataList.value.push({
 			type: 'right',
 			content: manualData.content,
 			interfaceParams
 		})
-	
+
 		addMockRobotReply(manualData.nextRobotId);
 	}
 
@@ -430,7 +384,7 @@
 
 	// 新增会话
 	const addNewWork = async () => {
-		// await putWorkData();
+		await putWorkData();
 		try {
 			uni.closeSocket()
 			clearTimeout(timer.value);
@@ -451,9 +405,12 @@
 			isGenLoading.value = false;
 		})
 	}
-	
-	const onDataChange = (newData, index: number) => {
-		dataList.value[index]= newData;
+
+	const onDataChange = (newData, index : number, type?: 'done' | 'loading') => {
+		dataList.value[index] = newData;
+		if(type === 'done') {
+			putWorkData();
+		}
 	}
 </script>
 
@@ -524,6 +481,7 @@
 			font-size: 26rpx;
 			background: #EDF1F6;
 			border-radius: 24px;
+
 			.iconfont {
 				display: inline-block;
 				margin-right: 8rpx;
