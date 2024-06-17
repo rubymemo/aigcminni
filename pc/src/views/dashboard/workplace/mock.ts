@@ -369,7 +369,7 @@ export const userReply: Record<
       content: 'AI Logo生成',
       nextRobotId: 1,
       interfaceParams: {
-        code: '',
+        wfCode: '',
       },
     },
     2: {

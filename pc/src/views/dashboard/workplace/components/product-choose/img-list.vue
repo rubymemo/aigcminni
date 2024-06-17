@@ -5,8 +5,12 @@
     class="template-image-item"
   >
     <div class="img-area">
+      <div v-if="data.loading" class="img-loading">
+        <p>图片加载中{{ data.progress }}%</p>
+        <GProgress :progress="data.progress" />
+      </div>
       <div
-        v-if="imgItem.url"
+        v-else-if="imgItem.url"
         class="img-box"
         @click="!disabled && handleChoseTemplateImg(data, imgItem.code)"
       >
@@ -17,10 +21,6 @@
           fit="scale-down"
           :src="imgItem.url"
         />
-      </div>
-      <div v-else class="img-loading">
-        <p>图片加载中{{ imgItem.precent }}%</p>
-        <GProgress :progress="imgItem.precent" />
       </div>
     </div>
     <a-radio
@@ -65,11 +65,13 @@
 <script setup lang="ts">
 import { ImgOption, RobotMessage } from '@/interface';
 import { toRefs } from 'vue';
+import GProgress from '@/views/dashboard/workplace/components/g-progress.vue';
 
 interface Props {
   data: {
     imagesOptions: Array<ImgOption>;
     progress: number;
+    [prop: string]: any;
   };
   disabled?: boolean;
   imagesType: RobotMessage['imagesType'];

@@ -245,7 +245,7 @@ const actionDisabled = (index: number) => {
 };
 
 const handleReload = () => {
-  emit('reload', uploadImageName.value);
+  emit('loadResult');
 };
 
 // const handleCreateLogo = (type: string, data: any) => {
@@ -406,6 +406,18 @@ const createParams = () => {
       ).concat([paramsValue]);
       result[interfaceParamsKey] = newValue;
     }
+
+    // 一些特殊处理，后端不好处理的放前端处理
+    if (
+      result.wfCode === 'logo_draw' &&
+      result.brandName &&
+      result.brandName.length &&
+      result.brandName[0].text
+    ) {
+      // 如果是logo绘画，并且品牌名存在，wfCode 变成另外的code
+      result.wfCode = 'logo_a4';
+    }
+
     return result;
   }, {});
 };

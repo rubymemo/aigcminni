@@ -29,7 +29,7 @@
         </div>
       </div>
       <div
-        v-if="data.couldReload && !props.disabled"
+        v-if="data.reload && !props.disabled"
         class="reload-button"
         @click="handleReload"
       >
