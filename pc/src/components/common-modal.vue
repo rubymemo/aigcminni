@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
   cancelBtnText: '取消',
 });
 
-const emit = defineEmits(['ok', 'cancel']);
+const emit = defineEmits(['ok', 'cancel', 'update:visible']);
 
 const handleConfirm = () => {
   emit('ok');
@@ -38,6 +38,7 @@ const handleConfirm = () => {
 
 const handleCancel = () => {
   emit('cancel');
+  emit('update:visible', false);
 };
 
 const modalClass = computed(() => ({

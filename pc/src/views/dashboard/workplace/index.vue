@@ -47,6 +47,7 @@
               @no-imge-upload="handleImageUploaded"
               @regenerate-logo="handleRegenerateLogo"
               @before-last-step="handleBeforeLastStep"
+              @load-result="loadResult"
             />
           </div>
         </div>
@@ -133,12 +134,6 @@ const handleInput = () => {
   }
 };
 
-const logoutAction = () => {
-  logout();
-  localStorage.setItem('token', '');
-  router.replace('/login');
-};
-
 const handleScrollBottom = () => {
   if (!sessionBox.value) {
     return;
@@ -159,38 +154,135 @@ const changeSession = (id: any) => {
   }
 };
 
-const handleEnableInput = () => {
-  inputDisabled.value = false;
+const handleEnableInput = (params: any) => {
+  inputDisabled.value = Boolean(params);
 };
 let imgUpName = '';
 // 此次生成图片的工作流
 let workCode = '';
-const initWs = (imageName = imgUpName, words = '', code = workCode) => {
+
+onBeforeMount(() => {
+  if (!localStorage.getItem('token')) {
+    router.replace('/login');
+    return;
+  }
+  if (!wsInstance.value) {
+    return;
+  }
+  wsInstance.value.close();
+  wsInstance.value = undefined;
+});
+
+const userWords = ref('');
+
+const handleGetWorkFlow = () => {
+  const robotApply = sessionListRef.value.getRobotCommit();
+  getWorkFlow('logo_compose').then((res) => {
+    console.log(res, robotApply);
+    robotApply.data.imagesOptions = res.data.map((item: any) => ({
+      url: item.imgUrl,
+      status: 'done',
+      precent: 100,
+      code: item.code,
+    }));
+    sessionListRef.value.addCommit(robotApply);
+  });
+};
+
+const handleRegenerateLogo = (imgUrl: string, words: string) => {
+  workCode = 'logo_draw';
+  imgUpName = imgUrl;
+  userWords.value = words;
+};
+
+const handleBeforeLastStep = (img: string, words: string) => {
+  imgUpName = img;
+  userWords.value = words;
+};
+
+const handleMessageSend = () => {
+  const prevRobotMsg = sessionListRef.value.getLastOneStep().data;
+  const nextUserRely = prevRobotMsg.nextUserReply || {};
+  const interfaceParams = { ...nextUserRely.interfaceParams };
+  interfaceParams[Object.keys(interfaceParams)[0]] = {
+    text: inputText.value,
+    fontfamily: '',
+  };
+  sessionListRef.value.addCommit({
+    author: 'user',
+    data: {
+      content: inputText.value,
+      interfaceParams,
+    },
+  });
+  inputDisabled.value = true;
+  inputText.value = '';
+  if (prevRobotMsg.afterUserSendNextRobotId) {
+    const nextRobotReply = sessionListRef.value.getRobotCommit(
+      prevRobotMsg.afterUserSendNextRobotId,
+    );
+    sessionListRef.value.addCommit(nextRobotReply);
+  }
+};
+
+const handleSendButtonClick = () => {
+  handleMessageSend();
+  // sendMessageAction('', inputText.value);
+};
+
+const enterSend = (event: any) => {
+  if (event.keyCode === 13 && inputText.value) {
+    console.log(event);
+    // 判断按下的是否是回车键的keyCode
+    event.preventDefault();
+    handleMessageSend();
+  }
+};
+
+// 图片上传成功
+const handleImageUploaded = (imageName = '') => {
+  imgUpName = imageName;
+  // 这里上传成功是为了生成logo，将工作流置为
+  workCode = 'logo_draw';
+  // initWs(imageName, '');
+};
+
+const handleChooseStyle = (imgUrl: string) => {
+  workCode = 'workFlow';
+  imgUpName = imgUrl;
+};
+
+const handleNoText = () => {
+  inputDisabled.value = true;
+  userWords.value = '';
+  handleGetWorkFlow();
+};
+
+const lastStep = (workFlowCode: string) => {
+  workCode = workFlowCode;
+};
+
+const loadResult = () => {
   let promptId = '';
   let nodeCount: number;
   let currentStep = 0;
   let stepLength = 0;
   const uid = userInfo.userId;
 
-  const currentCommit = sessionListRef.value.getRobotCommit();
-  console.log('currentCommit', currentCommit);
+  const currentCommit = sessionListRef.value.getLastOneStep();
 
   const dataRef = ref(currentCommit.data);
   dataRef.value.loading = true;
   dataRef.value.progress = 0;
-  sessionListRef.value.addCommit({
-    ...currentCommit,
-    data: dataRef,
-  });
+
+  const doPromptParams = sessionListRef.value.createParams();
 
   wsInstance.value = new WebSocket(`wss://huatu.solart.pro/ws?clientId=${uid}`);
   wsInstance.value.onopen = () => {
     console.log('链接成功');
     sendMessageV2({
       clientId: uid,
-      fileUrl: imageName,
-      promptWords: `${words} `,
-      code,
+      ...doPromptParams,
     }).then((res) => {
       console.log('promptPost', res);
       promptId = res.data.prompt_id;
@@ -255,118 +347,6 @@ const initWs = (imageName = imgUpName, words = '', code = workCode) => {
   wsInstance.value.onclose = () => {
     console.log('关闭链接');
   };
-};
-
-onBeforeMount(() => {
-  if (!localStorage.getItem('token')) {
-    router.replace('/login');
-    return;
-  }
-  if (!wsInstance.value) {
-    return;
-  }
-  wsInstance.value.close();
-  wsInstance.value = undefined;
-});
-
-const userWords = ref('');
-
-const handleGetWorkFlow = () => {
-  const robotApply = sessionListRef.value.getRobotCommit();
-  getWorkFlow('logo_compose').then((res) => {
-    console.log(res, robotApply);
-    robotApply.data.imagesOptions = res.data.map((item: any) => ({
-      url: item.imgUrl,
-      status: 'done',
-      precent: 100,
-      code: item.code,
-    }));
-    sessionListRef.value.addCommit(robotApply);
-  });
-};
-
-const handleRegenerateLogo = (imgUrl: string, words: string) => {
-  workCode = 'logo_draw';
-  imgUpName = imgUrl;
-  userWords.value = words;
-  initWs(imgUrl, words);
-};
-
-const handleBeforeLastStep = (img: string, words: string) => {
-  imgUpName = img;
-  userWords.value = words;
-};
-
-const handleSendButtonClick = () => {
-  sessionListRef.value.addCommit({
-    author: 'user',
-    data: {
-      content: inputText.value,
-    },
-    compute: true,
-    disabledSubmit: true,
-  });
-  if (workCode === 'logo_draw') {
-    initWs(imgUpName, inputText.value, workCode);
-  }
-  if (workCode === 'workFlow') {
-    handleGetWorkFlow();
-  }
-  inputDisabled.value = true;
-  userWords.value = inputText.value;
-  inputText.value = '';
-  // sendMessageAction('', inputText.value);
-};
-
-const enterSend = (event: any) => {
-  if (event.keyCode === 13 && inputText.value) {
-    console.log(event);
-    sessionListRef.value.addCommit({
-      author: 'user',
-      data: {
-        content: inputText.value,
-      },
-      compute: true,
-      disabledSubmit: true,
-    });
-    if (workCode === 'logo_draw') {
-      initWs(imgUpName, inputText.value, workCode);
-    }
-    console.log('workFlow', workCode);
-
-    if (workCode === 'workFlow') {
-      handleGetWorkFlow();
-    }
-    inputDisabled.value = true;
-    userWords.value = inputText.value;
-    inputText.value = '';
-    // 判断按下的是否是回车键的keyCode
-    event.preventDefault();
-  }
-};
-
-// 图片上传成功
-const handleImageUploaded = (imageName = '') => {
-  imgUpName = imageName;
-  // 这里上传成功是为了生成logo，将工作流置为
-  workCode = 'logo_draw';
-  // initWs(imageName, '');
-};
-
-const handleChooseStyle = (imgUrl: string) => {
-  workCode = 'workFlow';
-  imgUpName = imgUrl;
-};
-
-const handleNoText = () => {
-  inputDisabled.value = true;
-  userWords.value = '';
-  handleGetWorkFlow();
-};
-
-const lastStep = (workFlowCode: string) => {
-  workCode = workFlowCode;
-  initWs(imgUpName, userWords.value);
 };
 
 // 本期没有重载

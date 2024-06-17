@@ -7,153 +7,17 @@
       :disabled="actionDisabled(index)"
       @reload="handleReload"
     >
-      <template #sessionStart="{ data, disabled }">
-        <RobotBtns :data="data" :disabled="disabled" />
-      </template>
-      <template #refrenceImage="{ data, disabled }">
-        <a-button
-          class="action-button"
+      <template #btns="{ data, disabled }">
+        <RobotBtns
+          :data="data"
           :disabled="disabled"
-          :class="data.activeBtns.includes(data.btns[0]) && 'active-button'"
-          @click="noImageUpload(data.btns[0], data)"
-          >{{ data.btns[0] }}</a-button
-        >
-        <a-upload
-          accept="image/png, image/jpeg"
-          :custom-request="customUpload"
-          :disabled="disabled"
-          class="upload-com"
-        >
-          <template #upload-button>
-            <a-button
-              :disabled="disabled"
-              class="action-button"
-              :class="data.activeBtns.includes(data.btns[1]) && 'active-button'"
-              @click="data.activeBtns = [data.btns[1]]"
-            >
-              <template #icon>
-                <span
-                  class="iconfont icon-plus"
-                  style="font-size: 12px; color: #3e93fb"
-                ></span>
-              </template>
-              {{ data.btns[1] }}</a-button
-            >
-          </template>
-        </a-upload>
+          :commit-index="index"
+          @change="robotReplyChange"
+          @update-session-type="updateSessionType"
+        />
       </template>
-      <template #supplyText>
-        <a-button
-          class="action-button"
-          :disabled="actionDisabled(index)"
-          @click="noTextSupply"
-          >没有</a-button
-        >
-      </template>
-      <template #logoSelect="{ data, disabled }">
-        <a-radio-group
-          v-model="chosenLogoItem"
-          class="template-commit-action"
-          :disabled="disabled"
-          @change="handleChoseImg(data, $event)"
-        >
-          <div v-for="imgItem in 4" :key="imgItem" class="template-image-item">
-            <div class="img-area">
-              <div
-                v-if="data.imagesOptions[imgItem - 1].url"
-                class="img-box"
-                @click="!disabled && handleChoseImg(data, imgItem)"
-              >
-                <a-image
-                  :width="200"
-                  :height="200"
-                  fit="scale-down"
-                  :src="data.imagesOptions[imgItem - 1].url"
-                />
-                <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
-              </div>
-              <div v-else class="img-loading">
-                <p>图片加载中{{ data.progress }}%</p>
-                <GProgress :progress="data.progress" />
-              </div>
-            </div>
-            <a-radio :disabled="data.loading || disabled" :value="imgItem">
-              <template #radio v-if="chosenLogoItem === imgItem">
-                <span class="iconfont icon-success checked-icon" />
-              </template>
-              <template #radio v-else>
-                <span class="radio-no-checked" />
-              </template>
-            </a-radio>
-          </div>
-        </a-radio-group>
-      </template>
-      <template #templateImg="{ data, disabled }">
-        <a-radio-group
-          v-model="chosenTemplateItem"
-          class="template-commit-action"
-          :disabled="disabled"
-          @change="handleChoseTemplateImg(data, $event)"
-        >
-          <div
-            v-for="imgItem in data.imagesOptions"
-            :key="imgItem.code"
-            class="template-image-item"
-          >
-            <div class="img-area">
-              <div
-                v-if="imgItem.url"
-                class="img-box"
-                @click="!disabled && handleChoseTemplateImg(data, imgItem.code)"
-              >
-                <a-image
-                  :width="200"
-                  :height="200"
-                  fit="scale-down"
-                  :src="imgItem.url"
-                />
-                <!-- <img :src="imgItem.url" alt="" /> -->
-              </div>
-              <div v-else class="img-loading">
-                <p>图片加载中{{ data.progress }}%</p>
-                <GProgress :progress="data.progress" />
-              </div>
-            </div>
-            <a-radio :disabled="disabled" :value="imgItem.code">
-              <template #radio v-if="chosenTemplateItem === imgItem.code">
-                <span class="iconfont icon-success checked-icon" />
-              </template>
-              <template #radio v-else>
-                <span class="radio-no-checked" />
-              </template>
-            </a-radio>
-          </div>
-        </a-radio-group>
-      </template>
-      <template #lastStep="{ data }">
-        <div class="template-commit-action">
-          <div v-for="imgItem in 1" :key="imgItem" class="template-image-item">
-            <div class="img-area">
-              <div
-                v-if="data.imagesOptions[imgItem - 1].url"
-                class="img-box"
-                @click="handleChoseImg(data, imgItem)"
-              >
-                <a-image
-                  :width="200"
-                  :height="200"
-                  fit="scale-down"
-                  :src="data.imagesOptions[imgItem - 1].url"
-                />
-                <!-- <img :src="data.imagesOptions[imgItem - 1].url" alt="" /> -->
-              </div>
-              <div v-else class="img-loading">
-                <p>图片加载中{{ data.progress }}%</p>
-                <GProgress :progress="data.progress" />
-              </div>
-            </div>
-          </div>
-        </div>
+      <template #productSelect="{ data, disabled }">
+        <ProductChoose :data="data" :disabled="disabled" />
       </template>
     </SessionItem>
   </div>
@@ -164,17 +28,24 @@ import {
   createNewSession,
   getSessionCommit,
   updateSession,
-  uploadImageV2,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { v4 } from 'uuid';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
 import GProgress from './g-progress.vue';
-import { cloneDeep } from 'lodash';
-import { LogoRobotReply, PosterRobotReply, firstRobotReply } from '../mock';
+import { cloneDeep, result } from 'lodash';
+import {
+  LogoRobotReply,
+  ReplyTypeEnum,
+  firstRobotReply,
+  robotReply,
+  userReply,
+} from '../mock';
 import RobotBtns from './robot-btns.vue';
+import { BtnItem } from '@/interface';
+import ProductChoose from './product-choose/product-choose.vue';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -201,9 +72,8 @@ const emit = defineEmits([
   'noImgeUpload',
   'regenerateLogo',
   'beforeLastStep',
+  'loadResult',
 ]);
-
-const disabledUpload = ref(false);
 
 const commitList = ref<CommitItem[]>([]);
 
@@ -218,6 +88,12 @@ const couldCreateAndUpdate = ref(false);
 
 const robotReplyRef = ref(LogoRobotReply);
 
+const replyState = reactive({
+  robotReplyIndex: 0,
+  userReplyIndex: 0,
+  replyType: ReplyTypeEnum.LOGO_DRAW,
+});
+
 watch(
   () => commitList.value.length,
   () => {
@@ -230,33 +106,7 @@ watch(
 
 const chosenLogoItem = ref<number>();
 const chosenTemplateItem = ref<string>();
-const lastStep = ref(false);
 const uploadImageName = ref('');
-
-const handleChoseImg = (data: any, index: any) => {
-  console.log(data, index);
-
-  chosenLogoItem.value = index;
-  const { url } = data.imagesOptions[index - 1];
-  data.activeImages = [url];
-  handleChooseTemplate(url);
-};
-
-const handleChoseTemplateImg = (data: any, code: any) => {
-  console.log(data, code);
-  chosenTemplateItem.value = code;
-  const { url } = data.imagesOptions.find((item: any) => item.code === code);
-  data.activeImages = [url];
-  addCommit({
-    author: 'user',
-    data: {
-      images: [url],
-      content: '我已经选定了',
-    },
-  });
-  emit('lastStep', code);
-  lastStep.value = true;
-};
 
 const saveSession = async () => {
   if (!couldCreateAndUpdate.value) {
@@ -324,26 +174,65 @@ const saveSession = async () => {
   sessionId.value = data.data;
 };
 
-const getRobotCommit = () => {
-  const c = robotReplyRef.value[robotCommitStep.value];
-  robotCommitStep.value += 1;
+const updateSessionType = (item: BtnItem) => {
+  replyState.replyType = item.value as ReplyTypeEnum;
+};
+
+const getRobotCommit = (index: any) => {
+  const c = robotReply[replyState.replyType][index];
   return cloneDeep(c);
+};
+
+const getUserReply = (index: any) => {
+  const c = userReply[replyState.replyType][index];
+  c.author = 'user';
+  return cloneDeep(c);
+};
+
+const robotReplyChange = (item: BtnItem) => {
+  replyState.userReplyIndex = item.nextUserId;
+  const userReply = getUserReply(item.nextUserId);
+  userReply.content = userReply.content?.replace('{replace}', item.label);
+  if (item.value !== 0) {
+    const interfaceParams = { ...userReply.interfaceParams };
+    interfaceParams[Object.keys(interfaceParams)[0]] = item.value;
+    userReply.interfaceParams = interfaceParams;
+  }
+  replyState.robotReplyIndex = userReply.nextRobotId;
+  addCommit(userReply);
+  addCommit(getRobotCommit(userReply.nextRobotId));
 };
 
 const addCommit = (params: Partial<CommitItem>) => {
   const author = params.author || 'robot';
+
+  if (author === 'user') {
+    const lastRobotReply = commitList.value[commitList.value.length - 1];
+    params.data = {
+      interfaceParams: params.interfaceParams,
+      content: params.content,
+      tooltipsBtns: lastRobotReply.data.nextUserReply?.tooltipsBtns ?? [],
+      ...params.data,
+    };
+  }
   commitList.value.push({
     data: {},
     ...params,
     author,
     id: v4(),
   });
-  if (params.data?.enableInput) {
-    emit('enabledInput');
+
+  if (
+    author === 'robot' &&
+    params.data.fetch &&
+    params.data.fetch.type === 'doPrompt'
+  ) {
+    emit('loadResult');
   }
-  const lastCommit = commitList.value[commitList.value.length - 1];
+
+  emit('enabledInput', !params.data?.canUserSend);
   //
-  if (lastCommit.disabledSubmit || commitList.value.length === 1) {
+  if (params.disabledSubmit || commitList.value.length === 1) {
     return;
   }
   saveSession();
@@ -359,90 +248,23 @@ const handleReload = () => {
   emit('reload', uploadImageName.value);
 };
 
-const handleCreateLogo = (type: string, data: any) => {
-  data.activeBtns = [type];
-  robotReplyRef.value =
-    type === firstRobotReply.data!.btns[0] ? LogoRobotReply : PosterRobotReply;
-  addCommit({
-    author: 'user',
-    data: {
-      content: `帮我设计一个${type}`,
-    },
-    disabledSubmit: true,
-  });
-  // addCommit({
-  //   content: '您是否有参考图给我参考呢？',
-  //   slotName: 'refrenceImage',
-  // });
-  addCommit(getRobotCommit());
-};
-
-const noImageUpload = (type: string, data: any) => {
-  data.activeBtns = [type];
-  addCommit({
-    author: 'user',
-    data: {
-      content: `没有参考图`,
-    },
-  });
-  addCommit(getRobotCommit());
-  emit('enabledInput');
-  emit('noImgeUpload');
-  couldCreateAndUpdate.value = true;
-};
-
-const customUpload = (option: any): any => {
-  // data.activeBtns = [data.btns[1]];
-  const { fileItem } = option;
-
-  const formData = new FormData();
-  formData.append('image', fileItem.file);
-
-  // robotCommitStep.value = 3;
-  return uploadImageV2(formData).then((res: any) => {
-    disabledUpload.value = true;
-    const imgUrl = res.data;
-    addCommit({
-      author: 'user',
-      // image: `http://101.126.93.249/api/hh/comfyui_api/view?type=${res.data.type}&filename=${res.data.filename}`,
-      data: {
-        images: [imgUrl],
-      },
-      disabledSubmit: true,
-    });
-    uploadImageName.value = imgUrl;
-    addCommit(getRobotCommit());
-    emit('enabledInput');
-    couldCreateAndUpdate.value = true;
-    emit('imageUploadSuccess', imgUrl);
-  });
-};
-
-const handleChooseTemplate = (imgUrl: string) => {
-  addCommit({
-    author: 'user',
-    data: {
-      images: [imgUrl],
-      content: '我已经选定了',
-    },
-    disabledSubmit: true,
-  });
-  addCommit(getRobotCommit());
-  emit('enabledInput', false);
-  couldCreateAndUpdate.value = true;
-  emit('chooseStyle', imgUrl);
-};
-
-const noTextSupply = () => {
-  addCommit({
-    author: 'user',
-    data: {
-      content: '没有品牌',
-    },
-  });
-  emit('noText');
-};
-
+// const handleCreateLogo = (type: string, data: any) => {
+//   data.activeBtns = [type];
+//   robotReplyRef.value =
+//     type === firstRobotReply.data!.btns[0] ? LogoRobotReply : PosterRobotReply;
+//   addCommit({
+//     author: 'user',
+//     data: {
+//       content: `帮我设计一个${type}`,
+//     },
+//     disabledSubmit: true,
+//   });
+//   // addCommit({
+//   //   content: '您是否有参考图给我参考呢？',
+//   //   slotName: 'refrenceImage',
+//   // });
+//   addCommit(getRobotCommit());
+// };
 const getLastOneStep = () => {
   return commitList.value[commitList.value.length - 1];
 };
@@ -455,7 +277,7 @@ const refreshSession = async (id: any) => {
     robotCommitStep.value = 0;
     commitList.value = [];
     couldCreateAndUpdate.value = false;
-    addCommit(getRobotCommit());
+    addCommit(firstRobotReply);
     return;
   }
 
@@ -558,12 +380,43 @@ const refreshSession = async (id: any) => {
   }
 };
 
+const createParams = () => {
+  return commitList.value.reduce<Record<string, any>>((result, current) => {
+    if (!current.data.interfaceParams) {
+      return result;
+    }
+
+    const { interfaceParams } = current.data;
+    // 如果存在接口参数，
+    const interfaceParamsKey = Object.keys(interfaceParams)[0];
+    const paramsValue = interfaceParams[interfaceParamsKey];
+
+    if (typeof paramsValue === 'string') {
+      // 如果值只是字符串
+      result[interfaceParamsKey] = paramsValue;
+    }
+    if (
+      Object.prototype.toString.call(paramsValue) === '[object Object]' &&
+      Object.prototype.hasOwnProperty.call(paramsValue, 'text') &&
+      Object.prototype.hasOwnProperty.call(paramsValue, 'fontfamily')
+    ) {
+      // 如果是对象，且是{ text: '', fontfamily: ''} => [{ text: '', fontfamily: ''}]
+      const newValue = (
+        result[interfaceParamsKey] ? result[interfaceParamsKey] : []
+      ).concat([paramsValue]);
+      result[interfaceParamsKey] = newValue;
+    }
+    return result;
+  }, {});
+};
+
 defineExpose({
   addCommit,
   getRobotCommit,
   saveSession,
   getLastOneStep,
   refreshSession,
+  createParams,
 });
 </script>
 
