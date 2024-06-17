@@ -62,7 +62,7 @@
           />
         </div>
       </div>
-      <div class="user-action">
+      <div v-if="userActionListComputed.length" class="user-action">
         <a-tooltip
           v-for="(item, index) in userActionListComputed"
           :key="index"
@@ -180,7 +180,7 @@ const handleReload = () => {
     }
     display: flex;
     width: 100%;
-    margin-bottom: 32px;
+    margin-bottom: 30px;
 
     .commit-content {
       flex: 1;
@@ -210,7 +210,6 @@ const handleReload = () => {
 
       border-radius: 12px;
       background: rgb(255, 255, 255);
-      padding: 24px;
 
       .commit-title {
         color: rgb(52, 65, 86);
@@ -237,12 +236,19 @@ const handleReload = () => {
   }
 
   .user-commit {
-    flex: 1;
     margin-left: 16px;
     display: flex;
-    padding-top: 9px;
+    flex-direction: column;
 
     .commit-content {
+      padding: 24px;
+
+      border-radius: 12px;
+      background: linear-gradient(
+        135deg,
+        rgba(23, 242, 95, 0.15) 0%,
+        rgba(37, 106, 247, 0.15) 100%
+      );
       color: rgb(52, 65, 86);
       font-family: PingFang SC;
       font-size: 14px;
@@ -250,11 +256,10 @@ const handleReload = () => {
       line-height: 22px;
       letter-spacing: 0px;
       text-align: left;
-
-      flex: 1;
     }
 
     .user-action {
+      margin-top: 8px;
       height: 22px;
       display: flex;
       align-items: center;
