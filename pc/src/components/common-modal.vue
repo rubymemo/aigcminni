@@ -1,5 +1,10 @@
 <template>
-  <a-modal class="common-modal" :class="modalClass" :title-align="'start'">
+  <a-modal
+    class="common-modal"
+    :class="modalClass"
+    :title-align="'start'"
+    @cancel="handleCancel"
+  >
     <template #title> {{ $attrs.title }} </template>
     <slot />
     <div class="common-modal-footer">
@@ -94,7 +99,6 @@ const modalClass = computed(() => ({
 .cancel-btn,
 .ok-btn {
   border-radius: 100px;
-  width: 76px;
   height: 40px;
   font-family: PingFang SC;
   font-size: 14px;
@@ -102,6 +106,7 @@ const modalClass = computed(() => ({
   line-height: 22px;
   letter-spacing: 0px;
   text-align: center;
+  padding: 0 24px;
 }
 
 .cancel-btn {
