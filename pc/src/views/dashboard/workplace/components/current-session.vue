@@ -17,7 +17,11 @@
         />
       </template>
       <template #productSelect="{ data, disabled }">
-        <ProductChoose :data="data" :disabled="disabled" />
+        <ProductChoose
+          :data="data"
+          :disabled="disabled"
+          @choose-img="handleChooseImg"
+        />
       </template>
     </SessionItem>
   </div>
@@ -106,7 +110,6 @@ watch(
 
 const chosenLogoItem = ref<number>();
 const chosenTemplateItem = ref<string>();
-const uploadImageName = ref('');
 
 const saveSession = async () => {
   if (!couldCreateAndUpdate.value) {
@@ -201,6 +204,23 @@ const robotReplyChange = (item: BtnItem) => {
   replyState.robotReplyIndex = userReply.nextRobotId;
   addCommit(userReply);
   addCommit(getRobotCommit(userReply.nextRobotId));
+};
+
+const handleChooseImg = (url: any) => {
+  const lastStep = getLastOneStep();
+  const manualData = getUserReply(lastStep.data.nextUserId);
+  const { interfaceParams } = manualData;
+  interfaceParams[Object.keys(interfaceParams)[0]] = url;
+
+  addCommit({
+    author: 'user',
+    data: {
+      content: manualData.content,
+      images: [url],
+      interfaceParams,
+    },
+  });
+  addCommit(getRobotCommit(manualData.nextRobotId));
 };
 
 const addCommit = (params: Partial<CommitItem>) => {

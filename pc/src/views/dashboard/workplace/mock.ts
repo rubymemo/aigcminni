@@ -31,7 +31,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
       ],
       activeBtns: [],
     },
-    slotName: 'btns'
+    slotName: 'btns',
   },
   203: {
     data: {
@@ -95,7 +95,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         // type: 'doPrompt',
       },
     },
-    slotName: 'productSelect'
+    slotName: 'productSelect',
   },
   205: {
     data: {
@@ -112,6 +112,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   206: {
     data: {
@@ -128,6 +129,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   207: {
     data: {
@@ -145,6 +147,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   208: {
     data: {
@@ -162,6 +165,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   209: {
     data: {
@@ -179,6 +183,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   210: {
     data: {
@@ -203,6 +208,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
       },
       afterUserSendNextRobotId: 211,
     },
+    slotName: 'btns',
   },
   211: {
     data: {
@@ -242,6 +248,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         type: 'workflow',
       },
     },
+    slotName: 'productSelect',
   },
   212: {
     data: {
@@ -266,6 +273,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         type: 'doPrompt',
       },
     },
+    slotName: 'productSelect',
   },
 };
 

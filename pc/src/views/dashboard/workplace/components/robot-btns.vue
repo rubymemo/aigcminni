@@ -11,6 +11,7 @@
         @click="handleBtnClick(btn)"
         >{{ btn.label }}</a-button
       >
+      <UploadContent v-model:visible="uploadModalState.visible" />
     </template>
     <template v-else-if="data.imgRatioOptions">
       <a-button
@@ -28,7 +29,8 @@
 
 <script setup lang="ts">
 import { BtnItem, RobotMessage } from '@/interface';
-import { computed, toRefs } from 'vue';
+import { computed, reactive, toRefs } from 'vue';
+import UploadContent from './upload-content.vue';
 
 interface Props {
   data: RobotMessage;
@@ -44,6 +46,10 @@ const { data } = toRefs(props);
 const options = computed(() => data.value.btns || data.value.imgRatioOptions);
 
 const acticveBtns = computed(() => data.value.activeBtns || []);
+
+const uploadModalState = reactive({
+  visible: false,
+});
 
 const computeCube = (ratioStr: string) => {
   const wRatio = Number(ratioStr.split(':')[0]);
@@ -62,6 +68,10 @@ const computeCube = (ratioStr: string) => {
 };
 
 const handleBtnClick = (item: BtnItem) => {
+  if (item.opertionType === 'chooseMedia') {
+    uploadModalState.visible = true;
+    return;
+  }
   data.value.activeBtns = [item.value];
   if (props.commitIndex === 0) {
     emit('updateSessionType', item);

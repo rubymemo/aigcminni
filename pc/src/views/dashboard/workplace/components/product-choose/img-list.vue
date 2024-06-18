@@ -37,6 +37,7 @@
     title="作品选择"
     ok-btn-text="选择该图"
     :width="626"
+    @ok="handleChoseTemplateImg"
   >
     <div class="container">
       <p
@@ -89,6 +90,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const emits = defineEmits(['choose']);
 
 const { data, disabled } = toRefs(props);
 
@@ -123,20 +125,10 @@ const changeIndex = (e: any, left = true) => {
   }
 };
 
-const handleChoseTemplateImg = (data: any, code: any) => {
-  // console.log(data, code);
-  // chosenTemplateItem.value = code;
-  // const { url } = data.imagesOptions.find((item: any) => item.code === code);
-  // data.activeImages = [url];
-  // addCommit({
-  //   author: 'user',
-  //   data: {
-  //     images: [url],
-  //     content: '我已经选定了',
-  //   },
-  // });
-  // emit('lastStep', code);
-  // lastStep.value = true;
+const handleChoseTemplateImg = () => {
+  const imgBtn = data.value.imagesOptions[modalState.index - 1];
+  emits('choose', imgBtn);
+  modalState.visible = false;
 };
 </script>
 
