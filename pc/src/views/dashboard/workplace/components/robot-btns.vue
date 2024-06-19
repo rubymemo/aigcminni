@@ -11,7 +11,10 @@
         @click="handleBtnClick(btn)"
         >{{ btn.label }}</a-button
       >
-      <UploadContent v-model:visible="uploadModalState.visible" />
+      <UploadContent
+        v-model:visible="uploadModalState.visible"
+        @upload-ok="uploadOk"
+      />
     </template>
     <template v-else-if="data.imgRatioOptions">
       <a-button
@@ -64,6 +67,34 @@ const computeCube = (ratioStr: string) => {
   return {
     height: `${(wRatio / hRatio) * maxLen}px`,
     width: `${maxLen}px`,
+  };
+};
+
+const uploadOk = (val: any) => {
+  uploadModalState.visible = false;
+  const item = data.value.btns?.find(
+    (item) => item.opertionType === 'chooseMedia',
+  );
+  data.value.activeBtns = [item!.value];
+
+  const images = Object.values(val).reduce<string[]>((result, current) => {
+    if (current) {
+      result.push(current as string);
+    }
+    return result;
+  }, []);
+
+  // 构建用户的回复
+  const interfaceParamsKey = Object.keys(
+    data.value.nextUserReply.interfaceParams,
+  )[0];
+  const nextUserMsg = {
+    type: 'right',
+    images,
+    interfaceParams: {
+      [interfaceParamsKey]: data,
+    },
+    nextRobotId: data.value.afterUserSendNextRobotId,
   };
 };
 
