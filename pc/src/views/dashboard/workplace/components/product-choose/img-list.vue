@@ -14,7 +14,7 @@
           class="img-item"
           :preview="imagesType === 'result'"
           :width="200"
-          :height="200"
+          :height="150"
           fit="scale-down"
           :src="imgItem.url"
           @click="clickImg(imgItem, index)"
