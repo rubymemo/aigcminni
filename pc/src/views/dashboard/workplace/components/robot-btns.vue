@@ -42,7 +42,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(['change', 'updateSessionType']);
+const emit = defineEmits(['change', 'updateSessionType', 'uploadOk']);
 
 const { data } = toRefs(props);
 
@@ -92,10 +92,11 @@ const uploadOk = (val: any) => {
     type: 'right',
     images,
     interfaceParams: {
-      [interfaceParamsKey]: data,
+      [interfaceParamsKey]: val,
     },
     nextRobotId: data.value.afterUserSendNextRobotId,
   };
+  emit('uploadOk', nextUserMsg);
 };
 
 const handleBtnClick = (item: BtnItem) => {

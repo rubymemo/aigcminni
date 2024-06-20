@@ -4,6 +4,7 @@
       v-if="!valueRef"
       accept="image/png, image/jpeg"
       :custom-request="customUpload"
+      :disabled="disabled"
       class="upload-com"
     >
       <template #upload-button>
@@ -20,7 +21,7 @@
         :src="valueRef"
         fit="scale-down"
       />
-      <div class="hover-area">
+      <div v-if="!disabled" class="hover-area">
         <a-upload
           accept="image/png, image/jpeg"
           :custom-request="customUpload"
@@ -41,6 +42,7 @@ import { computed, ref } from 'vue';
 
 interface Props {
   modelValue: string;
+  disabled?: boolean;
 }
 
 const props = defineProps<Props>();

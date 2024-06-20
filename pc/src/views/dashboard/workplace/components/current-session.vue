@@ -14,6 +14,7 @@
           :commit-index="index"
           @change="robotReplyChange"
           @update-session-type="updateSessionType"
+          @upload-ok="uploadOk"
         />
       </template>
       <template #productSelect="{ data, disabled }">
@@ -23,6 +24,9 @@
           @choose-img="handleChooseImg"
         />
       </template>
+      <template #userUpload="{ data, disabled }">
+        <UserImgUpload :data="data" :disabled="disabled" />
+      </template>
     </SessionItem>
   </div>
 </template>
@@ -31,6 +35,7 @@
 import {
   createNewSession,
   getSessionCommit,
+  getWorkFlow,
   updateSession,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
@@ -50,6 +55,7 @@ import {
 import RobotBtns from './robot-btns.vue';
 import { BtnItem } from '@/interface';
 import ProductChoose from './product-choose/product-choose.vue';
+import UserImgUpload from './user-img-upload.vue';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -223,6 +229,19 @@ const handleChooseImg = (url: any) => {
   addCommit(getRobotCommit(manualData.nextRobotId));
 };
 
+const loadWorkflowTemplate = () => {
+  const lastMessage = getLastOneStep();
+
+  getWorkFlow('logo_compose').then((res) => {
+    lastMessage.data.imagesOptions = res.data.map((item: any) => ({
+      url: item.imgUrl,
+      status: 'done',
+      precent: 100,
+      code: item.code,
+    }));
+  });
+};
+
 const addCommit = (params: Partial<CommitItem>) => {
   const author = params.author || 'robot';
 
@@ -242,12 +261,12 @@ const addCommit = (params: Partial<CommitItem>) => {
     id: v4(),
   });
 
-  if (
-    author === 'robot' &&
-    params.data.fetch &&
-    params.data.fetch.type === 'doPrompt'
-  ) {
-    emit('loadResult');
+  if (author === 'robot' && params.data.fetch) {
+    if (params.data.fetch.type === 'doPrompt') {
+      emit('loadResult');
+    } else if (params.data.fetch.type === 'workflow') {
+      loadWorkflowTemplate();
+    }
   }
 
   emit('enabledInput', !params.data?.canUserSend);
@@ -266,6 +285,19 @@ const actionDisabled = (index: number) => {
 
 const handleReload = () => {
   emit('loadResult');
+};
+
+const uploadOk = (info: any) => {
+  console.log('info', info);
+  const lastMessage = getLastOneStep();
+  const userReply = getUserReply(lastMessage.data.nextUserId);
+  addCommit({
+    author: 'user',
+    ...userReply,
+    ...info,
+  });
+  const robotReply = getRobotCommit(lastMessage.data.afterUserSendNextRobotId);
+  addCommit(robotReply);
 };
 
 // const handleCreateLogo = (type: string, data: any) => {

@@ -451,6 +451,7 @@ export const userReply: Record<
       interfaceParams: {
         additionalReferImgs: { logo: '', QRCode: '', topicMap: '' },
       },
+      slotName: 'userUpload',
     },
     209: {
       content: '已选择完毕',
@@ -537,6 +538,7 @@ export const userReply: Record<
       interfaceParams: {
         additionalReferImgs: { logo: '', QRCode: '', topicMap: '' },
       },
+      slotName: 'userUpload',
     },
     209: {
       content: '已选择完毕',
