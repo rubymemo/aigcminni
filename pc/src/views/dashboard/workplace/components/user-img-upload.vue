@@ -1,20 +1,17 @@
 <template>
   <div class="user-img-upload-container">
-    {{ data.interfaceParams }}
+    <!-- :disabled="props.disabled" -->
     <UploadImgItem
       v-model="data.interfaceParams.additionalReferImgs.logo"
       class="user-upload-item"
-      :disabled="props.disabled"
     />
     <UploadImgItem
       v-model="data.interfaceParams.additionalReferImgs.QRCode"
       class="user-upload-item"
-      :disabled="props.disabled"
     />
     <UploadImgItem
       v-model="data.interfaceParams.additionalReferImgs.topicMap"
       class="user-upload-item"
-      :disabled="props.disabled"
     />
   </div>
 </template>

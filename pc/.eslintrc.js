@@ -69,5 +69,6 @@ module.exports = {
     'import/order': 0,
     '@typescript-eslint/no-non-null-assertion': 0,
     'no-shadow': 0,
+    'prefer-destructuring': 0,
   },
 };

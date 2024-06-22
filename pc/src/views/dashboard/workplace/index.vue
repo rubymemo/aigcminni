@@ -192,13 +192,16 @@ const handleMessageSend = () => {
     text: inputText.value,
     fontfamily: '',
   };
-  sessionListRef.value.addCommit({
-    author: 'user',
-    data: {
-      content: inputText.value,
-      interfaceParams,
+  sessionListRef.value.addCommit(
+    {
+      author: 'user',
+      data: {
+        content: inputText.value,
+        interfaceParams,
+      },
     },
-  });
+    true,
+  );
   inputDisabled.value = true;
   inputText.value = '';
   if (prevRobotMsg.afterUserSendNextRobotId) {
@@ -207,7 +210,6 @@ const handleMessageSend = () => {
     );
     sessionListRef.value.addCommit(nextRobotReply);
   }
-  sessionListRef.value.saveSession();
 };
 
 const handleSendButtonClick = () => {
@@ -217,7 +219,6 @@ const handleSendButtonClick = () => {
 
 const enterSend = (event: any) => {
   if (event.keyCode === 13 && inputText.value.trim()) {
-    console.log(event);
     // 判断按下的是否是回车键的keyCode
     event.preventDefault();
     handleMessageSend();

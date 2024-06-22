@@ -8,7 +8,7 @@
       class="upload-com"
     >
       <template #upload-button>
-        <div class="no-img-upload-btn" :class="!disabled && 'hover-disabled'">
+        <div class="no-img-upload-btn" :class="disabled && 'hover-disabled'">
           <span class="iconfont icon-a-zuhe7903 icon-add" />
         </div>
       </template>

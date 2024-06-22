@@ -91,10 +91,7 @@ const route = useRoute();
 const sessionId = ref<number | string>(route.query.sessionId as string);
 
 const userInfo = useUserStore();
-const robotCommitStep = ref(0);
 const couldCreateAndUpdate = ref(false);
-
-const robotReplyRef = ref(LogoRobotReply);
 
 const replyState = reactive({
   robotReplyIndex: 0,
@@ -222,24 +219,29 @@ const robotReplyChange = (item: BtnItem) => {
     userReplyTemp.slotName = undefined;
   }
   replyState.robotReplyIndex = userReplyTemp.nextRobotId;
-  addCommit(userReplyTemp);
+  addCommit(userReplyTemp, true);
   addCommit(getRobotCommit(userReplyTemp.nextRobotId));
 };
 
 const handleChooseImg = (imgItem: ImgOption) => {
   const lastStep = getLastOneStep();
+  console.log('lastStep', lastStep);
+
   const manualData = getUserReply(lastStep.data.nextUserId);
   const { interfaceParams } = manualData;
   interfaceParams[Object.keys(interfaceParams)[0]] = imgItem.id || imgItem.url;
 
-  addCommit({
-    author: 'user',
-    data: {
-      content: manualData.content,
-      images: [imgItem.url],
-      interfaceParams,
+  addCommit(
+    {
+      author: 'user',
+      data: {
+        content: manualData.content,
+        images: [imgItem.url],
+        interfaceParams,
+      },
     },
-  });
+    true,
+  );
   addCommit(getRobotCommit(manualData.nextRobotId));
 };
 
@@ -259,7 +261,9 @@ const loadWorkflowTemplate = () => {
   );
 };
 
-const addCommit = (params: Partial<CommitItem>) => {
+const addCommit = (params: Partial<CommitItem>, disabledSubmit = false) => {
+  console.log('params', params);
+
   const author = params.author || 'robot';
 
   if (author === 'user') {
@@ -295,7 +299,7 @@ const addCommit = (params: Partial<CommitItem>) => {
   }
 
   //
-  if (commitList.value.length <= 3) {
+  if (disabledSubmit || commitList.value.length <= 3) {
     return;
   }
   saveSession();
@@ -315,32 +319,18 @@ const uploadOk = (info: any) => {
   const lastMessage = getLastOneStep();
   const userReply = getUserReply(info.nextUserId);
   userReply.content = '';
-  addCommit({
-    author: 'user',
-    ...userReply,
-    ...info,
-  });
+  addCommit(
+    {
+      author: 'user',
+      ...userReply,
+      ...info,
+    },
+    true,
+  );
   const robotReply = getRobotCommit(lastMessage.data.afterUserSendNextRobotId);
   addCommit(robotReply);
 };
 
-// const handleCreateLogo = (type: string, data: any) => {
-//   data.activeBtns = [type];
-//   robotReplyRef.value =
-//     type === firstRobotReply.data!.btns[0] ? LogoRobotReply : PosterRobotReply;
-//   addCommit({
-//     author: 'user',
-//     data: {
-//       content: `帮我设计一个${type}`,
-//     },
-//     disabledSubmit: true,
-//   });
-//   // addCommit({
-//   //   content: '您是否有参考图给我参考呢？',
-//   //   slotName: 'refrenceImage',
-//   // });
-//   addCommit(getRobotCommit());
-// };
 const getLastOneStep = () => {
   return commitList.value[commitList.value.length - 1];
 };
@@ -350,7 +340,6 @@ const refreshSession = async (id: any) => {
   chosenTemplateItem.value = '';
   sessionId.value = id;
   if (!id) {
-    robotCommitStep.value = 0;
     commitList.value = [];
     couldCreateAndUpdate.value = false;
     addCommit(cloneDeep(firstRobotReply));
@@ -361,9 +350,12 @@ const refreshSession = async (id: any) => {
   couldCreateAndUpdate.value = true;
   const res = await getSessionCommit(id);
   if (res) {
-    const dataListTemp = res.data.items.map((item: any) => {
+    const dataListTemp = res.data.items.map((item: any, index: number) => {
       const data = JSON.parse(item.whoSay);
       const result: any = { data };
+      if (index === 0) {
+        replyState.replyType = data.activeBtns[0];
+      }
       if (data.type === 'left') {
         result.author = 'robot';
         if (data.btns || data.imgRatioOptions) {
@@ -374,6 +366,12 @@ const refreshSession = async (id: any) => {
         }
       } else {
         result.author = 'user';
+        if (
+          data.interfaceParams.additionalReferImgs &&
+          data.content !== '不需要'
+        ) {
+          result.slotName = 'userUpload';
+        }
       }
       return result;
     });
