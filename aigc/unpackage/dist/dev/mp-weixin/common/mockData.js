@@ -302,7 +302,7 @@ const robotReply = {
       title: "Hi，我是你的AI设计师素素～",
       content: "在开始之前，需要你先回答我几个问题；\n需要我帮你设计什么？",
       btns: [
-        { label: "AI Logo", value: "logo_draw", nextUserId: 1 },
+        { label: "AI Logo", value: "logo_a4", nextUserId: 1 },
         { label: "AI 海报", value: "poster_draw", nextUserId: 201 }
       ],
       activeBtns: []
