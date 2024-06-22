@@ -48,18 +48,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           return JSON.parse(item.whoSay);
         });
         dataList.value = dataListTemp;
-        const lastMsg = dataListTemp[dataListTemp.length - 1];
-        console.log(lastMsg);
-        if (lastMsg.type === "right" && dataListTemp.length === 6) {
-          addMockRobotReply(3);
-          dataList.value.filter((item, index) => item.type === "right" && item.userInputSend === true);
-        }
-        if (lastMsg.type === "left" && dataListTemp.length >= 9) {
-          lastRobotMsg.value = true;
-          if (dataListTemp.length === 9) {
-            canSend.value = true;
-          }
-        }
       }
     };
     common_vendor.onLoad(async (params) => {
@@ -74,8 +62,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     });
     const initScrollHeight = () => {
-      common_vendor.index.createSelectorQuery().in(instance).select(".scroll-view-content").boundingClientRect((data) => {
+      common_vendor.index.createSelectorQuery().in(instance).select(".contact-container").boundingClientRect((data) => {
         if (data) {
+          console.log(data.height);
           scrollTop.value = data.height;
         }
       }).exec();
@@ -146,7 +135,9 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
       scrollToBottom();
       console.log(dataList.value);
-      putWorkData();
+      if (dataList.value.length > 3) {
+        putWorkData();
+      }
     };
     const addUserReply = (data) => {
       dataList.value.push(data);
@@ -176,12 +167,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const initContentHeight = () => {
       common_vendor.index.createSelectorQuery().in(instance).select(".contact-container").boundingClientRect((data) => {
-        console.log(data);
-        if (data) {
-          let top = data.height - scrollTop.value;
-          if (top > 0) {
-            scrollTop.value = top + 900;
-          }
+        if (data && data.height) {
+          scrollTop.value = data.height;
         }
       }).exec();
     };
@@ -225,7 +212,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       dataList.value[messageIndex].activeImages = [imgUrl];
       const manualData = common_mockData.manualReply[dataList.value[messageIndex].nextUserId];
       const interfaceParams = manualData.interfaceParams;
-      interfaceParams[Object.keys(interfaceParams)[0]] = imgUrl;
+      interfaceParams[Object.keys(interfaceParams)[0]] = imgValue.id || imgUrl;
       dataList.value.push({
         type: "right",
         content: manualData.content,
@@ -287,7 +274,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             c: common_vendor.o(({
               imgValue
             }) => onUserSelectImg(imgValue, index), index),
-            d: common_vendor.o((newData) => onDataChange(newData, index), index),
+            d: common_vendor.o((newData, changeType) => onDataChange(newData, index, changeType), index),
             e: common_vendor.o(addUserReply, index),
             f: "492712a1-0-" + i0,
             g: common_vendor.p({

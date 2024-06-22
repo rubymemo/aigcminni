@@ -281,7 +281,7 @@ const robotReply_2 = {
       content: "辛苦您了，您可以开始休息了，接下来交给我帮您设计",
       imagesType: "result",
       imagesOptions: [
-        { url: "https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg", status: "done", precent: 100 }
+        { url: "", status: "queue_remaining", precent: 0 }
       ],
       nextUserId: 209,
       activeImages: [],

@@ -195,6 +195,10 @@ radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked.d
   width: 240rpx;
   height: 240rpx;
   border-radius: 24rpx;
+  box-sizing: border-box;
+}
+.robot-contact-item .images-box .image-option-box image.done.data-v-a106ba0d {
+  border: solid 1px #E8E9EB;
 }
 .robot-contact-item .images-box .radio-box.data-v-a106ba0d {
   padding-top: 16rpx;

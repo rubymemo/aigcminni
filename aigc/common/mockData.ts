@@ -14,6 +14,7 @@ export type UserMessage = {
 
 // 下面是机器人的消息相关定义
 export type ImgOption = {
+	id?: string; // 唯一标识，当没有时，用url当唯一标识
 	url: string; // png 图片
 	status : 'queue_remaining' | 'loading' | 'done';
 	precent : number;
@@ -327,7 +328,7 @@ export const robotReply_2 = {
 			content: '辛苦您了，您可以开始休息了，接下来交给我帮您设计',
 			imagesType: 'result',
 			imagesOptions: [
-				{ url: 'https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg', status: 'done', precent: 100 },
+				{ url: '', status: 'queue_remaining', precent: 0 },
 			],
 			nextUserId: 209,
 			activeImages: [],

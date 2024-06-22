@@ -217,9 +217,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       console.log(queryData);
       const workflowListTemp = await common_utils.httpsRequest(`/hh/wf/listStyleBy`, queryData, "POST");
       const msgInfoTemp = props.msgInfo;
-      msgInfoTemp.imagesOptions = workflowListTemp.map((imgSrc) => {
+      msgInfoTemp.imagesOptions = workflowListTemp.map((imgItem) => {
         return {
-          url: imgSrc,
+          id: imgItem.id,
+          url: imgItem.imgUrl,
           status: "done",
           precent: 100
         };
@@ -287,14 +288,15 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             }),
             f: imageItem.status === "loading"
           } : {}, {
-            g: imageItem.status === "done" ? imageItem.url : "",
-            h: common_vendor.o(($event) => previewImg({
+            g: common_vendor.n(imageItem.status),
+            h: imageItem.status === "done" ? imageItem.url : "",
+            i: common_vendor.o(($event) => previewImg({
               ...imageItem,
               imgIndex
             }), imgIndex),
-            i: JSON.stringify(imageItem),
-            j: msgInfo.value.activeImages.includes(imageItem.url),
-            k: imgIndex
+            j: JSON.stringify(imageItem),
+            k: msgInfo.value.activeImages.includes(imageItem.url),
+            l: imgIndex
           });
         }),
         n: imgSelectDisabled.value,
@@ -312,10 +314,11 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             }),
             f: imageItem.status === "loading"
           } : {}, {
-            g: imageItem.status === "done" ? imageItem.url : "",
-            h: common_vendor.o(($event) => clickDownLoadImg(imgIndex), imgIndex),
-            i: imgIndex,
-            j: msgInfo.value.imagesOptions.length % 2 === 1 && imgIndex === msgInfo.value.imagesOptions.length - 1 || msgInfo.value.imagesOptions.length % 2 === 0 && (imgIndex === msgInfo.value.imagesOptions.length - 1 || imgIndex === msgInfo.value.imagesOptions.length - 2) ? 0 : "18rpx"
+            g: common_vendor.n(imageItem.status),
+            h: imageItem.status === "done" ? imageItem.url : "",
+            i: common_vendor.o(($event) => clickDownLoadImg(imgIndex), imgIndex),
+            j: imgIndex,
+            k: msgInfo.value.imagesOptions.length % 2 === 1 && imgIndex === msgInfo.value.imagesOptions.length - 1 || msgInfo.value.imagesOptions.length % 2 === 0 && (imgIndex === msgInfo.value.imagesOptions.length - 1 || imgIndex === msgInfo.value.imagesOptions.length - 2) ? 0 : "18rpx"
           });
         })
       }) : {}, {

@@ -120,7 +120,7 @@
     {
       "icon_id": "40734315",
       "name": "字体1",
-      "font_class": "ziti1",
+      "font_class": "font-family",
       "unicode": "e64c",
       "unicode_decimal": 58956
     },

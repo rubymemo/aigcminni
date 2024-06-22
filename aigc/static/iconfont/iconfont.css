@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4558340 */
-  src: url('iconfont.woff2?t=1718528210993') format('woff2'),
-       url('iconfont.woff?t=1718528210993') format('woff'),
-       url('iconfont.ttf?t=1718528210993') format('truetype');
+  src: url('iconfont.woff2?t=1719045935699') format('woff2'),
+       url('iconfont.woff?t=1719045935699') format('woff'),
+       url('iconfont.ttf?t=1719045935699') format('truetype');
 }
 
 .iconfont {
@@ -77,7 +77,7 @@
   content: "\e64b";
 }
 
-.icon-ziti1:before {
+.icon-font-family:before {
   content: "\e64c";
 }
 

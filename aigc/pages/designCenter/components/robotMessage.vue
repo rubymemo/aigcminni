@@ -50,7 +50,7 @@
 											<g-progress :progress="imageItem.precent"></g-progress>
 										</view>
 									</view>
-									<image :src="imageItem.status === 'done' ? imageItem.url : ''"
+									<image :class="imageItem.status" mode="aspectFit" :src="imageItem.status === 'done' ? imageItem.url : ''"
 										@click="previewImg({
 											...imageItem,
 											imgIndex
@@ -90,7 +90,7 @@
 										<g-progress :progress="imageItem.precent"></g-progress>
 									</view>
 								</view>
-								<image :src="imageItem.status === 'done' ? imageItem.url : ''"
+								<image mode="aspectFit" :class="imageItem.status" :src="imageItem.status === 'done' ? imageItem.url : ''"
 									@click="clickDownLoadImg(imgIndex)">
 								</image>
 							</view>
@@ -361,9 +361,13 @@
 		console.log(queryData);
 		const workflowListTemp = await httpsRequest(`/hh/wf/listStyleBy`, queryData, 'POST');
 		const msgInfoTemp = props.msgInfo;
-		msgInfoTemp.imagesOptions = workflowListTemp.map(imgSrc => {
+		msgInfoTemp.imagesOptions = workflowListTemp.map((imgItem : {
+			id: string,
+			imgUrl?: string,
+		}) => {
 			return {
-				url: imgSrc,
+				id: imgItem.id,
+				url: imgItem.imgUrl,
 				status: 'done',
 				precent: 100
 			}
@@ -544,7 +548,10 @@
 					width: 240rpx;
 					height: 240rpx;
 					border-radius: 24rpx;
-					// background: $border-grey-color;
+					box-sizing: border-box;
+					&.done {
+						border: solid 1px #E8E9EB;
+					}
 				}
 			}
 

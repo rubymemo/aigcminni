@@ -15,7 +15,7 @@
 						:msgInfo="item" :msgIndex="index" :msgList="dataList"
 						:userInfo="userInfo" @btnClick="({ btnItem }) =>onRobotBtnClick(btnItem, index)"
 						@imgSelect="({ imgValue }) => onUserSelectImg(imgValue, index)"
-						@change="newData => onDataChange(newData, index)" @addUserReply="addUserReply" 
+						@change="(newData, changeType) => onDataChange(newData, index, changeType)" @addUserReply="addUserReply" 
 						:dialogId="workId"
 					/>
 					<userMessageVue v-if="item.type === 'right'" :msgInfo="item" :userInfo="userInfo"
@@ -102,22 +102,6 @@
 				return JSON.parse(item.whoSay);
 			})
 			dataList.value = dataListTemp;
-			// 根据数据做一些初始工作,先写死，后面再改
-			const lastMsg = dataListTemp[dataListTemp.length - 1];
-			console.log(lastMsg)
-			if (lastMsg.type === 'right' && dataListTemp.length === 6) {
-				// 人说的，且是第一条
-				addMockRobotReply(3);
-				const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.userInputSend === true);
-				// getPaintingTask('logo_draw', UserMessages[0].content);
-			}
-			if (lastMsg.type === 'left' && dataListTemp.length >= 9) {
-				lastRobotMsg.value = true;
-				if (dataListTemp.length === 9) {
-					// 机器人说的:请输入您的品牌名称
-					canSend.value = true;
-				}
-			}
 		}
 	}
 
@@ -135,20 +119,21 @@
 		}
 	})
 	const initScrollHeight = () => {
+		// .select('.scroll-view-content')
 		uni.createSelectorQuery()
 			.in(instance)
-			.select('.scroll-view-content')
+			.select('.contact-container')
 			.boundingClientRect(data => {
 				if (data) {
+					console.log(data.height)
 					scrollTop.value = data.height
 				}
 			})
 			.exec();
 	}
 	onMounted(async () => {
-		// 获取用户信息
+		// 滚动
 		initScrollHeight()
-		// const sysTempRes = uni.getSystemInfoSync();
 	})
 	// 上传数据
 	const putWorkData = async () => {
@@ -227,7 +212,10 @@
 
 
 		// 保存
-		putWorkData();
+		if(dataList.value.length > 3) {
+			// 当用户输入了描述文字之后再保存
+			putWorkData();
+		}
 		// }, 200)
 	}
 
@@ -268,12 +256,8 @@
 	const initContentHeight = () => {
 		uni.createSelectorQuery().in(instance).select('.contact-container')
 			.boundingClientRect((data) => {
-				console.log(data)
-				if (data) {
-					let top = data.height - scrollTop.value;
-					if (top > 0) {
-						scrollTop.value = top + 900;
-					}
+				if (data && data.height) {
+					scrollTop.value = data.height;
 				}
 			}).exec();
 	}
@@ -325,13 +309,6 @@
 		}
 	}
 
-	// const genResultImgByTemp = (imgUrl : string) => {
-	// 	const findWorkFlow = workflowList.value.find(workflow => workflow.imgUrl === imgUrl);
-	// 	const UserMessages = dataList.value.filter((item, index) => item.type === 'right' && item.userInputSend === true);
-	// 	const promptText = UserMessages.length === 2 ? UserMessages[1].content : ''
-	// 	// getPaintingTask(findWorkFlow.code, promptText);
-	// }
-
 	const onUserSelectImg = async (imgValue : ImgOption, messageIndex : number) => {
 		if (imgValue.status !== 'done') {
 			return;
@@ -353,10 +330,21 @@
 		interfaceParams: {
 			bgImgUrl: 'https:***', 
 		},
+		
+		如果imgValue有id，传imgValue.id
+		interfaceParams: {
+			templateId: '',
+		},
+		---> 
+		interfaceParams: {
+			templateId: '123', 
+		},
 		***/
+		
+		
 		const manualData = manualReply[dataList.value[messageIndex].nextUserId];
 		const interfaceParams = manualData.interfaceParams;
-		interfaceParams[Object.keys(interfaceParams)[0]] = imgUrl;
+		interfaceParams[Object.keys(interfaceParams)[0]] = imgValue.id || imgUrl;
 
 		dataList.value.push({
 			type: 'right',
