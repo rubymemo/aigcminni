@@ -327,12 +327,11 @@
 				params[interfaceParamsKey] = paramsValue;
 			}
 		})
-		// 一些特殊处理，后端不好处理的放前端处理
-		if(params.tplCode === 'logo_draw' && params.brandName && params.brandName.length && params.brandName[0].text) {
-			// 如果是logo绘画，并且品牌名存在，tplCode 变成另外的code
-			params.tplCode = 'logo_a4'
+		// 给传额外的参数，或者覆盖的参数
+		params = {
+			...params,
+			...props.msgInfo.fetch.params || {},
 		}
-		
 		
 		return params;
 	}
@@ -359,10 +358,6 @@
 	// 获取模版
 	const fetchWorkflowTemplateList = async () => {
 		let queryData = createParams();
-		queryData = {
-			...queryData,
-			...props.msgInfo.fetch.params,
-		}
 		console.log(queryData);
 		const workflowListTemp = await httpsRequest(`/hh/wf/listStyleBy`, queryData, 'POST');
 		const msgInfoTemp = props.msgInfo;

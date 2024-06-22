@@ -191,9 +191,10 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           params[interfaceParamsKey] = paramsValue;
         }
       });
-      if (params.tplCode === "logo_draw" && params.brandName && params.brandName.length && params.brandName[0].text) {
-        params.tplCode = "logo_a4";
-      }
+      params = {
+        ...params,
+        ...props.msgInfo.fetch.params || {}
+      };
       return params;
     };
     const fetchPaintingTask = async () => {
@@ -213,10 +214,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     };
     const fetchWorkflowTemplateList = async () => {
       let queryData = createParams();
-      queryData = {
-        ...queryData,
-        ...props.msgInfo.fetch.params
-      };
       console.log(queryData);
       const workflowListTemp = await common_utils.httpsRequest(`/hh/wf/listStyleBy`, queryData, "POST");
       const msgInfoTemp = props.msgInfo;
