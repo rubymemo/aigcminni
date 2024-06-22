@@ -38,15 +38,10 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
       content:
         '下面可以开始选择一种您喜欢的风格啦\n也可选择默认，完成后马上为您开始设计',
       btns: [
-        { label: '默认', value: '', nextUserId: 203 },
-        { label: '立体', value: '3D', nextUserId: 203 },
-        { label: '简洁', value: 'simple', nextUserId: 203 },
-        { label: '卡通', value: 'cartoon', nextUserId: 203 },
-        { label: '水彩', value: 'watercolor', nextUserId: 203 },
-        { label: '油画', value: 'oil on canvas', nextUserId: 203 },
-        { label: '剪影', value: 'Silhouette', nextUserId: 203 },
-        { label: '复古', value: 'vintage style ', nextUserId: 203 },
-        { label: '单色', value: 'monochrome', nextUserId: 203 },
+        { label: '佳节倍思亲', value: '1003', nextUserId: 203 },
+        { label: '嫦娥奔月', value: '1004', nextUserId: 203 },
+        { label: '龙舟竞渡', value: '1005', nextUserId: 203 },
+        { label: '粽子与传统文化', value: '1006', nextUserId: 203 },
       ],
       activeBtns: [],
     },
@@ -62,37 +57,21 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         '根据您提供的信息我们先帮您生成一张符合您要求的背景图，如果您对生成的背景图不满意，您可以选择重新生成直到您满意后选择理想背景图，我们再为您完成接下来的设计任务',
       imagesType: 'radio',
       imagesOptions: [
-        // { url: '', status: 'queue_remaining', precent: 0 },
-        // { url: '', status: 'queue_remaining', precent: 0 },
-        // { url: '', status: 'queue_remaining', precent: 0 },
-        // { url: '', status: 'queue_remaining', precent: 0 }
-        {
-          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01485_.png',
-          status: 'done',
-          precent: 100,
-        },
-        {
-          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01486_.png',
-          status: 'done',
-          precent: 100,
-        },
-        {
-          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01487_.png',
-          status: 'done',
-          precent: 100,
-        },
-        {
-          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01488_.png',
-          status: 'done',
-          precent: 100,
-        },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        // { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
+        // { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
+        // { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 },
+        // { url: 'https://profile-avatar.csdnimg.cn/default.jpg!1', status: 'done', precent: 100 }
       ],
       nextUserId: 204,
       activeImages: [],
       reload: true,
       fetch: {
         // 接口对接
-        // type: 'doPrompt',
+        type: 'doPrompt',
       },
     },
     slotName: 'productSelect',
@@ -220,32 +199,19 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         '最后一步啦，请选择一个您喜欢的模版\n我们马上为您生成最终的效果图',
       imagesType: 'radio',
       imagesOptions: [
-        {
-          url: 'https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg',
-          status: 'done',
-          precent: 100,
-        },
-        {
-          url: 'https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg',
-          status: 'done',
-          precent: 100,
-        },
-        {
-          url: 'https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg',
-          status: 'done',
-          precent: 100,
-        },
-        {
-          url: 'https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg',
-          status: 'done',
-          precent: 100,
-        },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
+        { url: '', status: 'queue_remaining', precent: 0 },
       ],
       nextUserId: 209,
       activeImages: [],
       fetch: {
         // 接口对接
         type: 'workflow',
+        params: {
+          grp: 'poster_compose',
+        },
       },
     },
     slotName: 'productSelect',
@@ -400,7 +366,7 @@ export const userReply: Record<
       content: 'AI 海报',
       nextRobotId: 201,
       interfaceParams: {
-        code: '',
+        tplCode: '',
       },
     },
     202: {
@@ -466,7 +432,7 @@ export const userReply: Record<
       content: 'AI Logo生成',
       nextRobotId: 1,
       interfaceParams: {
-        code: '',
+        tplCode: '',
       },
     },
     2: {
@@ -487,7 +453,7 @@ export const userReply: Record<
       content: 'AI 海报',
       nextRobotId: 201,
       interfaceParams: {
-        code: '',
+        tplCode: '',
       },
     },
     202: {

@@ -35,7 +35,7 @@
 import {
   createNewSession,
   getSessionCommit,
-  getWorkFlow,
+  getWorkFlowTemplate,
   updateSession,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
@@ -53,7 +53,7 @@ import {
   userReply,
 } from '../mock';
 import RobotBtns from './robot-btns.vue';
-import { BtnItem } from '@/interface';
+import { BtnItem, ImgOption } from '@/interface';
 import ProductChoose from './product-choose/product-choose.vue';
 import UserImgUpload from './user-img-upload.vue';
 
@@ -200,29 +200,42 @@ const getUserReply = (index: any) => {
 
 const robotReplyChange = (item: BtnItem) => {
   replyState.userReplyIndex = item.nextUserId;
-  const userReply = getUserReply(item.nextUserId);
-  userReply.content = userReply.content?.replace('{replace}', item.label);
+  const userReplyTemp = getUserReply(item.nextUserId);
+  userReplyTemp.content = userReplyTemp.content?.replace(
+    '{replace}',
+    item.label,
+  );
   if (item.value !== 0) {
-    const interfaceParams = { ...userReply.interfaceParams };
+    const interfaceParams = { ...userReplyTemp.interfaceParams };
+    console.log(
+      'interfaceParams',
+      userReplyTemp,
+      interfaceParams,
+      userReply,
+      item.nextUserId,
+    );
+
     interfaceParams[Object.keys(interfaceParams)[0]] = item.value;
-    userReply.interfaceParams = interfaceParams;
+    userReplyTemp.interfaceParams = interfaceParams;
+  } else {
+    userReplyTemp.slotName = undefined;
   }
-  replyState.robotReplyIndex = userReply.nextRobotId;
-  addCommit(userReply);
-  addCommit(getRobotCommit(userReply.nextRobotId));
+  replyState.robotReplyIndex = userReplyTemp.nextRobotId;
+  addCommit(userReplyTemp);
+  addCommit(getRobotCommit(userReplyTemp.nextRobotId));
 };
 
-const handleChooseImg = (url: any) => {
+const handleChooseImg = (imgItem: ImgOption) => {
   const lastStep = getLastOneStep();
   const manualData = getUserReply(lastStep.data.nextUserId);
   const { interfaceParams } = manualData;
-  interfaceParams[Object.keys(interfaceParams)[0]] = url;
+  interfaceParams[Object.keys(interfaceParams)[0]] = imgItem.id || imgItem.url;
 
   addCommit({
     author: 'user',
     data: {
       content: manualData.content,
-      images: [url],
+      images: [imgItem.url],
       interfaceParams,
     },
   });
@@ -231,15 +244,17 @@ const handleChooseImg = (url: any) => {
 
 const loadWorkflowTemplate = () => {
   const lastMessage = getLastOneStep();
-
-  getWorkFlow('logo_compose').then((res) => {
-    lastMessage.data.imagesOptions = res.data.map((item: any) => ({
-      url: item.imgUrl,
-      status: 'done',
-      precent: 100,
-      code: item.code,
-    }));
-  });
+  const params = createParams();
+  getWorkFlowTemplate({ ...params, ...lastMessage.data.fetch.params }).then(
+    (res) => {
+      lastMessage.data.imagesOptions = res.data.map((item: any) => ({
+        url: item.imgUrl,
+        status: 'done',
+        precent: 100,
+        id: item.id,
+      }));
+    },
+  );
 };
 
 const addCommit = (params: Partial<CommitItem>) => {

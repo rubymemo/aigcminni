@@ -39,7 +39,6 @@
               @image-upload-success="handleImageUploaded"
               @enabled-input="handleEnableInput"
               @choose-style="handleChooseStyle"
-              @no-text="handleNoText"
               @commit-length-change="handleScrollBottom"
               @last-step="lastStep"
               @reload="reload"
@@ -89,7 +88,6 @@ import { onBeforeMount, onMounted, ref } from 'vue';
 import {
   getHistoryByPromptId,
   getSessionList,
-  getWorkFlow,
   sendMessageV2,
 } from '@/api/dashboard';
 import { useUserStore } from '@/store';
@@ -176,20 +174,6 @@ onBeforeMount(() => {
 
 const userWords = ref('');
 
-const handleGetWorkFlow = () => {
-  const robotApply = sessionListRef.value.getRobotCommit();
-  getWorkFlow('logo_compose').then((res) => {
-    console.log(res, robotApply);
-    robotApply.data.imagesOptions = res.data.map((item: any) => ({
-      url: item.imgUrl,
-      status: 'done',
-      precent: 100,
-      code: item.code,
-    }));
-    sessionListRef.value.addCommit(robotApply);
-  });
-};
-
 const handleRegenerateLogo = (imgUrl: string, words: string) => {
   workCode = 'logo_draw';
   imgUpName = imgUrl;
@@ -251,12 +235,6 @@ const handleImageUploaded = (imageName = '') => {
 const handleChooseStyle = (imgUrl: string) => {
   workCode = 'workFlow';
   imgUpName = imgUrl;
-};
-
-const handleNoText = () => {
-  inputDisabled.value = true;
-  userWords.value = '';
-  handleGetWorkFlow();
 };
 
 const lastStep = (workFlowCode: string) => {

@@ -4,11 +4,11 @@
       v-if="!valueRef"
       accept="image/png, image/jpeg"
       :custom-request="customUpload"
-      :disabled="disabled"
+      :disabled="props.disabled"
       class="upload-com"
     >
       <template #upload-button>
-        <div class="no-img-upload-btn">
+        <div class="no-img-upload-btn" :class="!disabled && 'hover-disabled'">
           <span class="iconfont icon-a-zuhe7903 icon-add" />
         </div>
       </template>
@@ -21,7 +21,8 @@
         :src="valueRef"
         fit="scale-down"
       />
-      <div v-if="!disabled" class="hover-area">
+     
+      <div v-if="!props.disabled" class="hover-area">
         <a-upload
           accept="image/png, image/jpeg"
           :custom-request="customUpload"
@@ -88,6 +89,10 @@ const customUpload = (option: any): any => {
     align-items: center;
     width: 120px;
     height: 120px;
+  }
+
+  .hover-disabled {
+    cursor: not-allowed;
   }
 
   .reupload-btn {

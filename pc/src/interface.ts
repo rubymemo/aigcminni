@@ -1,5 +1,6 @@
 // 下面是机器人的消息相关定义
 export type ImgOption = {
+  id?: string | number;
   url: string; // png 图片
   status: 'queue_remaining' | 'loading' | 'done';
   precent: number;

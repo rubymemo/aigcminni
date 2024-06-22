@@ -23,8 +23,8 @@
     </div>
     <a-radio
       v-if="imagesType === 'radio'"
-      :disabled="disabled"
-      :value="imgItem.url"
+      :disabled="disabled || data.loading"
+      :value="index"
     >
       <template #radio="{ checked }">
         <span v-if="checked" class="iconfont icon-success checked-icon" />

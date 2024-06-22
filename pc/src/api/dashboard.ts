@@ -72,14 +72,10 @@ export const uploadImageV2 = (params: any) => {
   return axios.post('/hh/comfyui_api_v2/uploadImage', params);
 };
 
-export const getWorkFlow = (type: string) => {
-  return axios.get(`/hh/prompt_workflow/listByType/${type}`);
+export const getWorkFlowTemplate = (params: any) => {
+  return axios.post(`/hh/wf/listStyleBy`, params);
 };
 
 export const getDownloadUrl = (url: string) => {
   return axios.get('/hh/dialog_dl/listUrls', { params: { url } });
 };
-
-export const downloadImage = (url: string) => {
-  return axios(url, { responseType: 'blob' }).then(console.log)
-}

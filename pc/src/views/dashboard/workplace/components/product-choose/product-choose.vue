@@ -42,13 +42,13 @@ const { imagesType } = data.value;
 
 const chosenImg = ref('');
 
-const chooseImg = (url: any) => {
-  data.value.activeImages = [url];
-  emits('chooseImg', url);
+const chooseImg = (index: any) => {
+  data.value.activeImages = data.value.imagesOptions[index].url;
+  emits('chooseImg', data.value.imagesOptions[index]);
 };
 
 const handleChoseTemplateImg = (img: ImgOption) => {
-  chooseImg(img.url);
+  emits('chooseImg', img);
 };
 
 watch(
