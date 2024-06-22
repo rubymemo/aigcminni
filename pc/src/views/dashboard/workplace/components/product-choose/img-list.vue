@@ -12,7 +12,7 @@
       <div v-else-if="imgItem.url" class="img-box">
         <a-image
           class="img-item"
-          :preview="imagesType === 'result'"
+          :preview="disabled && imagesType !== 'result'"
           :width="200"
           :height="150"
           fit="scale-down"
@@ -32,6 +32,10 @@
       </template>
     </a-radio>
   </div>
+  <ImgDownload
+    v-model:visible="modalState.downloadModalVisible"
+    :url="modalState.url"
+  />
   <CommonModal
     v-model:visible="modalState.visible"
     title="作品选择"
@@ -76,8 +80,9 @@
 
 <script setup lang="ts">
 import { ImgOption, RobotMessage } from '@/interface';
-import { reactive, toRefs, vModelSelect } from 'vue';
+import { reactive, toRefs } from 'vue';
 import GProgress from '@/views/dashboard/workplace/components/g-progress.vue';
+import ImgDownload from './img-download.vue';
 
 interface Props {
   data: {
@@ -97,11 +102,18 @@ const { data, disabled } = toRefs(props);
 const modalState = reactive({
   index: 0,
   visible: false,
+  url: '',
+  downloadModalVisible: false,
 });
 
 const clickImg = (option: ImgOption, index: number) => {
-  console.log(option, index);
-  if (props.imagesType === 'result' || props.disabled) {
+  if (props.disabled) {
+    return;
+  }
+  if (props.imagesType === 'result') {
+    modalState.url = option.url;
+    modalState.downloadModalVisible = true;
+
     return;
   }
   modalState.index = index + 1;

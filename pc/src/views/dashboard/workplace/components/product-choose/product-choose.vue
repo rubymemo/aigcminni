@@ -48,7 +48,6 @@ const chooseImg = (url: any) => {
 };
 
 const handleChoseTemplateImg = (img: ImgOption) => {
-  console.log('img', img);
   chooseImg(img.url);
 };
 

@@ -75,3 +75,11 @@ export const uploadImageV2 = (params: any) => {
 export const getWorkFlow = (type: string) => {
   return axios.get(`/hh/prompt_workflow/listByType/${type}`);
 };
+
+export const getDownloadUrl = (url: string) => {
+  return axios.get('/hh/dialog_dl/listUrls', { params: { url } });
+};
+
+export const downloadImage = (url: string) => {
+  return axios(url, { responseType: 'blob' }).then(console.log)
+}
