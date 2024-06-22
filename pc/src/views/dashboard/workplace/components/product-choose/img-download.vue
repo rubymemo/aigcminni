@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { getDownloadUrl } from '@/api/dashboard';
 import { computed, ref, toRefs, watch } from 'vue';
+import CommonModal from '@/components/common-modal.vue';
 
 interface Props {
   url: string;

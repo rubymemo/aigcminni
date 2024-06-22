@@ -27,6 +27,7 @@ import alipuhuiImg from '@/assets/images/ali-puhui.png';
 import youshebiaotiImg from '@/assets/images/youshebiaotihei.png';
 import { Message } from '@arco-design/web-vue';
 import { computed, ref, toRefs, watch } from 'vue';
+import CommonModal from '@/components/common-modal.vue';
 
 const props = defineProps<{
   data: any;

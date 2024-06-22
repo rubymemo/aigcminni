@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import { computed, ref, toRefs, watch } from 'vue';
+import CommonModal from '@/components/common-modal.vue';
 
 interface Props {
   data: any;

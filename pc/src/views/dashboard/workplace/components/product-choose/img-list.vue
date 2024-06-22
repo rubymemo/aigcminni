@@ -85,6 +85,7 @@ import { ImgOption, RobotMessage } from '@/interface';
 import { reactive, toRefs } from 'vue';
 import GProgress from '@/views/dashboard/workplace/components/g-progress.vue';
 import ImgDownload from './img-download.vue';
+import CommonModal from '@/components/common-modal.vue';
 
 interface Props {
   data: {

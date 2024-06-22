@@ -94,34 +94,34 @@ const modalClass = computed(() => ({
   .arco-modal-footer {
     display: none;
   }
-}
 
-.cancel-btn,
-.ok-btn {
-  border-radius: 100px;
-  height: 40px;
-  font-family: PingFang SC;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 22px;
-  letter-spacing: 0px;
-  text-align: center;
-  padding: 0 24px;
-}
+  .cancel-btn,
+  .ok-btn {
+    border-radius: 100px;
+    height: 40px;
+    font-family: PingFang SC;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0px;
+    text-align: center;
+    padding: 0 24px;
+  }
 
-.cancel-btn {
-  margin-right: 16px;
-  border: 1px solid rgb(207, 218, 235) !important;
-  background: rgb(255, 255, 255) !important;
-}
+  .cancel-btn {
+    margin-right: 16px;
+    border: 1px solid rgb(207, 218, 235) !important;
+    background: rgb(255, 255, 255) !important;
+  }
 
-.ok-btn {
-  border: none !important;
-  background: linear-gradient(
-    135deg,
-    rgb(23, 242, 95) 0%,
-    rgb(37, 106, 247) 100%
-  );
-  color: rgb(255, 255, 255) !important;
+  .ok-btn {
+    border: none !important;
+    background: linear-gradient(
+      135deg,
+      rgb(23, 242, 95) 0%,
+      rgb(37, 106, 247) 100%
+    );
+    color: rgb(255, 255, 255) !important;
+  }
 }
 </style>

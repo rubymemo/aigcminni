@@ -5,7 +5,9 @@
         <div class="wechat-tag">微信小程序</div>
         <template #content>
           <div class="qrcode-info">
-            <div class="qrcode-container"> 二维码占位 </div>
+            <div class="qrcode-container">
+              <img :src="qrcode" alt="" />
+            </div>
           </div>
         </template>
       </a-dropdown>
@@ -31,6 +33,7 @@ import { logout } from '@/api/user';
 import CommonAvatar from '@/components/common-avatar.vue';
 import { useUserStore } from '@/store';
 import { useRouter } from 'vue-router';
+import qrcode from '@/assets/images/qrcode.jpg';
 
 const router = useRouter();
 
@@ -55,7 +58,7 @@ const logoutAction = () => {
     box-shadow: unset;
   }
 }
-</style> 
+</style>
 
 <style scoped lang="less">
 .top-bar {
@@ -140,6 +143,11 @@ const logoutAction = () => {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    img {
+      height: 100%;
+      width: 100%;
+    }
   }
 }
 </style>

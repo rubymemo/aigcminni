@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import UploadImageItem from './upload-img-item.vue';
-import { Message } from '@arco-design/web-vue';
+import CommonModal from '@/components/common-modal.vue';
 
 const emits = defineEmits(['uploadOk']);
 
