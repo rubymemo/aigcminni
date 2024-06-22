@@ -51,6 +51,7 @@ export type RobotMessage = {
 
 	fetch?: { // 如果有该字段表示是生成任务
 		type: 'doPrompt' | 'workflow'; // doPrompt表示生成任务 ｜ workflow 表示模版
+		params?: Record<string, any>; // 有没有需要带别的参数
 	}
 }
 
