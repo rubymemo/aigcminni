@@ -124,10 +124,7 @@ export const robotReply_1 = {
 			],
 			reload: true,
 			fetch: { // 接口对接
-				type: 'doPrompt',
-				params: {
-					tplCode: 'logo_a4'
-				}
+				type: 'doPrompt'
 			}
 		},
 	},
