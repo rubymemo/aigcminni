@@ -14,10 +14,18 @@
           :commit-index="index"
           @change="robotReplyChange"
           @update-session-type="updateSessionType"
+          @upload-ok="uploadOk"
         />
       </template>
       <template #productSelect="{ data, disabled }">
-        <ProductChoose :data="data" :disabled="disabled" />
+        <ProductChoose
+          :data="data"
+          :disabled="disabled"
+          @choose-img="handleChooseImg"
+        />
+      </template>
+      <template #userUpload="{ data, disabled }">
+        <UserImgUpload :data="data" :disabled="disabled" />
       </template>
     </SessionItem>
   </div>
@@ -27,6 +35,7 @@
 import {
   createNewSession,
   getSessionCommit,
+  getWorkFlow,
   updateSession,
 } from '@/api/dashboard';
 import SessionItem, { SessionItemProps } from './session-item.vue';
@@ -46,6 +55,7 @@ import {
 import RobotBtns from './robot-btns.vue';
 import { BtnItem } from '@/interface';
 import ProductChoose from './product-choose/product-choose.vue';
+import UserImgUpload from './user-img-upload.vue';
 
 interface CommitItem extends SessionItemProps {
   id: string;
@@ -106,7 +116,6 @@ watch(
 
 const chosenLogoItem = ref<number>();
 const chosenTemplateItem = ref<string>();
-const uploadImageName = ref('');
 
 const saveSession = async () => {
   if (!couldCreateAndUpdate.value) {
@@ -203,6 +212,36 @@ const robotReplyChange = (item: BtnItem) => {
   addCommit(getRobotCommit(userReply.nextRobotId));
 };
 
+const handleChooseImg = (url: any) => {
+  const lastStep = getLastOneStep();
+  const manualData = getUserReply(lastStep.data.nextUserId);
+  const { interfaceParams } = manualData;
+  interfaceParams[Object.keys(interfaceParams)[0]] = url;
+
+  addCommit({
+    author: 'user',
+    data: {
+      content: manualData.content,
+      images: [url],
+      interfaceParams,
+    },
+  });
+  addCommit(getRobotCommit(manualData.nextRobotId));
+};
+
+const loadWorkflowTemplate = () => {
+  const lastMessage = getLastOneStep();
+
+  getWorkFlow('logo_compose').then((res) => {
+    lastMessage.data.imagesOptions = res.data.map((item: any) => ({
+      url: item.imgUrl,
+      status: 'done',
+      precent: 100,
+      code: item.code,
+    }));
+  });
+};
+
 const addCommit = (params: Partial<CommitItem>) => {
   const author = params.author || 'robot';
 
@@ -222,12 +261,12 @@ const addCommit = (params: Partial<CommitItem>) => {
     id: v4(),
   });
 
-  if (
-    author === 'robot' &&
-    params.data.fetch &&
-    params.data.fetch.type === 'doPrompt'
-  ) {
-    emit('loadResult');
+  if (author === 'robot' && params.data.fetch) {
+    if (params.data.fetch.type === 'doPrompt') {
+      emit('loadResult');
+    } else if (params.data.fetch.type === 'workflow') {
+      loadWorkflowTemplate();
+    }
   }
 
   emit('enabledInput', !params.data?.canUserSend);
@@ -238,14 +277,27 @@ const addCommit = (params: Partial<CommitItem>) => {
   saveSession();
 };
 
-addCommit(firstRobotReply);
+addCommit(cloneDeep(firstRobotReply));
 
 const actionDisabled = (index: number) => {
   return index < commitList.value.length - 1;
 };
 
 const handleReload = () => {
-  emit('reload', uploadImageName.value);
+  emit('loadResult');
+};
+
+const uploadOk = (info: any) => {
+  const lastMessage = getLastOneStep();
+  const userReply = getUserReply(info.nextUserId);
+  userReply.content = '';
+  addCommit({
+    author: 'user',
+    ...userReply,
+    ...info,
+  });
+  const robotReply = getRobotCommit(lastMessage.data.afterUserSendNextRobotId);
+  addCommit(robotReply);
 };
 
 // const handleCreateLogo = (type: string, data: any) => {
@@ -277,7 +329,7 @@ const refreshSession = async (id: any) => {
     robotCommitStep.value = 0;
     commitList.value = [];
     couldCreateAndUpdate.value = false;
-    addCommit(firstRobotReply);
+    addCommit(cloneDeep(firstRobotReply));
     return;
   }
 
@@ -406,6 +458,18 @@ const createParams = () => {
       ).concat([paramsValue]);
       result[interfaceParamsKey] = newValue;
     }
+
+    // 一些特殊处理，后端不好处理的放前端处理
+    if (
+      result.tplCode === 'logo_draw' &&
+      result.brandName &&
+      result.brandName.length &&
+      result.brandName[0].text
+    ) {
+      // 如果是logo绘画，并且品牌名存在，tplCode 变成另外的code
+      result.tplCode = 'logo_a4';
+    }
+
     return result;
   }, {});
 };
@@ -421,66 +485,6 @@ defineExpose({
 </script>
 
 <style scoped lang="less">
-:deep {
-  .arco-btn-secondary {
-    border: none !important;
-  }
-  .arco-btn-secondary.arco-btn-disabled {
-    color: unset !important;
-    background-color: unset !important;
-    border: unset !important;
-  }
-}
-.action-button {
-  color: rgb(52, 65, 86);
-  border: none;
-  font-family: PingFang SC;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 22px;
-  letter-spacing: 0px;
-  text-align: left;
-  padding: 3px 16px;
-  border-radius: 100px;
-  background: linear-gradient(
-    135deg,
-    rgba(23, 242, 95, 0.2) 0%,
-    rgba(37, 106, 247, 0.2) 100%
-  );
-  margin-right: 16px;
-
-  &:hover {
-    color: white !important;
-    background: linear-gradient(
-      135deg,
-      rgb(23, 242, 95) 0%,
-      rgb(37, 106, 247) 100%
-    ) !important;
-    .iconfont.icon-plus {
-      color: white !important;
-    }
-  }
-  &.active-button {
-    color: rgb(255, 255, 255);
-    background: linear-gradient(
-      135deg,
-      rgb(23, 242, 95) 0%,
-      rgb(37, 106, 247) 100%
-    );
-  }
-
-  img {
-    width: 12px;
-    height: 12px;
-    margin-top: 5px;
-  }
-
-  &::v-deep {
-    .arco-btn-icon {
-      margin-right: 6px !important;
-    }
-  }
-}
 .current-session-box {
   width: 100%;
   padding-bottom: 100px;

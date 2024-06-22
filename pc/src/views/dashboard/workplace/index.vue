@@ -98,6 +98,7 @@ import { nextTick } from 'vue';
 import { getUserInfo, logout } from '@/api/user';
 import { reactive } from 'vue';
 import TopBar from './components/top-bar.vue';
+import { ImgOption } from '@/interface';
 
 const inputText = ref('');
 const inputDisabled = ref(true);
@@ -274,7 +275,11 @@ const loadResult = () => {
   const dataRef = ref(currentCommit.data);
   dataRef.value.loading = true;
   dataRef.value.progress = 0;
-
+  dataRef.value.imagesOptions.forEach((option: ImgOption) => {
+    option.url = '';
+    option.precent = 0;
+    option.status = 'loading';
+  });
   const doPromptParams = sessionListRef.value.createParams();
 
   wsInstance.value = new WebSocket(`wss://huatu.solart.pro/ws?clientId=${uid}`);

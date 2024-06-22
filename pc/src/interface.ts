@@ -15,6 +15,7 @@ export type ImgRatioItem = {
   label: string; // 展示的字符串
   value: string | number; // 值
   nextUserId: number; // 下一个用户输出的id
+  [x: string]: any;
 };
 export type RobotMessage = {
   type?: 'left';

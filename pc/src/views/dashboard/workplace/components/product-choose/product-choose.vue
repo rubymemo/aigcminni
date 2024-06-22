@@ -3,19 +3,29 @@
     v-if="imagesType === 'radio'"
     class="template-commit-action"
     :disabled="disabled"
-    @change="handleChoseTemplateImg(data, $event)"
+    @change="chooseImg"
   >
-    <ImgList :data="data" :images-type="imagesType" :disabled="disabled" />
+    <ImgList
+      :data="data"
+      :images-type="imagesType"
+      :disabled="disabled"
+      @choose="handleChoseTemplateImg"
+    />
   </a-radio-group>
   <div v-else class="template-commit-action">
-    <ImgList :data="data" :images-type="imagesType" :disabled="disabled" />
+    <ImgList
+      :data="data"
+      :images-type="imagesType"
+      :disabled="disabled"
+      @choose="handleChoseTemplateImg"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ImgOption, RobotMessage } from '@/interface';
-import { toRefs } from 'vue';
+import { ref, toRefs, watch } from 'vue';
 import ImgList from './img-list.vue';
+import { ImgOption } from '@/interface';
 
 interface Props {
   data: any;
@@ -24,30 +34,39 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const emits = defineEmits(['chooseImg']);
 
 const { data, disabled } = toRefs(props);
 
 const { imagesType } = data.value;
 
-const handleChoseTemplateImg = (data: any, code: any) => {
-  // console.log(data, code);
-  // chosenTemplateItem.value = code;
-  // const { url } = data.imagesOptions.find((item: any) => item.code === code);
-  // data.activeImages = [url];
-  // addCommit({
-  //   author: 'user',
-  //   data: {
-  //     images: [url],
-  //     content: '我已经选定了',
-  //   },
-  // });
-  // emit('lastStep', code);
-  // lastStep.value = true;
+const chosenImg = ref('');
+
+const chooseImg = (url: any) => {
+  data.value.activeImages = [url];
+  emits('chooseImg', url);
 };
+
+const handleChoseTemplateImg = (img: ImgOption) => {
+  console.log('img', img);
+  chooseImg(img.url);
+};
+
+watch(
+  () => data.value.activeImages,
+  (arr) => {
+    if (arr?.length) {
+      [chosenImg.value] = arr;
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+);
 </script>
 
 <style scoped lang="less">
-
 .template-commit-action {
   width: 100%;
   display: flex;

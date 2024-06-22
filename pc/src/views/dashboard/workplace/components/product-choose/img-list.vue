@@ -1,61 +1,73 @@
 <template>
   <div
-    v-for="imgItem in data.imagesOptions"
-    :key="imgItem.code"
+    v-for="(imgItem, index) in data.imagesOptions"
+    :key="index"
     class="template-image-item"
   >
     <div class="img-area">
-      <div
-        v-if="imgItem.url"
-        class="img-box"
-        @click="!disabled && handleChoseTemplateImg(data, imgItem.code)"
-      >
+      <div v-if="data.loading" class="img-loading">
+        <p>图片加载中{{ data.progress }}%</p>
+        <GProgress :progress="data.progress" />
+      </div>
+      <div v-else-if="imgItem.url" class="img-box">
         <a-image
+          class="img-item"
           :preview="imagesType === 'result'"
           :width="200"
-          :height="200"
+          :height="150"
           fit="scale-down"
           :src="imgItem.url"
+          @click="clickImg(imgItem, index)"
         />
-      </div>
-      <div v-else class="img-loading">
-        <p>图片加载中{{ imgItem.precent }}%</p>
-        <GProgress :progress="imgItem.precent" />
       </div>
     </div>
     <a-radio
       v-if="imagesType === 'radio'"
       :disabled="disabled"
-      :value="imgItem.code"
+      :value="imgItem.url"
     >
-      <template #radio v-if="chosenTemplateItem === imgItem.code">
-        <span class="iconfont icon-success checked-icon" />
-      </template>
-      <template #radio v-else>
-        <span class="radio-no-checked" />
+      <template #radio="{ checked }">
+        <span v-if="checked" class="iconfont icon-success checked-icon" />
+        <span v-else class="radio-no-checked" />
       </template>
     </a-radio>
   </div>
-  <CommonModal title="作品选择" ok-btn-text="选择该图" :width="626">
+  <CommonModal
+    v-model:visible="modalState.visible"
+    title="作品选择"
+    ok-btn-text="选择该图"
+    :width="626"
+    @ok="handleChoseTemplateImg"
+  >
     <div class="container">
       <p
         >如果该图片是您喜欢的风格，请点击选择该图；您可以通过左右滑动进行查看，如果该组中没有您想要的图片，请点击取消后在主页选择重新生成</p
       >
 
       <div class="img-banner">
-        <div>
-          <span class="iconfont icon-a-zuhe7974" />
+        <div @click.stop="changeIndex($event)">
+          <span class="iconfont icon-a-zuhe7974 left-btn" />
         </div>
-        <a-carousel>
+        <a-carousel
+          v-model:current="modalState.index"
+          class="img-play"
+          :style="{ width: '426px', height: '258px' }"
+        >
           <a-carousel-item
             v-for="(item, index) in data.imagesOptions"
             :key="index"
           >
-            <a-image :src="item.url" :preview="false" />
+            <a-image
+              width="426"
+              height="258"
+              :src="item.url"
+              fit="scale-down"
+              :preview="false"
+            />
           </a-carousel-item>
         </a-carousel>
-        <div>
-          <span class="iconfont icon-a-zuhe7974" />
+        <div @click.stop="changeIndex($event, false)">
+          <span class="iconfont icon-a-zuhe7960 right-btn" />
         </div>
       </div>
     </div>
@@ -64,35 +76,59 @@
 
 <script setup lang="ts">
 import { ImgOption, RobotMessage } from '@/interface';
-import { toRefs } from 'vue';
+import { reactive, toRefs, vModelSelect } from 'vue';
+import GProgress from '@/views/dashboard/workplace/components/g-progress.vue';
 
 interface Props {
   data: {
     imagesOptions: Array<ImgOption>;
     progress: number;
+    [prop: string]: any;
   };
   disabled?: boolean;
   imagesType: RobotMessage['imagesType'];
 }
 
 const props = defineProps<Props>();
+const emits = defineEmits(['choose']);
 
 const { data, disabled } = toRefs(props);
 
-const handleChoseTemplateImg = (data: any, code: any) => {
-  // console.log(data, code);
-  // chosenTemplateItem.value = code;
-  // const { url } = data.imagesOptions.find((item: any) => item.code === code);
-  // data.activeImages = [url];
-  // addCommit({
-  //   author: 'user',
-  //   data: {
-  //     images: [url],
-  //     content: '我已经选定了',
-  //   },
-  // });
-  // emit('lastStep', code);
-  // lastStep.value = true;
+const modalState = reactive({
+  index: 0,
+  visible: false,
+});
+
+const clickImg = (option: ImgOption, index: number) => {
+  console.log(option, index);
+  if (props.imagesType === 'result' || props.disabled) {
+    return;
+  }
+  modalState.index = index + 1;
+  modalState.visible = true;
+};
+
+const changeIndex = (e: any, left = true) => {
+  e.preventDefault();
+  if (left) {
+    if (modalState.index === 1) {
+      modalState.index = 4;
+      return;
+    }
+    modalState.index -= 1;
+  } else {
+    if (modalState.index === 4) {
+      modalState.index = 1;
+      return;
+    }
+    modalState.index += 1;
+  }
+};
+
+const handleChoseTemplateImg = () => {
+  const imgBtn = data.value.imagesOptions[modalState.index - 1];
+  emits('choose', imgBtn);
+  modalState.visible = false;
 };
 </script>
 
@@ -115,6 +151,15 @@ const handleChoseTemplateImg = (data: any, code: any) => {
   .img-banner {
     margin-top: 25px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 26px;
+
+    .left-btn,
+    .right-btn {
+      font-size: 24px;
+      cursor: pointer;
+    }
   }
 }
 
@@ -156,7 +201,7 @@ const handleChoseTemplateImg = (data: any, code: any) => {
     justify-content: center;
   }
   .img-area {
-    height: 200px;
+    height: 150px;
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -169,6 +214,11 @@ const handleChoseTemplateImg = (data: any, code: any) => {
       img {
         width: 100%;
         height: 100%;
+        cursor: pointer;
+      }
+
+      .img-item {
+        cursor: pointer;
       }
     }
 
@@ -198,6 +248,15 @@ const handleChoseTemplateImg = (data: any, code: any) => {
         margin: 0;
         margin-bottom: 8px;
       }
+    }
+  }
+}
+
+.img-play {
+  :deep {
+    .arco-carousel-indicator-wrapper,
+    .arco-carousel-arrow {
+      display: none;
     }
   }
 }

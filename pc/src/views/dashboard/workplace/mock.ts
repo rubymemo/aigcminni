@@ -31,6 +31,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
       ],
       activeBtns: [],
     },
+    slotName: 'btns',
   },
   203: {
     data: {
@@ -66,22 +67,22 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         // { url: '', status: 'queue_remaining', precent: 0 },
         // { url: '', status: 'queue_remaining', precent: 0 }
         {
-          url: 'https://profile-avatar.csdnimg.cn/default.jpg!1',
+          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01485_.png',
           status: 'done',
           precent: 100,
         },
         {
-          url: 'https://profile-avatar.csdnimg.cn/default.jpg!1',
+          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01486_.png',
           status: 'done',
           precent: 100,
         },
         {
-          url: 'https://profile-avatar.csdnimg.cn/default.jpg!1',
+          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01487_.png',
           status: 'done',
           precent: 100,
         },
         {
-          url: 'https://profile-avatar.csdnimg.cn/default.jpg!1',
+          url: 'https://huatu.tos-cn-beijing.volces.com/88c3416c-c9d4-4700-b889-a066fc3a4bcd/Logo_01488_.png',
           status: 'done',
           precent: 100,
         },
@@ -91,9 +92,10 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
       reload: true,
       fetch: {
         // 接口对接
-        type: 'doPrompt',
+        // type: 'doPrompt',
       },
     },
+    slotName: 'productSelect',
   },
   205: {
     data: {
@@ -110,6 +112,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   206: {
     data: {
@@ -126,6 +129,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   207: {
     data: {
@@ -143,6 +147,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   208: {
     data: {
@@ -160,6 +165,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   209: {
     data: {
@@ -177,6 +183,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         tooltipsBtns: ['copy', 'edit', 'family'],
       },
     },
+    slotName: 'btns',
   },
   210: {
     data: {
@@ -201,6 +208,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
       },
       afterUserSendNextRobotId: 211,
     },
+    slotName: 'btns',
   },
   211: {
     data: {
@@ -240,6 +248,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         type: 'workflow',
       },
     },
+    slotName: 'productSelect',
   },
   212: {
     data: {
@@ -264,6 +273,7 @@ export const PosterRobotReply: Record<number, Partial<SessionItemProps>> = {
         type: 'doPrompt',
       },
     },
+    slotName: 'productSelect',
   },
 };
 
@@ -369,7 +379,7 @@ export const userReply: Record<
       content: 'AI Logo生成',
       nextRobotId: 1,
       interfaceParams: {
-        code: '',
+        tplCode: '',
       },
     },
     2: {
@@ -441,6 +451,7 @@ export const userReply: Record<
       interfaceParams: {
         additionalReferImgs: { logo: '', QRCode: '', topicMap: '' },
       },
+      slotName: 'userUpload',
     },
     209: {
       content: '已选择完毕',
@@ -527,6 +538,7 @@ export const userReply: Record<
       interfaceParams: {
         additionalReferImgs: { logo: '', QRCode: '', topicMap: '' },
       },
+      slotName: 'userUpload',
     },
     209: {
       content: '已选择完毕',
