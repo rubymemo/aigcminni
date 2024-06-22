@@ -361,98 +361,28 @@ const refreshSession = async (id: any) => {
   couldCreateAndUpdate.value = true;
   const res = await getSessionCommit(id);
   if (res) {
-    let robotIndex = 0;
     const dataListTemp = res.data.items.map((item: any) => {
       const data = JSON.parse(item.whoSay);
       const result: any = { data };
       if (data.type === 'left') {
         result.author = 'robot';
-        result.slotName = robotReplyRef.value[robotIndex].slotName;
-        robotIndex += 1;
+        if (data.btns || data.imgRatioOptions) {
+          result.slotName = 'btns';
+        }
+        if (data.imagesOptions) {
+          result.slotName = 'productSelect';
+        }
       } else {
         result.author = 'user';
-        // 兼容小程序的数据结构
-        if (data.image) {
-          data.images = [data.image];
-        }
       }
       return result;
     });
 
-    // 停在生成logo那一步
-    if (
-      dataListTemp.length === 7 &&
-      // 没有生成成功
-      !dataListTemp[6].data.imagesOptions[0].url
-    ) {
-      // 拿到上传的图片url
-      const url = dataListTemp[3].data.images
-        ? dataListTemp[3].data.images[0]
-        : '';
-      const userWords = dataListTemp[5].data.content;
-      // 前6步记录恢复
-      commitList.value = dataListTemp.slice(0, 6);
-      robotCommitStep.value = 3;
-      emit('regenerateLogo', url, userWords);
-      return;
+    commitList.value = dataListTemp;
+    const lastStep = dataListTemp[dataListTemp.length - 1];
+    if (lastStep.data.imagesOptions && !lastStep.data.imagesOptions[0].url) {
+      emit('loadResult');
     }
-
-    if (dataListTemp.length === 7) {
-      return;
-    }
-
-    // 找到选定的logo
-    const chosenLogostyle = dataListTemp[7].data.images[0];
-    emit('chooseStyle', chosenLogostyle);
-
-    chosenLogoItem.value =
-      dataListTemp[6].data.imagesOptions.findIndex(
-        (imgItem: any) => imgItem.url === chosenLogostyle,
-      ) + 1;
-
-    if (dataListTemp.length === 9) {
-      robotCommitStep.value = robotIndex;
-      commitList.value = dataListTemp;
-      emit('enabledInput');
-      return;
-    }
-
-    let userWords = dataListTemp[9].data.content;
-    if (userWords === '没有品牌') {
-      userWords = '';
-    }
-    console.log('dataListTemp[9]', dataListTemp[9]);
-
-    robotCommitStep.value = robotIndex;
-    // 保存用户选好的logo和用户最后输入的内容
-    emit('beforeLastStep', chosenLogostyle, userWords);
-
-    if (dataListTemp.length === 11) {
-      commitList.value = dataListTemp;
-      return;
-    }
-    // eslint-disable-next-line prefer-destructuring
-    const templateImageUrl = dataListTemp[11].data.images[0];
-    chosenTemplateItem.value = dataListTemp[10].data.imagesOptions.find(
-      (item: any) => item.url === templateImageUrl,
-    ).code;
-    // 最后一步生成失败
-    if (
-      dataListTemp.length === 12 ||
-      (dataListTemp.length === 13 &&
-        !dataListTemp[12].data.imagesOptions[0].url)
-    ) {
-      robotCommitStep.value = 6;
-      commitList.value = dataListTemp.slice(0, 12);
-      emit('lastStep', chosenTemplateItem.value);
-    } else {
-      commitList.value = dataListTemp;
-    }
-    // commitList.value = dataListTemp;
-    console.log('dataListTemp', dataListTemp);
-
-    // dataList.value = dataListTemp;
-    // 根据数据做一些初始工作,先写死，后面再改
   }
 };
 
