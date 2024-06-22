@@ -201,7 +201,7 @@ const handleChoseTemplateImg = () => {
     justify-content: center;
   }
   .img-area {
-    height: 200px;
+    height: 150px;
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 8px;

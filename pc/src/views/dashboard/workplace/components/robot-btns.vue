@@ -94,7 +94,7 @@ const uploadOk = (val: any) => {
     interfaceParams: {
       [interfaceParamsKey]: val,
     },
-    nextRobotId: data.value.afterUserSendNextRobotId,
+    nextUserId: item?.nextUserId,
   };
   emit('uploadOk', nextUserMsg);
 };

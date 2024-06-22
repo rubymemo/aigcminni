@@ -55,7 +55,7 @@ const handleChoseTemplateImg = (img: ImgOption) => {
 watch(
   () => data.value.activeImages,
   (arr) => {
-    if (arr.length) {
+    if (arr?.length) {
       [chosenImg.value] = arr;
     }
   },

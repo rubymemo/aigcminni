@@ -41,7 +41,7 @@ watch(
 const handleOk = () => {
   data.value.content = text.value;
   const key = Object.keys(data.value.interfaceParams)[0];
-  data.value.interfaceParams[key].fontfamily = text.value;
+  data.value.interfaceParams[key].text = text.value;
   visible.value = false;
 };
 </script>
