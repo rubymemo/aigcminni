@@ -8,7 +8,10 @@
       class="upload-com"
     >
       <template #upload-button>
-        <div class="no-img-upload-btn" :class="disabled && 'hover-disabled'">
+        <div
+          class="no-img-upload-btn"
+          :class="props.disabled && 'hover-disabled'"
+        >
           <span class="iconfont icon-a-zuhe7903 icon-add" />
         </div>
       </template>
@@ -21,17 +24,24 @@
         :src="valueRef"
         fit="scale-down"
       />
-     
+
       <div v-if="!props.disabled" class="hover-area">
-        <a-upload
-          accept="image/png, image/jpeg"
-          :custom-request="customUpload"
-          class="upload-com"
-        >
-          <template #upload-button>
-            <a-button>重新上传</a-button>
-          </template>
-        </a-upload>
+        <div class="action-list">
+          <a-upload
+            accept="image/png, image/jpeg"
+            :custom-request="customUpload"
+            class="upload-com"
+          >
+            <template #upload-button>
+              <span class="iconfont icon-a-zuhe7903 reupload-icon"></span>
+            </template>
+          </a-upload>
+          <span
+            v-if="!props.hiddenDelete"
+            class="iconfont icon-a-zuhe7980 delete-icon"
+            @click="handleDelete"
+          ></span>
+        </div>
       </div>
     </div>
   </div>
@@ -44,6 +54,7 @@ import { computed, ref } from 'vue';
 interface Props {
   modelValue: string;
   disabled?: boolean;
+  hiddenDelete?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -68,6 +79,10 @@ const customUpload = (option: any): any => {
     valueRef.value = res.data;
     disabled.value = true;
   });
+};
+
+const handleDelete = () => {
+  valueRef.value = '';
 };
 </script>
 
@@ -111,6 +126,33 @@ const customUpload = (option: any): any => {
 
       align-items: center;
       justify-content: center;
+
+      .action-list {
+        display: flex;
+        box-sizing: border-box;
+        border: 1px solid rgb(232, 233, 235);
+        border-radius: 4px;
+
+        background: rgb(255, 255, 255);
+
+        padding: 6px 12px;
+
+        .delete-icon {
+          margin-left: 16px;
+        }
+
+        .reupload-icon,
+        .delete-icon {
+          &:hover {
+            cursor: pointer;
+            color: rgb(37, 106, 247);
+            background: rgb(37, 106, 247);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+        }
+      }
+
       display: none;
       :deep {
         .arco-upload-wrapper {

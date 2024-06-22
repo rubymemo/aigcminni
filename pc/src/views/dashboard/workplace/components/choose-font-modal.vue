@@ -9,8 +9,8 @@
       <div v-for="item in fontList" :key="item.name" class="font-item">
         <div
           class="font-item-preview-area"
-          :class="activeFont === item.name && 'active-font'"
-          @click="chooseFont(item.name)"
+          :class="activeFont === item.value && 'active-font'"
+          @click="chooseFont(item)"
         >
           <div class="inner-area">
             <img :src="item.img" :alt="item.name" />
@@ -39,17 +39,19 @@ const { data } = toRefs(props);
 
 const activeFont = ref('');
 
-const chooseFont = (fontName: string) => {
-  activeFont.value = fontName;
+const chooseFont = (font: any) => {
+  activeFont.value = font.value;
 };
 
 const fontList = [
   {
     name: '阿里巴巴普惠体',
+    value: 'Alibaba-PuHuiTi-Heavy.ttf',
     img: alipuhuiImg,
   },
   {
     name: '优设标题黑',
+    value: 'YouSheBiaoTiHei.ttf',
     img: youshebiaotiImg,
   },
 ];

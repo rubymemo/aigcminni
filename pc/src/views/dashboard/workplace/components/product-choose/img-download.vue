@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { downloadImage, getDownloadUrl } from '@/api/dashboard';
+import { getDownloadUrl } from '@/api/dashboard';
 import { computed, ref, toRefs, watch } from 'vue';
 
 interface Props {
@@ -133,6 +133,11 @@ watch(
     border-radius: 12px;
     overflow: hidden;
     margin-right: 24px;
+    // background-image: url(/src/assets/images/download-bg.png);
+    background-image: url(/src/assets/images/download-bg.png);
+
+    background-size: cover;
+    background-position: center;
   }
 
   .option-area {

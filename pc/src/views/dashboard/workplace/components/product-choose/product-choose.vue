@@ -1,6 +1,7 @@
 <template>
   <a-radio-group
     v-if="imagesType === 'radio'"
+    v-model="chosenImg"
     class="template-commit-action"
     :disabled="disabled"
     @change="chooseImg"
@@ -43,19 +44,22 @@ const { imagesType } = data.value;
 const chosenImg = ref('');
 
 const chooseImg = (index: any) => {
-  data.value.activeImages = data.value.imagesOptions[index].url;
+  data.value.activeImages = [data.value.imagesOptions[index].url];
   emits('chooseImg', data.value.imagesOptions[index]);
 };
 
 const handleChoseTemplateImg = (img: ImgOption) => {
+  data.value.activeImages = [img.url];
   emits('chooseImg', img);
 };
 
 watch(
-  () => data.value.activeImages,
-  (arr) => {
+  [() => data.value.activeImages, () => data.value.imagesOptions],
+  ([arr, imagesOptions]) => {
     if (arr?.length) {
-      [chosenImg.value] = arr;
+      chosenImg.value = imagesOptions.findIndex(
+        (item: any) => item.url === arr[0],
+      );
     }
   },
   {

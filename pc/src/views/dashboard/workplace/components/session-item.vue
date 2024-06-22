@@ -159,7 +159,9 @@ const userActionList = [
 ];
 
 const userActionListComputed = computed(() =>
-  userActionList.filter((item) => data.value.tooltipsBtns.includes(item.key)),
+  userActionList.filter((item) =>
+    (data.value.tooltipsBtns || []).includes(item.key),
+  ),
 );
 
 const handleReload = () => {

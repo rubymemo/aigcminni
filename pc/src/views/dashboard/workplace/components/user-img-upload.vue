@@ -3,14 +3,17 @@
     <!-- :disabled="props.disabled" -->
     <UploadImgItem
       v-model="data.interfaceParams.additionalReferImgs.logo"
+      :hidden-delete="true"
       class="user-upload-item"
     />
     <UploadImgItem
       v-model="data.interfaceParams.additionalReferImgs.QRCode"
+      :hidden-delete="true"
       class="user-upload-item"
     />
     <UploadImgItem
       v-model="data.interfaceParams.additionalReferImgs.topicMap"
+      :hidden-delete="true"
       class="user-upload-item"
     />
   </div>

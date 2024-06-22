@@ -262,8 +262,6 @@ const loadWorkflowTemplate = () => {
 };
 
 const addCommit = (params: Partial<CommitItem>, disabledSubmit = false) => {
-  console.log('params', params);
-
   const author = params.author || 'robot';
 
   if (author === 'user') {

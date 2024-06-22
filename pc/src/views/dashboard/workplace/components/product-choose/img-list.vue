@@ -13,8 +13,8 @@
         <a-image
           class="img-item"
           :preview="disabled && imagesType !== 'result'"
-          :width="200"
-          :height="150"
+          :width="198"
+          :height="198"
           fit="scale-down"
           :src="imgItem.url"
           @click="clickImg(imgItem, index)"
@@ -52,24 +52,26 @@
         <div @click.stop="changeIndex($event)">
           <span class="iconfont icon-a-zuhe7974 left-btn" />
         </div>
-        <a-carousel
-          v-model:current="modalState.index"
-          class="img-play"
-          :style="{ width: '426px', height: '258px' }"
-        >
-          <a-carousel-item
-            v-for="(item, index) in data.imagesOptions"
-            :key="index"
+        <div class="banner-backgroud">
+          <a-carousel
+            v-model:current="modalState.index"
+            class="img-play"
+            :style="{ width: '426px', height: '258px' }"
           >
-            <a-image
-              width="426"
-              height="258"
-              :src="item.url"
-              fit="scale-down"
-              :preview="false"
-            />
-          </a-carousel-item>
-        </a-carousel>
+            <a-carousel-item
+              v-for="(item, index) in data.imagesOptions"
+              :key="index"
+            >
+              <a-image
+                width="426"
+                height="258"
+                :src="item.url"
+                fit="scale-down"
+                :preview="false"
+              />
+            </a-carousel-item>
+          </a-carousel>
+        </div>
         <div @click.stop="changeIndex($event, false)">
           <span class="iconfont icon-a-zuhe7960 right-btn" />
         </div>
@@ -167,10 +169,20 @@ const handleChoseTemplateImg = () => {
     align-items: center;
     padding: 0 26px;
 
+    .banner-backgroud {
+      background-image: url('/src/assets/images/choose-bg.png');
+      background-size: 500%;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
     .left-btn,
     .right-btn {
       font-size: 24px;
       cursor: pointer;
+      background: rgba(0, 0, 0, 0.5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
   }
 }
@@ -190,6 +202,7 @@ const handleChoseTemplateImg = () => {
   flex-direction: column;
   justify-content: center;
   width: 200px;
+  box-sizing: content-box;
   margin: 0 24px 16px 0;
 
   &:last-child {
@@ -213,7 +226,8 @@ const handleChoseTemplateImg = () => {
     justify-content: center;
   }
   .img-area {
-    height: 150px;
+    height: 200px;
+    box-sizing: content-box;
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -222,6 +236,9 @@ const handleChoseTemplateImg = () => {
     .img-box {
       width: 100%;
       height: 100%;
+      border: 1px solid rgb(237, 241, 246);
+      border-radius: 12px;
+      overflow: hidden;
 
       img {
         width: 100%;
