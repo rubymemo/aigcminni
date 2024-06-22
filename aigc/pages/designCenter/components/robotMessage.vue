@@ -300,44 +300,45 @@
 			console.log('WebSocket 已关闭！');
 		})
 	}
-	
+	// 构建请求参数
+	const createParams = () => {
+		let params:Record<string, any> = {
+			clientId: props.userInfo.userId
+		}; 
+		props.msgList.forEach((msgItem) => {
+			if(!msgItem.interfaceParams) {
+				return;
+			}
+			// 如果存在接口参数，
+			const interfaceParamsKey = Object.keys(msgItem.interfaceParams)[0];
+			const paramsValue = msgItem.interfaceParams[interfaceParamsKey];
+			
+			if(typeof paramsValue === 'string') {
+				// 如果值只是字符串
+				params[interfaceParamsKey] = paramsValue;
+			} 
+			if (Object.prototype.toString.call(paramsValue) === '[object Object]' && paramsValue.hasOwnProperty('text') && paramsValue.hasOwnProperty('fontfamily')) {
+				// 如果是对象，且是{ text: '', fontfamily: ''} => [{ text: '', fontfamily: ''}]
+				const newValue = (params[interfaceParamsKey] ? params[interfaceParamsKey] : []).concat([paramsValue]);
+				params[interfaceParamsKey] = newValue;
+			}
+			if (Object.prototype.toString.call(paramsValue) === '[object Object]' && paramsValue.hasOwnProperty('QRCode') && paramsValue.hasOwnProperty('logo')  && paramsValue.hasOwnProperty('topicMap')) {
+				// 如果是对象，且是{ QRCode: '', logo: '', topicMap : ''}
+				params[interfaceParamsKey] = paramsValue;
+			}
+		})
+		// 一些特殊处理，后端不好处理的放前端处理
+		if(params.tplCode === 'logo_draw' && params.brandName && params.brandName.length && params.brandName[0].text) {
+			// 如果是logo绘画，并且品牌名存在，tplCode 变成另外的code
+			params.tplCode = 'logo_a4'
+		}
+		
+		
+		return params;
+	}
 	
 	// 请求绘画任务
 	const fetchPaintingTask = async () => {
-		// 构建请求参数
-		const createParams = () => {
-			let params:Record<string, any> = {
-				clientId: props.userInfo.userId
-			}; 
-			props.msgList.forEach((msgItem) => {
-				if(!msgItem.interfaceParams) {
-					return;
-				}
-				// 如果存在接口参数，
-				const interfaceParamsKey = Object.keys(msgItem.interfaceParams)[0];
-				const paramsValue = msgItem.interfaceParams[interfaceParamsKey];
-				
-				if(typeof paramsValue === 'string') {
-					// 如果值只是字符串
-					params[interfaceParamsKey] = paramsValue;
-				} 
-				if (Object.prototype.toString.call(paramsValue) === '[object Object]' && paramsValue.hasOwnProperty('text') && paramsValue.hasOwnProperty('fontfamily')) {
-					// 如果是对象，且是{ text: '', fontfamily: ''} => [{ text: '', fontfamily: ''}]
-					const newValue = (params[interfaceParamsKey] ? params[interfaceParamsKey] : []).concat([paramsValue]);
-					params[interfaceParamsKey] = newValue;
-				}
-			})
-			console.log(params.wfCode)
-			// 一些特殊处理，后端不好处理的放前端处理
-			if(params.wfCode === 'logo_draw' && params.brandName && params.brandName.length && params.brandName[0].text) {
-				// 如果是logo绘画，并且品牌名存在，wfCode 变成另外的code
-				params.wfCode = 'logo_a4'
-			}
-			
-			
-			return params;
-		}
-		
 		const queryData = createParams();
 		
 		// 在这里，先打开ws， 开始请求生成图片
@@ -356,8 +357,14 @@
 	}
 	
 	// 获取模版
-	const fetchWorkflowTemplateList = async (type: string) => {
-		const workflowListTemp = await httpsRequest(`/hh/prompt_workflow/listByType/${type}`, {}, 'GET');
+	const fetchWorkflowTemplateList = async () => {
+		let queryData = createParams();
+		queryData = {
+			...queryData,
+			...props.msgInfo.fetch.params,
+		}
+		console.log(queryData);
+		const workflowListTemp = await httpsRequest(`/hh/wf/listStyleBy`, queryData, 'POST');
 		const msgInfoTemp = props.msgInfo;
 		msgInfoTemp.imagesOptions = workflowListTemp.map(imgSrc => {
 			return {

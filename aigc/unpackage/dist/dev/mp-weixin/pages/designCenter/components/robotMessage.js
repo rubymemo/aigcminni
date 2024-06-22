@@ -170,31 +170,33 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         console.log("WebSocket 已关闭！");
       });
     };
-    const fetchPaintingTask = async () => {
-      const createParams = () => {
-        let params = {
-          clientId: props.userInfo.userId
-        };
-        props.msgList.forEach((msgItem) => {
-          if (!msgItem.interfaceParams) {
-            return;
-          }
-          const interfaceParamsKey = Object.keys(msgItem.interfaceParams)[0];
-          const paramsValue = msgItem.interfaceParams[interfaceParamsKey];
-          if (typeof paramsValue === "string") {
-            params[interfaceParamsKey] = paramsValue;
-          }
-          if (Object.prototype.toString.call(paramsValue) === "[object Object]" && paramsValue.hasOwnProperty("text") && paramsValue.hasOwnProperty("fontfamily")) {
-            const newValue = (params[interfaceParamsKey] ? params[interfaceParamsKey] : []).concat([paramsValue]);
-            params[interfaceParamsKey] = newValue;
-          }
-        });
-        console.log(params.wfCode);
-        if (params.wfCode === "logo_draw" && params.brandName && params.brandName.length && params.brandName[0].text) {
-          params.wfCode = "logo_a4";
-        }
-        return params;
+    const createParams = () => {
+      let params = {
+        clientId: props.userInfo.userId
       };
+      props.msgList.forEach((msgItem) => {
+        if (!msgItem.interfaceParams) {
+          return;
+        }
+        const interfaceParamsKey = Object.keys(msgItem.interfaceParams)[0];
+        const paramsValue = msgItem.interfaceParams[interfaceParamsKey];
+        if (typeof paramsValue === "string") {
+          params[interfaceParamsKey] = paramsValue;
+        }
+        if (Object.prototype.toString.call(paramsValue) === "[object Object]" && paramsValue.hasOwnProperty("text") && paramsValue.hasOwnProperty("fontfamily")) {
+          const newValue = (params[interfaceParamsKey] ? params[interfaceParamsKey] : []).concat([paramsValue]);
+          params[interfaceParamsKey] = newValue;
+        }
+        if (Object.prototype.toString.call(paramsValue) === "[object Object]" && paramsValue.hasOwnProperty("QRCode") && paramsValue.hasOwnProperty("logo") && paramsValue.hasOwnProperty("topicMap")) {
+          params[interfaceParamsKey] = paramsValue;
+        }
+      });
+      if (params.tplCode === "logo_draw" && params.brandName && params.brandName.length && params.brandName[0].text) {
+        params.tplCode = "logo_a4";
+      }
+      return params;
+    };
+    const fetchPaintingTask = async () => {
       const queryData = createParams();
       isGenLoading.value = true;
       common_vendor.index.connectSocket({
@@ -209,8 +211,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         isGenLoading.value = false;
       }
     };
-    const fetchWorkflowTemplateList = async (type) => {
-      const workflowListTemp = await common_utils.httpsRequest(`/hh/prompt_workflow/listByType/${type}`, {}, "GET");
+    const fetchWorkflowTemplateList = async () => {
+      let queryData = createParams();
+      queryData = {
+        ...queryData,
+        ...props.msgInfo.fetch.params
+      };
+      console.log(queryData);
+      const workflowListTemp = await common_utils.httpsRequest(`/hh/wf/listStyleBy`, queryData, "POST");
       const msgInfoTemp = props.msgInfo;
       msgInfoTemp.imagesOptions = workflowListTemp.map((imgSrc) => {
         return {

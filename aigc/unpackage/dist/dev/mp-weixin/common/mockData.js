@@ -104,15 +104,10 @@ const robotReply_2 = {
     data: {
       content: "下面可以开始选择一种您喜欢的风格啦\n也可选择默认，完成后马上为您开始设计",
       btns: [
-        { label: "默认", value: "", nextUserId: 203 },
-        { label: "立体", value: "3D", nextUserId: 203 },
-        { label: "简洁", value: "simple", nextUserId: 203 },
-        { label: "卡通", value: "cartoon", nextUserId: 203 },
-        { label: "水彩", value: "watercolor", nextUserId: 203 },
-        { label: "油画", value: "oil on canvas", nextUserId: 203 },
-        { label: "剪影", value: "Silhouette", nextUserId: 203 },
-        { label: "复古", value: "vintage style ", nextUserId: 203 },
-        { label: "单色", value: "monochrome", nextUserId: 203 }
+        { label: "佳节倍思亲", value: "1003", nextUserId: 203 },
+        { label: "嫦娥奔月", value: "1004", nextUserId: 203 },
+        { label: "龙舟竞渡", value: "1005", nextUserId: 203 },
+        { label: "粽子与传统文化", value: "1006", nextUserId: 203 }
       ],
       activeBtns: []
     }
@@ -261,16 +256,19 @@ const robotReply_2 = {
       content: "最后一步啦，请选择一个您喜欢的模版\n我们马上为您生成最终的效果图",
       imagesType: "radio",
       imagesOptions: [
-        { url: "https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg", status: "done", precent: 100 },
-        { url: "https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg", status: "done", precent: 100 },
-        { url: "https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg", status: "done", precent: 100 },
-        { url: "https://cdn.wwads.cn/creatives/YI1kTCUXJYqB9fIaOHz5qNw9pO5Fsgtq1PivY0Ea.jpg", status: "done", precent: 100 }
+        { url: "", status: "queue_remaining", precent: 0 },
+        { url: "", status: "queue_remaining", precent: 0 },
+        { url: "", status: "queue_remaining", precent: 0 },
+        { url: "", status: "queue_remaining", precent: 0 }
       ],
       nextUserId: 209,
       activeImages: [],
       fetch: {
         // 接口对接
-        type: "workflow"
+        type: "workflow",
+        params: {
+          grp: "poster_compose"
+        }
       }
     }
   },
@@ -315,7 +313,7 @@ const manualReply = {
     content: "AI Logo生成",
     nextRobotId: 1,
     interfaceParams: {
-      wfCode: ""
+      tplCode: ""
     }
   },
   2: {
@@ -338,7 +336,7 @@ const manualReply = {
     content: "AI 海报",
     nextRobotId: 201,
     interfaceParams: {
-      code: ""
+      tplCode: ""
     }
   },
   202: {
