@@ -43,7 +43,6 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { v4 } from 'uuid';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
-import GProgress from './g-progress.vue';
 import { cloneDeep, result } from 'lodash';
 import {
   LogoRobotReply,
@@ -77,7 +76,6 @@ const emit = defineEmits([
   'enabledInput',
   'commitLengthChange',
   'lastStep',
-  'reload',
   'refreshSessionHistory',
   'noImgeUpload',
   'regenerateLogo',
@@ -121,10 +119,9 @@ const saveSession = async () => {
   if (!couldCreateAndUpdate.value) {
     return;
   }
+
   let isFindTitle = false;
   const result = commitList.value.map((item, index) => {
-    console.log(item, item.author);
-
     let params;
     if (item.author === 'robot') {
       item.data.type = 'left';
@@ -135,7 +132,7 @@ const saveSession = async () => {
         clipType: '',
         clipContent: '',
       };
-      if (item.compute && item.data.imagesOptions) {
+      if (item.data.imagesOptions) {
         // 获取封面图
         params.clipType = 'info';
         params.clipContent = JSON.stringify({
@@ -158,12 +155,16 @@ const saveSession = async () => {
         clipType: '',
         clipContent: '',
       };
-      if (item.compute && !isFindTitle) {
+      if (
+        item.data.interfaceParams &&
+        item.data.interfaceParams.promptWords &&
+        !isFindTitle
+      ) {
         // 找到标题
         isFindTitle = true;
         params.clipType = 'info';
         params.clipContent = JSON.stringify({
-          title: item.data.content,
+          title: item.data.interfaceParams.promptWords.text,
           ownerId: userInfo.userId,
         });
       }
@@ -253,6 +254,7 @@ const loadWorkflowTemplate = () => {
         precent: 100,
         id: item.id,
       }));
+      saveSession();
     },
   );
 };
@@ -276,17 +278,24 @@ const addCommit = (params: Partial<CommitItem>) => {
     id: v4(),
   });
 
+  emit('enabledInput', !params.data?.canUserSend);
+
+  if (!couldCreateAndUpdate.value && params.data?.canUserSend) {
+    couldCreateAndUpdate.value = true;
+  }
+
   if (author === 'robot' && params.data.fetch) {
     if (params.data.fetch.type === 'doPrompt') {
       emit('loadResult');
     } else if (params.data.fetch.type === 'workflow') {
       loadWorkflowTemplate();
+      // 这一步先不保存，等模版返回再保存
+      return;
     }
   }
 
-  emit('enabledInput', !params.data?.canUserSend);
   //
-  if (params.disabledSubmit || commitList.value.length === 1) {
+  if (commitList.value.length <= 3) {
     return;
   }
   saveSession();
@@ -562,34 +571,6 @@ defineExpose({
       img {
         width: 100%;
         height: 100%;
-      }
-    }
-
-    .img-loading {
-      padding: 24px;
-      color: rgb(107, 116, 143);
-      font-family: PingFang SC;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 22px;
-      letter-spacing: 0px;
-      text-align: left;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      border-radius: 12px;
-      background: linear-gradient(
-        135deg,
-        rgba(23, 242, 95, 0.1) 0%,
-        rgba(37, 106, 247, 0.1) 100%
-      );
-
-      p {
-        margin: 0;
-        margin-bottom: 8px;
       }
     }
   }

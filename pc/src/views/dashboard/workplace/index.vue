@@ -41,7 +41,6 @@
               @choose-style="handleChooseStyle"
               @commit-length-change="handleScrollBottom"
               @last-step="lastStep"
-              @reload="reload"
               @refresh-session-history="refreshLogs"
               @no-imge-upload="handleImageUploaded"
               @regenerate-logo="handleRegenerateLogo"
@@ -60,7 +59,7 @@
               @input="handleInput"
             />
             <a-button
-              v-show="inputText"
+              v-show="inputText.trim()"
               class="send-button-active"
               @click="handleSendButtonClick"
             >
@@ -208,6 +207,7 @@ const handleMessageSend = () => {
     );
     sessionListRef.value.addCommit(nextRobotReply);
   }
+  sessionListRef.value.saveSession();
 };
 
 const handleSendButtonClick = () => {
@@ -216,7 +216,7 @@ const handleSendButtonClick = () => {
 };
 
 const enterSend = (event: any) => {
-  if (event.keyCode === 13 && inputText.value) {
+  if (event.keyCode === 13 && inputText.value.trim()) {
     console.log(event);
     // 判断按下的是否是回车键的keyCode
     event.preventDefault();
@@ -330,11 +330,6 @@ const loadResult = () => {
   wsInstance.value.onclose = () => {
     console.log('关闭链接');
   };
-};
-
-// 本期没有重载
-const reload = (img: string) => {
-  // initWs(img, userWords.value);
 };
 
 const loadLogs = () => {

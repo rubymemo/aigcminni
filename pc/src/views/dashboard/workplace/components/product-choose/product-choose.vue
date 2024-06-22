@@ -119,34 +119,6 @@ watch(
         height: 100%;
       }
     }
-
-    .img-loading {
-      padding: 24px;
-      color: rgb(107, 116, 143);
-      font-family: PingFang SC;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 22px;
-      letter-spacing: 0px;
-      text-align: left;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      border-radius: 12px;
-      background: linear-gradient(
-        135deg,
-        rgba(23, 242, 95, 0.1) 0%,
-        rgba(37, 106, 247, 0.1) 100%
-      );
-
-      p {
-        margin: 0;
-        margin-bottom: 8px;
-      }
-    }
   }
 }
 </style>
