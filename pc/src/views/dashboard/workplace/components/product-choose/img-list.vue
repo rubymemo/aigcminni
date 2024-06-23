@@ -63,11 +63,12 @@
               :key="index"
             >
               <a-image
-                width="426"
-                height="258"
+                width="424"
+                height="256"
                 :src="item.url"
                 fit="scale-down"
                 :preview="false"
+                class="preview-img-item"
               />
             </a-carousel-item>
           </a-carousel>
@@ -288,6 +289,10 @@ const handleChoseTemplateImg = () => {
     .arco-carousel-arrow {
       display: none;
     }
+  }
+
+  .preview-img-item {
+    margin-top: 1px;
   }
 }
 </style>
