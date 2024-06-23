@@ -172,7 +172,7 @@ const handleChoseTemplateImg = () => {
 
     .banner-backgroud {
       background-image: url('/src/assets/images/choose-bg.png');
-      background-size: 500%;
+      background-size: cover;
       background-repeat: no-repeat;
       background-position: center;
     }

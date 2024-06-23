@@ -233,6 +233,7 @@ const handleReload = () => {
         line-height: 24px;
         letter-spacing: 0px;
         text-align: left;
+        margin-bottom: 16px;
       }
     }
   }
@@ -347,7 +348,6 @@ const handleReload = () => {
   }
 
   .custom-slot-box {
-    margin-top: 16px;
     display: flex;
     width: 100%;
   }

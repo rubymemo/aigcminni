@@ -225,7 +225,6 @@ const robotReplyChange = (item: BtnItem) => {
 
 const handleChooseImg = (imgItem: ImgOption) => {
   const lastStep = getLastOneStep();
-  console.log('lastStep', lastStep);
 
   const manualData = getUserReply(lastStep.data.nextUserId);
   const { interfaceParams } = manualData;
@@ -236,7 +235,6 @@ const handleChooseImg = (imgItem: ImgOption) => {
       author: 'user',
       data: {
         content: manualData.content,
-        images: [imgItem.url],
         interfaceParams,
       },
     },
