@@ -8,17 +8,12 @@
         <h5 v-if="data.title" :style="data.titleStyle" class="commit-title">{{
           data.title
         }}</h5>
-        <div v-if="data.content" class="commit-content-text">
+        <div
+          v-if="data.content"
+          class="commit-content-text"
+          :class="!props.slotName && 'no-margin-content-text'"
+        >
           {{ data.content }}
-        </div>
-        <div v-if="data.images && data.images.length" class="image-box">
-          <!-- <img :src="data.image" alt="" /> -->
-          <a-image
-            :width="200"
-            :height="200"
-            fit="scale-down"
-            :src="data.images[0]"
-          />
         </div>
         <div v-if="props.slotName" class="custom-slot-box">
           <slot
@@ -234,6 +229,10 @@ const handleReload = () => {
         letter-spacing: 0px;
         text-align: left;
         margin-bottom: 16px;
+      }
+
+      .no-margin-content-text {
+        margin-bottom: 0;
       }
     }
   }
