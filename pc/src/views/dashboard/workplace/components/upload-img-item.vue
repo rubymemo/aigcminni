@@ -65,7 +65,6 @@ const valueRef = computed({
   set: (val) => emits('update:modelValue', val),
 });
 
-const disabled = ref(false);
 
 const customUpload = (option: any): any => {
   // data.activeBtns = [data.btns[1]];
@@ -77,7 +76,6 @@ const customUpload = (option: any): any => {
   // robotCommitStep.value = 3;
   return uploadImageV2(formData).then((res: any) => {
     valueRef.value = res.data;
-    disabled.value = true;
   });
 };
 

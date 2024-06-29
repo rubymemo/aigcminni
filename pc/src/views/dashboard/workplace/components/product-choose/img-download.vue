@@ -20,7 +20,7 @@
 
         <a-radio-group v-model="activeBtn" class="radio-group">
           <div
-            v-for="option in optionComputed"
+            v-for="option in options"
             :key="option.type"
             class="type-option"
           >
@@ -52,9 +52,10 @@
 </template>
 
 <script setup lang="ts">
-import { getDownloadUrl } from '@/api/dashboard';
+import { getDownloadUrl, getSvgUrl, sendMessageV2 } from '@/api/dashboard';
 import { computed, ref, toRefs, watch } from 'vue';
 import CommonModal from '@/components/common-modal.vue';
+import { useUserStore } from '@/store';
 
 interface Props {
   url: string;
@@ -86,10 +87,10 @@ const options = [
 ];
 
 const imgObj = ref<any>({});
-const optionComputed = computed(() => {
-  const types = Object.keys(imgObj.value);
-  return options.filter((item) => types.includes(item.type));
-});
+// const optionComputed = computed(() => {
+//   const types = Object.keys(imgObj.value);
+//   return options.filter((item) => types.includes(item.type));
+// });
 
 const activeBtn = ref(options[0].type);
 
@@ -97,11 +98,92 @@ const handleTypeChange = (type: string) => {
   activeBtn.value = type;
 };
 
+const userInfo = useUserStore()
+
+const downloadByUrl = (url: string) => {
+  window.open(url, '__blank');
+  visible.value = false;
+}
+
+const downloadSvg = () => {
+  const uid = userInfo.userId;
+  const ws = new WebSocket(`wss://huatu.solart.pro/ws?clientId=${uid}`);
+  let promptId = '';
+  let nodeCount: number;
+  let currentStep = 0;
+  let stepLength = 0;
+  let fileName = '';
+  ws.onopen = () => {
+    sendMessageV2({
+      clientId: userInfo.userId,
+      image: props.url,
+      tplCode: 'png2svg'
+    }).then((res) => {
+      promptId = res.data.prompt_id;
+      nodeCount = res.data.node_count;
+      fileName = res.data.fileName;
+      stepLength = Number((95 / nodeCount).toFixed(2));
+    })
+  };
+  ws.onmessage = (message: any) => {
+    const messageInfo = JSON.parse(message.data);
+    const { data } = messageInfo || {};
+    console.log('收到消息', data, messageInfo.type);
+
+    if (messageInfo.type === 'status') {
+      console.log('任务变更', messageInfo, data);
+    }
+    if (messageInfo.type === 'execution_start') {
+      console.log('开始生成');
+    }
+
+    if (!promptId || !data.prompt_id || promptId !== data.prompt_id) {
+      return;
+    }
+
+    // 有缓存需要把步数减掉
+    if (messageInfo.type === 'execution_cached') {
+      const nodesCacheLength = messageInfo.data.nodes?.length ?? 0;
+      currentStep += nodesCacheLength;
+    }
+
+    if (messageInfo.type === 'executing' && messageInfo.data.node) {
+      // console.log('正在执行');
+      currentStep += 1;
+      console.log('进度', currentStep);
+    }
+    if (messageInfo.type === 'progress') {
+      currentStep += 1;
+      console.log('进度', currentStep);
+    }
+    if (messageInfo.type === 'executing' && !messageInfo.data.node) {
+      console.log('生成完成', messageInfo);
+      if (!promptId) {
+        return;
+      }
+      getSvgUrl(fileName).then(res => {
+        console.log(res);
+        downloadByUrl(res.data)
+        
+      })
+      ws?.close();
+    }
+  };
+  ws.onclose = () => {
+    console.log('关闭链接');
+  };
+}
+
+
+
 const handleDownload = () => {
+  if (activeBtn.value === 'svg') {
+    downloadSvg();
+    return;
+  }
   const activeUrl = imgObj.value[activeBtn.value];
   // downloadImage(activeUrl);
-  window.open(activeUrl, '__blank');
-  visible.value = false;
+  downloadByUrl(activeUrl)
 };
 
 watch(

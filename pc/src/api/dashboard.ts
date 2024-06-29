@@ -79,3 +79,7 @@ export const getWorkFlowTemplate = (params: any) => {
 export const getDownloadUrl = (url: string) => {
   return axios.get('/hh/dialog_dl/listUrls', { params: { url } });
 };
+
+export const getSvgUrl = (fileName: string) => {
+  return axios.get('/hh/comfyui_api_v2/png2svg', { params: { fileName } });
+};
