@@ -32,8 +32,8 @@
 	const emits = defineEmits(['ok'])
 	
 	const familyList = [
-		{ label: '阿里巴巴普惠体', value: '阿里巴巴普惠体', src: '../../../static/png/font-family1.png' },
-		{ label: '优设标题黑', value: '优设标题黑', src: '../../../static/png/font-family2.png' },
+		{ label: '阿里巴巴普惠体', value: 'Alibaba-PuHuiTi-Heavy.ttf', src: '../../../static/png/font-family1.png' },
+		{ label: '优设标题黑', value: 'YouSheBiaoTiHei.ttf', src: '../../../static/png/font-family2.png' },
 	]
 	const activeFamily = ref<string | number | null>(null);
 	

@@ -80,7 +80,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             label: "logo生成",
             value: "1"
           }, {
-            label: "创意营销大图",
+            label: "海报生成",
             value: "2"
           }],
           placeholder: "类型",

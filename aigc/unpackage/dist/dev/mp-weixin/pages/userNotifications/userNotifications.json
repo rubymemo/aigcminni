@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "消息中心",
+  "backgroundColor": "#ffffff",
+  "usingComponents": {
+    "z-paging": "../../uni_modules/z-paging/components/z-paging/z-paging"
+  }
+}

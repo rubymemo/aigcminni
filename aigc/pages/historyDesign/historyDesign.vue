@@ -7,7 +7,7 @@
 					v-model="searchValues.type"
 					:height="66" 
 					:width="212" 
-					:options="[{ label: 'logo生成', value: '1'}, { label: '创意营销大图', value: '2'}]" 
+					:options="[{ label: 'logo生成', value: '1'}, { label: '海报生成', value: '2'}]" 
 					@change="selectOptions"
 					placeholder="类型"
 				>

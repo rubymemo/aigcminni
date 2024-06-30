@@ -2,13 +2,16 @@
 const common_vendor = require("../../common/vendor.js");
 const common_assets = require("../../common/assets.js");
 const common_utils = require("../../common/utils.js");
+const common_constants = require("../../common/constants.js");
 if (!Array) {
   const _easycom_uni_icons2 = common_vendor.resolveComponent("uni-icons");
-  _easycom_uni_icons2();
+  const _easycom_g_member_tag2 = common_vendor.resolveComponent("g-member-tag");
+  (_easycom_uni_icons2 + _easycom_g_member_tag2)();
 }
 const _easycom_uni_icons = () => "../../uni_modules/uni-icons/components/uni-icons/uni-icons.js";
+const _easycom_g_member_tag = () => "../../components/g-member-tag/index.js";
 if (!Math) {
-  _easycom_uni_icons();
+  (_easycom_uni_icons + _easycom_g_member_tag)();
 }
 const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
   __name: "userCenter",
@@ -22,6 +25,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       nickname: ""
     });
     const timer = common_vendor.ref("");
+    const membershipType = common_vendor.ref(0);
     const getUserInfo = async (id) => {
       const res2 = await common_utils.httpsRequest(`/cx/member/findById/${id}`, userInfo.value, "GET");
       userInfo.value = {
@@ -43,12 +47,6 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const goPage = (url) => {
       common_vendor.index.navigateTo({
         url
-      });
-    };
-    const waitTodo = () => {
-      common_vendor.index.showToast({
-        icon: "none",
-        title: "功能开发中...请耐心等待"
       });
     };
     const logout = () => {
@@ -76,44 +74,49 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         c: userInfo.value.avatar,
         d: common_vendor.t(userInfo.value.nickname || userInfo.value.username || "暂无昵称"),
         e: common_vendor.p({
-          type: "right",
-          size: "14",
-          color: "#6b748fab"
+          type: membershipType.value
         }),
-        f: common_vendor.o(($event) => goPage("/pages/editUserInfo/editUserInfo")),
+        f: common_vendor.t(membershipType.value === common_vendor.unref(common_constants.membershipTypeMap).personal.value ? "首次注册用户可免费设计3次" : "会员有效期至2021-03-16"),
         g: common_vendor.p({
           type: "right",
           size: "14",
           color: "#6b748fab"
         }),
-        h: common_vendor.o(($event) => goPage("/pages/historyDesign/historyDesign")),
-        i: common_vendor.p({
+        h: common_vendor.n(`user-info ${membershipType.value !== common_vendor.unref(common_constants.membershipTypeMap).personal.value ? "vip" : ""}`),
+        i: common_vendor.o(($event) => goPage("/pages/editUserInfo/editUserInfo")),
+        j: common_vendor.p({
           type: "right",
           size: "14",
           color: "#6b748fab"
         }),
-        j: common_vendor.o(($event) => goPage("/pages/historyDownloadImg/historyDownloadImg")),
-        k: common_vendor.p({
+        k: common_vendor.o(($event) => goPage("/pages/historyDesign/historyDesign")),
+        l: common_vendor.p({
           type: "right",
           size: "14",
           color: "#6b748fab"
         }),
-        l: common_vendor.o(waitTodo),
-        m: common_vendor.p({
+        m: common_vendor.o(($event) => goPage("/pages/historyDownloadImg/historyDownloadImg")),
+        n: common_vendor.p({
           type: "right",
           size: "14",
           color: "#6b748fab"
         }),
-        n: common_vendor.o(($event) => goPage("/pages/userAgreement/userAgreement")),
-        o: common_vendor.p({
+        o: common_vendor.o(($event) => goPage("/pages/userNotifications/userNotifications")),
+        p: common_vendor.p({
           type: "right",
           size: "14",
           color: "#6b748fab"
         }),
-        p: common_vendor.o(($event) => goPage("/pages/userAgreement/userAgreement")),
-        q: common_vendor.o(logout),
-        r: common_vendor.s(innerContentStyle.value),
-        s: common_assets._imports_0$1
+        q: common_vendor.o(($event) => goPage("/pages/userAgreement/userAgreement")),
+        r: common_vendor.p({
+          type: "right",
+          size: "14",
+          color: "#6b748fab"
+        }),
+        s: common_vendor.o(($event) => goPage("/pages/userAgreement/userAgreement")),
+        t: common_vendor.o(logout),
+        v: common_vendor.s(innerContentStyle.value),
+        w: common_assets._imports_0$1
       };
     };
   }

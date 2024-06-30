@@ -64,6 +64,22 @@
 			{
 				"navigationBarTitleText" : "历史下载"
 			}
+		},
+		{
+			"path" : "pages/userNotifications/userNotifications",
+			"style" : 
+			{
+				"navigationBarTitleText" : "消息中心",
+				"backgroundColor": "#ffffff"
+			}
+		},
+		{
+			"path" : "pages/memberCenter/memberCenter",
+			"style" : 
+			{
+				"navigationStyle": "custom",
+				"navigationBarTitleText" : ""
+			}
 		}
 	],
 	"globalStyle": {

@@ -7,7 +7,7 @@
 					v-model="searchValues.type"
 					:height="66" 
 					:width="212" 
-					:options="[{ label: 'logo生成', value: '1'}, { label: '创意营销大图', value: '2'}]" 
+					:options="[{ label: 'logo生成', value: '1'}, { label: '海报生成', value: '2'}]" 
 					@change="selectOptions"
 					placeholder="类型"
 				>
@@ -56,7 +56,6 @@
 		})
 	}
 	
-	
 		
 	const queryList = async (pageNo, pageSize) => {
 		console.log(pageNo, pageSize)
@@ -95,18 +94,16 @@
 	}
 	
 	const clickItem = (item) => {
-		if(item.imgType !== 'svg') {
+		if(item.imgUrl) {
 			uni.previewImage({
 				urls: [item.imgUrl]
 			})
+		} else {
+			uni.showToast({
+				icon: 'error',
+				title: '图片不存在'
+			})
 		}
-		
-		// uni.reLaunch({
-		// 	url: `/pages/designCenter/designCenter?id=${item.id}`,
-		// })
-		// uni.redirectTo({
-		// 	url: `/pages/designCenter/designCenter?id=${item.id}`,
-		// })
 	}
 </script>
 

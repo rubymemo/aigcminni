@@ -9,6 +9,8 @@ if (!Math) {
   "./pages/editUserInfo/editUserInfo.js";
   "./pages/historyDesign/historyDesign.js";
   "./pages/historyDownloadImg/historyDownloadImg.js";
+  "./pages/userNotifications/userNotifications.js";
+  "./pages/memberCenter/memberCenter.js";
 }
 const _sfc_main = {
   onLaunch: function() {

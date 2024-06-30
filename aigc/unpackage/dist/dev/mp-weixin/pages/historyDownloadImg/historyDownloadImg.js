@@ -59,9 +59,14 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       paging.value.reload();
     };
     const clickItem = (item) => {
-      if (item.imgType !== "svg") {
+      if (item.imgUrl) {
         common_vendor.index.previewImage({
           urls: [item.imgUrl]
+        });
+      } else {
+        common_vendor.index.showToast({
+          icon: "error",
+          title: "图片不存在"
         });
       }
     };
@@ -82,7 +87,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
             label: "logo生成",
             value: "1"
           }, {
-            label: "创意营销大图",
+            label: "海报生成",
             value: "2"
           }],
           placeholder: "类型",

@@ -1,0 +1,106 @@
+/* 水平间距 */
+/* 水平间距 */
+page.data-v-9b4068d4 {
+  color: #131526;
+}
+button.data-v-9b4068d4::after {
+  border: none;
+}
+button.primary.data-v-9b4068d4 {
+  border-radius: 200rpx;
+  background: linear-gradient(135deg, #17f25f 0%, #256af7 100%);
+  color: #FFFFFF;
+  border: none !important;
+  font-size: 32rpx;
+  font-weight: 400;
+}
+button.normal.data-v-9b4068d4 {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #A3B4CC;
+  font-size: 32rpx;
+  font-weight: 400;
+}
+button.normal-1.data-v-9b4068d4 {
+  border-radius: 200rpx;
+  background: #FFFFFF;
+  color: #344156;
+  font-size: 32rpx;
+  font-weight: 400;
+  border: 1px solid #CFDAEB;
+}
+button.big.data-v-9b4068d4 {
+  width: 100%;
+  height: 100rpx;
+  line-height: 100rpx;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.data-v-9b4068d4 {
+  border-radius: 100%;
+  background: #fff;
+  color: #fff;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked.data-v-9b4068d4 {
+  border: none;
+  border-radius: 100%;
+  color: #fff;
+  background: #256AF7;
+}
+radio.img-radio .wx-radio-input.wx-radio-input-disabled.wx-radio-input-checked.data-v-9b4068d4::before {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 15px;
+  color: #fff;
+  background: transparent;
+  transform: translate(-50%, -50%) scale(1);
+  -webkit-transform: translate(-50%, -50%) scale(1);
+}
+.fix-header.data-v-9b4068d4 {
+  border-top: solid 1px #EDF1F6;
+}
+.list-item.data-v-9b4068d4 {
+  display: flex;
+  margin: 0 32rpx;
+  padding: 32rpx 0;
+  border-bottom: solid 1px #EDF1F6;
+}
+.list-item .image-box.data-v-9b4068d4 {
+  display: inline-flex;
+  align-items: center;
+  width: 80rpx;
+  margin-right: 24rpx;
+}
+.list-item image.data-v-9b4068d4 {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+}
+.list-item .list-info.data-v-9b4068d4 {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.list-item .list-info .title.data-v-9b4068d4 {
+  font-size: 28rpx;
+  line-height: 44rpx;
+  font-weight: 500;
+  margin-bottom: 16rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.list-item .list-info .desc.data-v-9b4068d4 {
+  font-size: 24rpx;
+  line-height: 40rpx;
+  color: #6B748F;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.list-item .time.data-v-9b4068d4 {
+  font-size: 24rpx;
+  color: #A3B4CC;
+}

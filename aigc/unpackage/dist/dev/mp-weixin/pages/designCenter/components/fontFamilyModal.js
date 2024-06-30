@@ -15,8 +15,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
     const popup = common_vendor.ref(false);
     const emits = __emit;
     const familyList = [
-      { label: "阿里巴巴普惠体", value: "阿里巴巴普惠体", src: "../../../static/png/font-family1.png" },
-      { label: "优设标题黑", value: "优设标题黑", src: "../../../static/png/font-family2.png" }
+      { label: "阿里巴巴普惠体", value: "Alibaba-PuHuiTi-Heavy.ttf", src: "../../../static/png/font-family1.png" },
+      { label: "优设标题黑", value: "YouSheBiaoTiHei.ttf", src: "../../../static/png/font-family2.png" }
     ];
     const activeFamily = common_vendor.ref(null);
     const closeModal = () => {

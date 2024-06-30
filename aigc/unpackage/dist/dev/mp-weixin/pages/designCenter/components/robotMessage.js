@@ -125,7 +125,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
         console.log("收到服务器内容：");
         const msgData = JSON.parse(res.data);
         console.log(msgData);
-        if (msgData.type === "executed" && Number(msgData.data.node) == 100) {
+        if (msgData.type === "executing" && msgData.data.node === null) {
           console.log("最终结果");
           common_vendor.index.closeSocket();
           const imagesRes = await common_utils.httpsRequest(`/hh/comfyui_api_v2/historyByPromptId/${promptData.prompt_id}`, {}, "GET");
@@ -143,7 +143,7 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           common_vendor.nextTick$1(() => {
             isGenLoading.value = false;
           });
-        } else if (msgData.type === "progress" || msgData.type === "executing") {
+        } else if (msgData.type === "progress" || msgData.type === "executing" && msgData.data.node !== null) {
           let precent = 0;
           precentState.numerator = precentState.numerator + 1;
           if (precentState.numerator === precentState.nodeCount) {
@@ -235,6 +235,17 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
       }
     });
     const reloadGen = () => {
+      const msgInfoTemp = props.msgInfo;
+      if (msgInfoTemp.imagesOptions) {
+        msgInfoTemp.imagesOptions = msgInfoTemp.imagesOptions.map((imgItem) => {
+          return {
+            url: "",
+            status: "queue_remaining",
+            precent: 0
+          };
+        });
+      }
+      emits("change", msgInfoTemp);
       fetchPaintingTask();
     };
     return (_ctx, _cache) => {
@@ -331,7 +342,8 @@ const _sfc_main = /* @__PURE__ */ common_vendor.defineComponent({
           "k": "DownloadImgModalRef"
         }),
         v: common_vendor.p({
-          dialogId: props.dialogId
+          dialogId: props.dialogId,
+          userId: props.userInfo.userId
         }),
         w: common_vendor.sr(UploadImgModalRef, "a106ba0d-3", {
           "k": "UploadImgModalRef"

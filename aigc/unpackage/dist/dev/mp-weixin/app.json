@@ -6,7 +6,9 @@
     "pages/userAgreement/userAgreement",
     "pages/editUserInfo/editUserInfo",
     "pages/historyDesign/historyDesign",
-    "pages/historyDownloadImg/historyDownloadImg"
+    "pages/historyDownloadImg/historyDownloadImg",
+    "pages/userNotifications/userNotifications",
+    "pages/memberCenter/memberCenter"
   ],
   "window": {
     "navigationBarTextStyle": "black",

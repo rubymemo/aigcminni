@@ -133,7 +133,9 @@
 	}
 	onMounted(async () => {
 		// 滚动
-		initScrollHeight()
+		timer.value = setTimeout(() => {
+			initScrollHeight()
+		}, 500)
 	})
 	// 上传数据
 	const putWorkData = async () => {

@@ -108,7 +108,7 @@
 			</view>
 		</view>
 
-		<DownloadImgModal ref="DownloadImgModalRef" :dialogId="props.dialogId"></DownloadImgModal>
+		<DownloadImgModal ref="DownloadImgModalRef" :dialogId="props.dialogId" :userId="props.userInfo.userId"></DownloadImgModal>
 		<UploadImgModal ref="UploadImgModalRef" @ok="uploadImgModalOk"></UploadImgModal>
 		<PreviewImgModal ref="PreviewImgModalRef" @ok="previewImgModalOnOk"></PreviewImgModal>
 	</view>
@@ -253,7 +253,8 @@
 			console.log('收到服务器内容：');
 			const msgData = JSON.parse(res.data);
 			console.log(msgData)
-			if (msgData.type === 'executed' && Number(msgData.data.node) == 100) {
+			// if (msgData.type === 'executed' && Number(msgData.data.node) == 100)
+			if (msgData.type === 'executing' && msgData.data.node === null) {
 				console.log('最终结果')
 				uni.closeSocket()
 	
@@ -271,7 +272,7 @@
 				nextTick(() => {
 					isGenLoading.value = false;
 				})
-			} else if (msgData.type === 'progress' || msgData.type === 'executing') {
+			} else if (msgData.type === 'progress' || (msgData.type === 'executing' && msgData.data.node !== null)) {
 				let precent = 0;
 				precentState.numerator = precentState.numerator + 1;
 				if (precentState.numerator === precentState.nodeCount) {
@@ -384,6 +385,18 @@
 		}
 	})
 	const reloadGen = () => {
+		const msgInfoTemp = props.msgInfo;
+		if (msgInfoTemp.imagesOptions) {
+			msgInfoTemp.imagesOptions = msgInfoTemp.imagesOptions
+				.map(imgItem => {
+					return {
+						url: '',
+						status: 'queue_remaining',
+						precent: 0
+					}
+				})
+		}
+		emits('change', msgInfoTemp);
 		fetchPaintingTask();
 	}
 </script>
