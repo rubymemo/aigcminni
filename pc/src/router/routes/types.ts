@@ -9,7 +9,7 @@ export type Component<T = any> =
 export interface AppRouteRecordRaw {
   path: string;
   name?: string | symbol;
-  meta?: RouteMeta;
+  meta?: Partial<RouteMeta>;
   redirect?: string;
   component: Component | string;
   children?: AppRouteRecordRaw[];

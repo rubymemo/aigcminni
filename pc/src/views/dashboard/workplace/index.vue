@@ -94,7 +94,7 @@ import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
 import { getUserInfo, logout } from '@/api/user';
 import { reactive } from 'vue';
-import TopBar from './components/top-bar.vue';
+import TopBar from '@/components/top-bar.vue';
 import { ImgOption } from '@/interface';
 
 const inputText = ref('');
