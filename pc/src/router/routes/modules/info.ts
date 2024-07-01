@@ -25,7 +25,25 @@ const Info: AppRouteRecordRaw = {
         roles: ['*'],
       },
     },
-  ],
+    {
+      path: 'history-creation',
+      name: 'historyCreation',
+      component: () => import('@/views/info/history-creation/index.vue'),
+      meta: {
+        title: '历史创作',
+        roles: ['*'],
+      },
+    },
+    {
+      path: 'history-download',
+      name: 'historyDownload',
+      component: () => import('@/views/info/history-download/index.vue'),
+      meta: {
+        title: '历史下载',
+        roles: ['*'],
+      },
+    },
+  ], 
 };
 
 export default Info;

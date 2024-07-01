@@ -8,6 +8,10 @@
             <div class="qrcode-container">
               <img :src="qrcode" alt="" />
             </div>
+            <div class="qrcode-tips">
+              <div>用微信扫码体验</div>
+              <div>移动版</div>
+            </div>
           </div>
         </template>
       </a-dropdown>
@@ -20,7 +24,12 @@
             <span class="iconfont icon-down"></span>
           </div>
           <template #content>
-            <a-doption @click="logoutAction">退出登录</a-doption>
+            <a-doption
+              v-for="item in dropOptions"
+              :key="item.label"
+              @click="item.action"
+              >{{ item.label }}</a-doption
+            >
           </template>
         </a-dropdown>
       </div>
@@ -44,6 +53,29 @@ const logoutAction = () => {
   localStorage.setItem('token', '');
   router.replace('/login');
 };
+
+const dropOptions = [
+  {
+    label: '历史创作',
+    action: () => router.push({ name: 'historyCreation' }),
+  },
+  {
+    label: '历史下载',
+    action: () => router.push({ name: 'historyDownload' }),
+  },
+  {
+    label: '账户设置',
+    action: () => router.push({ name: 'userSetting' }),
+  },
+  {
+    label: '消息中心',
+    action: () => router.push({ name: 'userMessage' }),
+  },
+  {
+    label: '退出登录 ',
+    action: logoutAction,
+  },
+];
 </script>
 
 <style lang="less">
@@ -148,6 +180,17 @@ const logoutAction = () => {
       height: 100%;
       width: 100%;
     }
+  }
+
+  .qrcode-tips {
+    color: rgb(107, 116, 143);
+    font-family: PingFang SC;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: 0px;
+    text-align: center;
+    margin-top: 8px;
   }
 }
 </style>
